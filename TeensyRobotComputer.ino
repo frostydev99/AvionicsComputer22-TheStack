@@ -9,12 +9,7 @@ void setup() {
 
 	Serial.begin(BAUD);		// issues sometime arise if this isn't done in setup
 
-	while(!Serial);			// loop until serial port is opened, stalls program
-
-
-
-
-
+	pinMode(LED_BUILTIN, OUTPUT);
 
 	Serial.println(F("Setup ran"));
 }
@@ -25,7 +20,9 @@ void setup() {
 void loop() {
 
 
-
+	digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+	delay(1000);
 
 
 }
+
