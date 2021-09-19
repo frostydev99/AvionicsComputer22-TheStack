@@ -22,9 +22,7 @@ public:
 //	virtual ~Loop(){}
 
 	virtual void onStart(uint32_t timestamp);
-
 	virtual void onLoop(uint32_t timestamp);
-
 	virtual void onStop(uint32_t timestamp);
 
 };

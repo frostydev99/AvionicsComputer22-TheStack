@@ -10,7 +10,7 @@
 
 /*******************************************************************************
  * A list of constants used by the robot computer board code. Includes physics
- * constants as well as constants determined through calibration.
+ * constants like PI, as well as system constants determined through calibration.
  *******************************************************************************/
 
 /*
@@ -18,41 +18,32 @@
  *
  * Commenting out this line should always result in the program running properly
  * upon startup, stray Serial.print() statements elsewhere in the code can cause the
- * program to stall without a serial connection present if called without Serial.begin()
+ * program to stall without a serial connection present and called before Serial.begin()
+ * for Arduino. Teensy USB hardware initialization is performed before setup() runs
  */
-//#define USE_SERIAL
-
-
-/* LOOPER CONSTANTS */
+#define USE_SERIAL						// enable calls to Serial such as print statements
 
 // Set to zero for loop as fast as possible
-#define DT_LOOPER 0.1//0.01							// seconds, 10 milliseconds or 100 Hz
-#define TOTAL_NUM_LOOPS 1
+#define LOOPER_PERIOD 100							// milliseconds, 10 ms or 100 Hz
+
+// Must be greater than or equal to 1
+#define TOTAL_LOOPS 1
 
 
-/* COMM BUS CONSTANTS */
 
-#define SERIAL_BAUD_RATE  115200		// 115200 baud (bits/s)
+/*
+ * COMM BUS CONSTANTS
+ */
+
 #define I2C_BUS_FREQUENCY 400000		// 400kHz(MPU6050 max)
 #define SPI_SCK_FREQUENCY 10000000		// 10MHz (LoRa max)
 
 
 
-/* ROBOT CONSTANTS */
+/* DEBUG CONSTANTS */
 
-//#define ROBOT_NUM_LOOPS 2 	// main loop, drivetrain loop
-
-// Electrical //
-
-
-
-// Physical //
-
-
-// Tuned //
-
-
-
+#define DEBUG_BAUD_RATE 115200
+//2000000
 
 
 #endif /* CONSTANTS_H_ */

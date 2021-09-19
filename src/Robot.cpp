@@ -7,28 +7,34 @@
 #include "Robot.h"
 
 /*
-* Constructor for the robot system object, should only be one instance, one robot per processor
-* @param looper is the running looper of the system manager
+* Constructor for the robot system object, should only be one instance, one main system per processor
 */
-Robot::Robot(Looper * looper){
-	runningLooper = looper;
-	robotState = Waiting;
-};
+Robot::Robot(){};
 
 
 /*
  * Init function for the system, should be run after instantiation
+ * Should take SPI/I2C/Serial objects as imput parameters?
  */
-void Robot::systemInit(){
+bool Robot::systemInit(){
 
-	runningLooper->registerLoop(robotLoop);		// robot system loop is registered first in order to be run first
-
-	//selfRighting->registerEnabledLoops(runningLooper);
-	//selfRighting->subsystemInit();
+	pinMode(LED_BUILTIN, OUTPUT);		// ! will conflict with CLK if using SPI !
 
 
-//	etc.
+	return true;
 
+}
+
+/*
+ * Function to register all loops to the system looper. The looper must have the
+ * total number of system loops predefined, TOTAL_LOOPS must equal the number of
+ * registerLoop() calls in this function, see Constants.h
+ * @param runningLooper is the looper instance of the system manager to call
+ * for adding loops
+ */
+void Robot::registerAllLoops(Looper * runningLooper){
+
+	runningLooper->registerLoop(robotLoop);
 
 }
 
@@ -47,7 +53,7 @@ void Robot::zeroAllSensors(){
  */
 void Robot::beginStateMachine(){
 
-	//Serial.println(F("START ROBOT LOOP"));
+	Serial.println(F("STARTED ROBOT LOOP"));
 	//zeroAllSensors();
 
 }
@@ -56,13 +62,8 @@ void Robot::beginStateMachine(){
 void Robot::updateStateMachine(){
 
 
-//	runningLooper->printOutput();//TODO Only for debug, func should be private, lazyyy
-//	Serial.println(driveTrain->getHeading());
-
 	digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-	//Serial.println(millis());
-
-
+	Serial.println(millis());
 
 
 }

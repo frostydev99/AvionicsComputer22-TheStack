@@ -4,7 +4,8 @@
  * Author: Peter Dentch
  *
  * Main .ino program file
- * Code developed for Teensy 4.0
+ * Code developed for Arduino
+ * and Teensy 4.0
  *
  */
 
@@ -13,15 +14,13 @@
 #include "SystemManager.h"
 
 
-SystemManager * sysMan;
+SystemManager * sysMan = new SystemManager();
 
 
 // The setup routine runs once when you press reset:
 void setup() {
 
-	sysMan = new SystemManager();
-	//Serial.begin(115200);
-	//Serial.println(F("Serial debug connected"));
+	sysMan->mainSetup();
 
 }
 
@@ -30,7 +29,5 @@ void setup() {
 void loop() {
 
 	sysMan->mainLoop();
-	//delay(10);
-	//Serial.println(millis());
 
 }

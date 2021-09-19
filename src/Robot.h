@@ -9,7 +9,8 @@
 
 #include "Arduino.h"
 
-//#include "../Constants.h"
+#include "../Constants.h"
+#include "SystemInterface.h"
 #include "loops/Looper.h"
 #include "loops/loop.h"
 
@@ -26,9 +27,10 @@
  */
 enum RobotState {
 
-	TESTING,
-	Waiting,
-	Driving
+	//TESTING,
+	//Waiting,
+	//Driving
+	IDLE
 };
 
 /*
@@ -37,18 +39,14 @@ enum RobotState {
  * DETAILS
  *
  */
-class Robot {
+class Robot : public SystemInterface {
 
 private:
 
-	Looper * runningLooper;					// looper instance so robot can register its subsystem loops on startup
-
-	RobotState robotState;					// initial state is Landed
+	RobotState robotState = IDLE;			// initial system state is IDLE
 
 
-//	MPU6050 * robotIMU = new MPU6050();
-
-
+//	MPU9250 * robotIMU = new MPU6050();
 
 //	DriveTrain * driveTrain = new DriveTrain(robotIMU);
 
@@ -56,7 +54,7 @@ private:
 
 public:
 
-	Robot(Looper * looper);
+	Robot();
 	//	Robot(){}
 
 	/* Robot loop functionality */
@@ -82,7 +80,8 @@ public:
 
 
 
-	void systemInit();
+	bool systemInit();
+	void registerAllLoops(Looper * runningLooper);
 
 	void zeroAllSensors();
 
@@ -91,8 +90,6 @@ public:
 	void endStateMachine();
 
 };
-
-
 
 
 #endif /* SRC_ROBOT_H_ */

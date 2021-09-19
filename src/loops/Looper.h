@@ -1,6 +1,6 @@
 /*
  * Looper.h
- * Created on: Sep 12, 2020
+ * Created on: Dec 20, 2020
  * Author: Peter Dentch
  */
 
@@ -15,6 +15,10 @@
 #include "Loop.h"
 
 
+#define LIST_SIZE TOTAL_LOOPS
+#define DT 	 	  LOOPER_PERIOD
+
+
 /*
  * Class for handling all loop functionality for the system, Loop objects (systems/subsystems) are
  * registered to this handler to be executed together at a set iteration time step.
@@ -25,20 +29,16 @@ class Looper {
 
 private:
 
-	const double period = DT_LOOPER;			// period for all fast loops of system
-	unsigned long val = 1000;
-	Metro loopTimer = Metro(1 * val);		// passed to timer in milliseconds
+	const uint32_t PERIOD = DT;					// period for all fast loops of system
+	Metro * loopTimer = new Metro(PERIOD);		// passed to timer in milliseconds
 
-	bool running_;								// is the Looper enabled and running?
+	const size_t TOTAL_NUM_LOOPS = LIST_SIZE;
+	Loop * loops_[LIST_SIZE] = {};				// list of all registered loops objects running, their pointers
+	uint8_t loopIndex_ = 0;						// index in loops_ for next registered loop
 
-	uint32_t timestamp_;						// last millis() timestamp of system loop execution
-	uint32_t dt_;								// keeping track of the loop execution period
-
-	uint8_t loopIndex;							// index in loops_ for next registered loop
-
-	//Loop testLoop = new Loop();
-
-	Loop * loops_[TOTAL_NUM_LOOPS] = {};				// list of all registered loops objects running, their pointers
+	bool running_ = false;						// is the Looper enabled and running?
+	uint32_t timestamp_ = 0;					// last millis() timestamp of system loop execution
+	uint32_t dt_ = 1;							// keeping track of the loop execution period
 
 
 public:
@@ -46,16 +46,16 @@ public:
 	Looper();
 //	~Looper(){}
 
-    void registerLoop(Loop * loop);
+    void registerLoop(Loop * systemLoop);
+    uint8_t checkLoopList();
 
-    void startLoops();
-	void stopLoops();
-	void runLoops();
+    bool startLoops();
+    bool runLoops();
+	bool stopLoops();
 
 	void printOutput();
 
 };
-
 
 
 #endif /* SRC_LOOPS_LOOPER_H_ */

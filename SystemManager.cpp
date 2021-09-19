@@ -1,6 +1,6 @@
 /*
  * SystemManager.cpp
- * Created on: Sep 12, 2021
+ * Created on: Sep 17, 2021
  * Author: Peter Dentch
  */
 
@@ -9,45 +9,37 @@
 /*
 * Constructor for this object SystemManager, should only be one instance running
 */
-SystemManager::SystemManager(){
-
-	state = Startup;
-	looper = new Looper();
-
-};
+SystemManager::SystemManager(){};
 
 /*
  * Setup function for the system manager
  *
  * When main system is instantiated, subsystems are fields which get defined but initialized in this function
  * Main system has SPI/I2C/Serial objects which are defined and passed to their subsystems
- * Subsystems have init functions and pin bindings/config of peripherals happen there, not in any class constructor
+ * Subsystems have init functions, pin bindings/config of peripherals happen there, not in any class constructor
  */
 void SystemManager::mainSetup(){
 
-	if(state != Startup){			// making sure this isn't run more than once
-		return;
-	}
-
-
 	Wire.begin();									// initialize I2C bus
-	Wire.setClock(i2c_freq);						// set its frequency
+	Wire.setClock(I2C_FREQ);						// set its frequency
 
-	SPI.begin();									// initialize SPI bus
-	// Test with setting higher freq SPI
+	//SPI.begin();									// initialize SPI bus
+	// Test with setting different higher freq SPI
+
+#ifdef USE_SERIAL
+	// "Serial.begin() is optional on Teensy. USB hardware initialization is performed before setup() runs.
+	// The baud rate input is ignored, and only used for Arduino compatibility."
+	Serial.begin(BAUD);								// initialize USB port serial, gotta debug somehow
+	Serial.println(F("Serial initialized"));
+#endif
 
 
-//#ifdef USE_SERIAL
-//
-	Serial.begin(baud);								// initialize USB port serial, gotta debug somehow
-	Serial.println(F("Serial debug connected"));
-//
+//#ifdef USE_ROBOT_SYSTEM
+	robot->systemInit();				// initializing system object
+	robot->registerAllLoops(looper);    // and registering its system/subsystem loops
 //#endif
 
 
-	robot->systemInit();				// initializing system object, registering all its subsystem loops
-
-	looper->startLoops();				// all subsystems with their loops and peripherals successful init, start
 
 }
 
@@ -58,40 +50,36 @@ void SystemManager::mainSetup(){
  */
 void SystemManager::mainLoop(){
 
-	if(state != Startup){					// be sure to never run loops before start loops
-		looper->runLoops();
-	}
-
-
+	// Main system state machine
 	switch(state){
+
+	// Startup state, for starting loops, which should run system/subsystem initialization code that
+	// doesn't need to run in setup() unlike hardware peripheral instances
 	case Startup:
-		mainSetup();
-		state = WaitForConnect;
+
+		// Don't attempt to run loops if they failed to start, stuck in this state
+		if(looper->startLoops()){	// start all loops, call all onStart() methods
+			state = Running;
+		}
+
 		break;
 
-	case WaitForConnect:
-//		if(Serial){			// ! didn't work with Serial, implement this for tele-op robot? (WiFi, XBEE, LoRa?)
-//			Serial.println(F("Serial debug connected"));
-			state = Running;
-//		}
-		break;
 
 	case Running:
-		//Serial.println(F("Running... ")); //Serial.println(millis());
 
-		//if(runCount == 0)looper->stopLoops();
-		//runCount--;
+		looper->runLoops();			// run all loops, call all onLoop() methods
 
-		//TODO
-		//check for Halting case or something that should stop loop running, external button
-		//make that state be set by a button on a pin, sets state = Halting in here
-		//In Halting:
-		//robot->systemSafeHalt
 		break;
+
 
 	default:
 		break;
+
+
 	}
 
 
+
 }
+
+
