@@ -1,2 +1,2 @@
-# Teensy Robot Computer
-Firmware for controlling the Land Maverick soil-sampling robotic drive base
+# AvionicsComputer22
+Firmware for use on high-power rocket embedded avionics systems, 2021-2022 development year
