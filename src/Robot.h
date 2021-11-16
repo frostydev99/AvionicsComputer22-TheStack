@@ -70,7 +70,7 @@ public:
 			robot_->beginStateMachine();
 		}
 		void onLoop(uint32_t timestamp){
-			robot_->updateStateMachine();
+			robot_->updateStateMachine(timestamp);
 
 		}
 		void onStop(uint32_t timestamp){
@@ -86,7 +86,7 @@ public:
 	void zeroAllSensors();
 
 	void beginStateMachine();
-	void updateStateMachine();
+	void updateStateMachine(uint32_t timestamp);
 	void endStateMachine();
 
 };

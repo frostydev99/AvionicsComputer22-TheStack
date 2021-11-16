@@ -9,7 +9,8 @@
 
 #include "Arduino.h"
 
-#include <Metro.h>
+//#include <Metro.h>						// MetroTimer was created as a local copy of Metro.h
+#include "../peripherals/MetroTimer.h"
 
 #include "../../Constants.h"
 #include "Loop.h"
@@ -29,8 +30,8 @@ class Looper {
 
 private:
 
-	const uint32_t PERIOD = DT;					// period for all fast loops of system
-	Metro * loopTimer = new Metro(PERIOD);		// passed to timer in milliseconds
+	const uint32_t PERIOD = DT;								// period for all fast loops of system
+	MetroTimer * loopTimer = new MetroTimer(PERIOD);		// passed to timer in milliseconds
 
 	const size_t TOTAL_NUM_LOOPS = LIST_SIZE;
 	Loop * loops_[LIST_SIZE] = {};				// list of all registered loops objects running, their pointers

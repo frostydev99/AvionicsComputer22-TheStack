@@ -57,17 +57,20 @@ bool Looper::startLoops(){
 	// Check if the looper isn't already running and all loops have been successfully registered
 	if(!running_ && allLoopsRegistered) {
 
-		uint32_t now = micros();
+		uint32_t now = millis();
 
 		for(size_t i = 0; i < TOTAL_NUM_LOOPS; i++) {
 
 			loops_[i]->onStart(now);
 		}
 
-		timestamp_ = micros();
+		timestamp_ = millis();
 		dt_ = timestamp_ - now;
 
 		running_ = true;
+
+		loopTimer->reset();			// allegedly helps prevent odd timestamp readings in onLoop()
+
 		return true;
 
 
@@ -87,7 +90,7 @@ bool Looper::runLoops(){
 	// Check if the looper is running and the timer has passed it's interval
 	if(running_ && loopTimer->check() == 1){
 
-		uint32_t now = micros();
+		uint32_t now = millis();
 
 		for(size_t i = 0; i < TOTAL_NUM_LOOPS; i++) {
 
@@ -120,7 +123,7 @@ bool Looper::stopLoops(){
 
 		running_ = false;
 
-		uint32_t now = micros();
+		uint32_t now = millis();
 
 		for(size_t i = 0; i < TOTAL_NUM_LOOPS; i++) {
 

@@ -18,7 +18,7 @@ Robot::Robot(){};
  */
 bool Robot::systemInit(){
 
-	pinMode(LED_BUILTIN, OUTPUT);		// ! will conflict with CLK if using SPI !
+	//pinMode(LED_BUILTIN, OUTPUT);		// ! will conflict with CLK if using SPI !
 
 
 	return true;
@@ -59,11 +59,12 @@ void Robot::beginStateMachine(){
 }
 
 
-void Robot::updateStateMachine(){
+void Robot::updateStateMachine(uint32_t timestamp){
 
 
-	digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-	Serial.println(millis());
+	//digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+	//Serial.println(millis());
+	Serial.println(timestamp);
 
 
 }

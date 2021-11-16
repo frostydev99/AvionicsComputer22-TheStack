@@ -23,7 +23,7 @@ void SystemManager::mainSetup(){
 	Wire.begin();									// initialize I2C bus
 	Wire.setClock(I2C_FREQ);						// set its frequency
 
-	//SPI.begin();									// initialize SPI bus
+	SPI.begin();									// initialize SPI bus
 	// Test with setting different higher freq SPI
 
 #ifdef USE_SERIAL
