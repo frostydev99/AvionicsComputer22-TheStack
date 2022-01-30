@@ -19,6 +19,14 @@
 //#include "peripheral/GyroAccel.h"
 //#include "peripheral/LoRaRadio.h"
 
+#include "peripherals/LoRaE32.h"
+
+
+// TODO make these properly
+#define PIN_M0 2
+#define PIN_M1 3
+#define PIN_AX 4
+
 
 /*
  * Robot has TODO primary states of autonomous operation throughout its mission which begins when the system is powered on
@@ -50,12 +58,15 @@ private:
 
 //	DriveTrain * driveTrain = new DriveTrain(robotIMU);
 
+//	LoRaComms * robotRadio = new LoRaComms();
+	LoRaE32 * transceiver = new LoRaE32(&Serial1, PIN_M0, PIN_M1, PIN_AX);
+
 
 
 public:
 
 	Robot();
-	//	Robot(){}
+	//	~Robot(){}
 
 	/* Robot loop functionality */
 	class RobotLoop : public Loop {

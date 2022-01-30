@@ -6,6 +6,7 @@
 
 #include "Robot.h"
 
+
 /*
 * Constructor for the robot system object, should only be one instance, one main system per processor
 */
@@ -19,6 +20,9 @@ Robot::Robot(){};
 bool Robot::systemInit(){
 
 	//pinMode(LED_BUILTIN, OUTPUT);		// ! will conflict with CLK if using SPI !
+
+	Serial1.begin(9600);
+	transceiver->init();
 
 
 	return true;
@@ -56,6 +60,8 @@ void Robot::beginStateMachine(){
 	Serial.println(F("STARTED ROBOT LOOP"));
 	//zeroAllSensors();
 
+	transceiver->PrintParameters();
+
 }
 
 
@@ -64,7 +70,13 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 	//digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 	//Serial.println(millis());
-	Serial.println(timestamp);
+
+	//float convert = 0.00293255131;
+	Serial.println(0.00293255131 * analogRead(A0) );
+
+	//Serial.println(timestamp);
+
+	//Serial.println();
 
 
 }
