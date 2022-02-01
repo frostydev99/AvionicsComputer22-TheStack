@@ -53,13 +53,16 @@ private:
 
 	RobotState robotState = IDLE;			// initial system state is IDLE
 
-
 //	MPU9250 * robotIMU = new MPU6050();
-
 //	DriveTrain * driveTrain = new DriveTrain(robotIMU);
 
-//	LoRaComms * robotRadio = new LoRaComms();
+
 	LoRaE32 * transceiver = new LoRaE32(&Serial1, PIN_M0, PIN_M1, PIN_AX);
+
+	struct DATA {
+	  uint8_t Count;
+	};
+	DATA MyData;
 
 
 

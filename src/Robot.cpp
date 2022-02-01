@@ -25,6 +25,7 @@ bool Robot::systemInit(){
 	transceiver->init();
 
 
+
 	return true;
 
 }
@@ -60,7 +61,14 @@ void Robot::beginStateMachine(){
 	Serial.println(F("STARTED ROBOT LOOP"));
 	//zeroAllSensors();
 
+	MyData.Count = 0;
+
+	transceiver->SetAirDataRate(2);		// 2 = B010 =  2.4kbps (default)
+										// 5 = B101 = 19.2kbps
+
+	transceiver->SaveParameters(PERMANENT);
 	transceiver->PrintParameters();
+
 
 }
 
@@ -70,13 +78,37 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 	//digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 	//Serial.println(millis());
-
-	//float convert = 0.00293255131;
-	Serial.println(0.00293255131 * analogRead(A0) );
-
 	//Serial.println(timestamp);
 
-	//Serial.println();
+	//float convert = 0.00293255131;
+	//Serial.println(0.00293255131 * analogRead(A0) );
+
+
+	// SENDING
+	MyData.Count++;
+
+	if(MyData.Count == 10 || MyData.Count == 13){
+		MyData.Count++;
+	}
+
+	transceiver->SendStruct(&MyData, sizeof(MyData));
+
+	Serial.write(13);				// CR
+	Serial.write(MyData.Count);
+	Serial.write(10);				// LF
+
+
+	// RECEIVING
+//	if(transceiver->available()) {
+//
+//		transceiver->GetStruct(&MyData, sizeof(MyData));
+//
+//		//Serial.println(MyData.Count);
+//		Serial.write(13);				// CR
+//		Serial.write(MyData.Count);
+//		Serial.write(10);				// LF
+//
+//	}
 
 
 }
