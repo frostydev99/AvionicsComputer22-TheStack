@@ -8,10 +8,18 @@
 #include <Wire.h>
 
 // ICM20948 Register Values
+#define ICM20948_PWR_MGMT_1          0x06
 #define ICM20948_ODR_ALIGN_EN        0x09
+
+#define ICM20948_ACCEL_OUT           0x2D // accel data registers begin
+#define ICM20948_GYRO_OUT            0x33 // gyro data registers begin
 
 #define ICM20948_REG_BANK_SEL        0x7F
 
+#define ICM20948_RESET               0x80
+
+// Register bits
+#define ICM20948_SLEEP               0x40
 
 struct Vector
 {
@@ -37,6 +45,8 @@ public:
 
     void printVector(Vector print);
 
+    Vector getGyroRawValues(); // TODO FOR TESTING ONLY
+
 private:
 
     uint8_t currBank;
@@ -55,7 +65,7 @@ private:
     void sleep(bool sleep);
 
     Vector getAccRawValues();
-    Vector getGyroRawValues();
+    // TODO FOR TESTING ONLY Vector getGyroRawValues();
     int16_t getTempRawValues();
 
     void complementaryFilter();

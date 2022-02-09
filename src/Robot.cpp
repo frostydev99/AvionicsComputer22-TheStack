@@ -65,6 +65,8 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	//digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 	//Serial.println(millis());
 	Serial.println(timestamp);
+	imu->readSensorData();
+	imu->printVector(imu->getGyroRawValues());
 
 
 }

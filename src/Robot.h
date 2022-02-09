@@ -14,11 +14,7 @@
 #include "loops/Looper.h"
 #include "loops/loop.h"
 
-//#include "subsystems/DriveTrain.h"
-
-//#include "peripheral/GyroAccel.h"
-//#include "peripheral/LoRaRadio.h"
-
+#include "peripherals/ICM20948.h"
 
 /*
  * Robot has TODO primary states of autonomous operation throughout its mission which begins when the system is powered on
@@ -45,12 +41,7 @@ private:
 
 	RobotState robotState = IDLE;			// initial system state is IDLE
 
-
-//	MPU9250 * robotIMU = new MPU6050();
-
-//	DriveTrain * driveTrain = new DriveTrain(robotIMU);
-
-
+	ICM20948 * imu = new ICM20948(0x68);
 
 public:
 
