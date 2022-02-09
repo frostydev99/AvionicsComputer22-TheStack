@@ -14,11 +14,7 @@
 #include "loops/Looper.h"
 #include "loops/loop.h"
 
-//#include "subsystems/DriveTrain.h"
-
-//#include "peripheral/GyroAccel.h"
-//#include "peripheral/LoRaRadio.h"
-
+#include "peripherals/MPL3115A2.h"
 
 /*
  * Robot has TODO primary states of autonomous operation throughout its mission which begins when the system is powered on
@@ -44,6 +40,7 @@ class Robot : public SystemInterface {
 private:
 
 	RobotState robotState = IDLE;			// initial system state is IDLE
+	MPL3115A2 * baro_ = new MPL3115A2();
 
 
 //	MPU9250 * robotIMU = new MPU6050();
@@ -71,14 +68,12 @@ public:
 		}
 		void onLoop(uint32_t timestamp){
 			robot_->updateStateMachine(timestamp);
-
+			robot_->baro_->update();
 		}
 		void onStop(uint32_t timestamp){
 			robot_->endStateMachine();
 		}
 	} * robotLoop = new RobotLoop(this);		// instantiate the main system loop and pass it the system instance
-
-
 
 	bool systemInit();
 	void registerAllLoops(Looper * runningLooper);

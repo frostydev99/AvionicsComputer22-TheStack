@@ -19,7 +19,7 @@ Robot::Robot(){};
 bool Robot::systemInit(){
 
 	//pinMode(LED_BUILTIN, OUTPUT);		// ! will conflict with CLK if using SPI !
-
+	baro_->init();
 
 	return true;
 
