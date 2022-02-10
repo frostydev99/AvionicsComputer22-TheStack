@@ -60,7 +60,18 @@ private:
 	LoRaE32 * transceiver = new LoRaE32(&Serial1, PIN_M0, PIN_M1, PIN_AX);
 
 	struct DATA {
-	  uint8_t Count;
+	  uint8_t Count   = 0;
+	  uint8_t count1  = 1;
+	  uint8_t count2  = 2;
+	  uint8_t count3  = 3;
+	  uint8_t count4  = 4;
+	  uint8_t count5  = 5;
+	  uint8_t count6  = 6;
+	  uint8_t count7  = 7;
+	  uint8_t count8  = 8;
+	  uint8_t count9  = 9;
+	  uint8_t count10 = 10;
+	  uint8_t count11 = 11;
 	};
 	DATA MyData;
 

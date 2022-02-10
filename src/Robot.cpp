@@ -61,7 +61,7 @@ void Robot::beginStateMachine(){
 	Serial.println(F("STARTED ROBOT LOOP"));
 	//zeroAllSensors();
 
-	MyData.Count = 0;
+
 
 	transceiver->SetAirDataRate(5);		// 2 = B010 =  2.4kbps (default)
 										// 5 = B101 = 19.2kbps
@@ -85,17 +85,21 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 
 	// SENDING
-//	MyData.Count++;
+//	//MyData.Count++;
 //
-//	//if(MyData.Count == 10 || MyData.Count == 13){
-//	//	MyData.Count++;
-//	//}
+//	if(MyData.Count == 255){
+//		MyData.Count = 0;
+//	} else {
+//		MyData.Count++;
+//	}
 //
 //	transceiver->SendStruct(&MyData, sizeof(MyData));
 //
 //	//Serial.write(13);				// CR
 //	//Serial.write(MyData.Count);
 //	//Serial.write(10);				// LF
+//
+//	Serial.print(F("Sent: "));
 //	Serial.println(MyData.Count);
 
 
@@ -107,8 +111,23 @@ void Robot::updateStateMachine(uint32_t timestamp){
 		//Serial.write(13);				// CR
 		//Serial.write(MyData.Count);
 		//Serial.write(10);				// LF
-		Serial.println(MyData.Count);
 
+		//Serial.print(timestamp); Serial.print(F(": "));
+		//Serial.println(MyData.Count);
+
+		Serial.print(MyData.Count); Serial.print(F(", "));
+		Serial.print(MyData.count1); Serial.print(F(", "));
+		Serial.print(MyData.count2); Serial.print(F(", "));
+		Serial.print(MyData.count3); Serial.print(F(", "));
+		Serial.print(MyData.count4); Serial.print(F(", "));
+		Serial.print(MyData.count5); Serial.print(F(", "));
+		Serial.print(MyData.count6); Serial.print(F(", "));
+		Serial.print(MyData.count7); Serial.print(F(", "));
+		Serial.print(MyData.count8); Serial.print(F(", "));
+		Serial.print(MyData.count9); Serial.print(F(", "));
+		Serial.print(MyData.count10); Serial.print(F(", "));
+		Serial.print(MyData.count11); Serial.print(F(", "));
+		Serial.println();
 	}
 
 
