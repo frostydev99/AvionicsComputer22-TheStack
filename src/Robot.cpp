@@ -63,7 +63,7 @@ void Robot::beginStateMachine(){
 
 	MyData.Count = 0;
 
-	transceiver->SetAirDataRate(2);		// 2 = B010 =  2.4kbps (default)
+	transceiver->SetAirDataRate(5);		// 2 = B010 =  2.4kbps (default)
 										// 5 = B101 = 19.2kbps
 
 	transceiver->SaveParameters(PERMANENT);
@@ -85,30 +85,31 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 
 	// SENDING
-	MyData.Count++;
-
-	if(MyData.Count == 10 || MyData.Count == 13){
-		MyData.Count++;
-	}
-
-	transceiver->SendStruct(&MyData, sizeof(MyData));
-
-	Serial.write(13);				// CR
-	Serial.write(MyData.Count);
-	Serial.write(10);				// LF
+//	MyData.Count++;
+//
+//	//if(MyData.Count == 10 || MyData.Count == 13){
+//	//	MyData.Count++;
+//	//}
+//
+//	transceiver->SendStruct(&MyData, sizeof(MyData));
+//
+//	//Serial.write(13);				// CR
+//	//Serial.write(MyData.Count);
+//	//Serial.write(10);				// LF
+//	Serial.println(MyData.Count);
 
 
 	// RECEIVING
-//	if(transceiver->available()) {
-//
-//		transceiver->GetStruct(&MyData, sizeof(MyData));
-//
-//		//Serial.println(MyData.Count);
-//		Serial.write(13);				// CR
-//		Serial.write(MyData.Count);
-//		Serial.write(10);				// LF
-//
-//	}
+	if(transceiver->available()) {
+
+		transceiver->GetStruct(&MyData, sizeof(MyData));
+
+		//Serial.write(13);				// CR
+		//Serial.write(MyData.Count);
+		//Serial.write(10);				// LF
+		Serial.println(MyData.Count);
+
+	}
 
 
 }
