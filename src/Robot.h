@@ -72,6 +72,12 @@ private:
 	  uint8_t count9  = 9;
 	  uint8_t count10 = 10;
 	  uint8_t count11 = 11;
+	  uint8_t count12 = 12;
+	  uint8_t count13 = 13;
+	  uint8_t count14 = 14;
+	  uint8_t count15 = 15;
+	  uint8_t count16 = 16;
+	  uint8_t count17 = 17;
 	};
 	DATA MyData;
 

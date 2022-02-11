@@ -61,10 +61,21 @@ void Robot::beginStateMachine(){
 	Serial.println(F("STARTED ROBOT LOOP"));
 	//zeroAllSensors();
 
+	//transceiver->SetMode();
+	transceiver->SetAddressH(0);
+	transceiver->SetAddressL(0);
+	transceiver->SetChannel(1);
+	//transceiver->SetOptions();
 
-
-	transceiver->SetAirDataRate(5);		// 2 = B010 =  2.4kbps (default)
-										// 5 = B101 = 19.2kbps
+	transceiver->SetParityBit(0);	 		// SpeedParityBit
+	transceiver->SetUARTBaudRate(3);		// 3 = 9600 baud
+	transceiver->SetAirDataRate(5);			// 2 = B010 =  2.4kbps (default)
+											// 5 = B101 = 19.2kbps
+	transceiver->SetTransmissionMode(0);	// OptionTrans
+	transceiver->SetPullupMode(1);			// OptionPullup
+	transceiver->SetWORTIming(0);			// OptionWakeup
+	transceiver->SetFECMode(1);				// OptionFEC
+	transceiver->SetTransmitPower(0);		// default
 
 	transceiver->SaveParameters(PERMANENT);
 	transceiver->PrintParameters();
@@ -85,8 +96,6 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 
 	// SENDING
-//	//MyData.Count++;
-//
 //	if(MyData.Count == 255){
 //		MyData.Count = 0;
 //	} else {
@@ -108,10 +117,6 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 		transceiver->GetStruct(&MyData, sizeof(MyData));
 
-		//Serial.write(13);				// CR
-		//Serial.write(MyData.Count);
-		//Serial.write(10);				// LF
-
 		//Serial.print(timestamp); Serial.print(F(": "));
 		//Serial.println(MyData.Count);
 
@@ -127,6 +132,12 @@ void Robot::updateStateMachine(uint32_t timestamp){
 		Serial.print(MyData.count9); Serial.print(F(", "));
 		Serial.print(MyData.count10); Serial.print(F(", "));
 		Serial.print(MyData.count11); Serial.print(F(", "));
+		Serial.print(MyData.count12); Serial.print(F(", "));
+		Serial.print(MyData.count13); Serial.print(F(", "));
+		Serial.print(MyData.count14); Serial.print(F(", "));
+		Serial.print(MyData.count15); Serial.print(F(", "));
+		Serial.print(MyData.count16); Serial.print(F(", "));
+		Serial.print(MyData.count17);
 		Serial.println();
 	}
 
