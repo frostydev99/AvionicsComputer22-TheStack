@@ -66,7 +66,7 @@ uint8_t ICM20948::resetSensor()
  */
 void ICM20948::sleep(bool sleep)
 {
-	regVal = readRegister8(0, ICM20948_PWR_MGMT_1);
+	regVal = this->readRegister8(0, ICM20948_PWR_MGMT_1);
 	if (sleep)
 	{
 		regVal |= ICM20948_SLEEP; // TODO what this doing?
@@ -100,8 +100,8 @@ void ICM20948::readSensorData(){
  * @param Lbyte TODO
  * @return TODO
  */
-int16_t ICM20948::processHighLowBytes(int8_t Hbyte, int8_t Lbyte){
-	return (int16_t) ((Hbyte << 8)|Lbyte) * 1.0; // TODO what is this casting?
+int16_t ICM20948::processHighLowBytes(uint8_t Hbyte, uint8_t Lbyte){
+	return (int16_t) ((Hbyte << 8)|Lbyte); // TODO what is this casting?
 }
 
 /*
@@ -110,9 +110,9 @@ int16_t ICM20948::processHighLowBytes(int8_t Hbyte, int8_t Lbyte){
  */
 Vector ICM20948::getAccRawValues(){
 	Vector accRaw;
-	accRaw.x = processHighLowBytes(buffer[0],buffer[1]) * 1.0; // TODO what is this casting?
-	accRaw.y = processHighLowBytes(buffer[2],buffer[3]) * 1.0; // TODO what is this casting?
-	accRaw.z = processHighLowBytes(buffer[4],buffer[5]) * 1.0; // TODO what is this casting?
+	accRaw.x = processHighLowBytes(buffer[0],buffer[1]); // TODO what is this casting?
+	accRaw.y = processHighLowBytes(buffer[2],buffer[3]); // TODO what is this casting?
+	accRaw.z = processHighLowBytes(buffer[4],buffer[5]); // TODO what is this casting?
 	return accRaw;
 }
 
@@ -122,9 +122,9 @@ Vector ICM20948::getAccRawValues(){
  */
 Vector ICM20948::getGyroRawValues(){
 	Vector gyroRaw;
-	gyroRaw.x = processHighLowBytes(buffer[6],buffer[7])   * 1.0; // TODO what is this casting?
-	gyroRaw.y = processHighLowBytes(buffer[8],buffer[9])   * 1.0; // TODO what is this casting?
-	gyroRaw.z = processHighLowBytes(buffer[10],buffer[11]) * 1.0; // TODO what is this casting?
+	gyroRaw.x = processHighLowBytes(buffer[6],buffer[7]); // TODO what is this casting?
+	gyroRaw.y = processHighLowBytes(buffer[8],buffer[9]); // TODO what is this casting?
+	gyroRaw.z = processHighLowBytes(buffer[10],buffer[11]); // TODO what is this casting?
 	return gyroRaw;
 }
 
@@ -163,4 +163,43 @@ uint8_t ICM20948::writeRegister8(uint8_t bank, uint8_t reg, uint8_t val){
 	_wire->write(val);
 
 	return _wire->endTransmission();
+}
+
+uint8_t ICM20948::readRegister8(uint8_t bank, uint8_t reg){
+    switchBank(bank);
+    uint8_t regValue = 0;
+    _wire->beginTransmission(I2C_addr);
+    _wire->write(reg);
+    _wire->endTransmission(false);
+    _wire->requestFrom(I2C_addr,1);
+    if(_wire->available()){
+        regValue = _wire->read();
+    }
+    return regValue;
+}
+int16_t ICM20948::readRegister16(uint8_t bank, uint8_t reg){
+    switchBank(bank);
+    uint8_t MSByte = 0, LSByte = 0;
+    int16_t reg16Val = 0;
+    _wire->beginTransmission(I2C_addr);
+    _wire->write(reg);
+    _wire->endTransmission(false);
+    _wire->requestFrom(I2C_addr,2);
+    if(_wire->available()){
+        MSByte = _wire->read();
+        LSByte = _wire->read();
+    }
+    reg16Val = (MSByte<<8) + LSByte;
+    return reg16Val;
+}
+uint8_t ICM20948::writeRegister16(uint8_t bank, uint8_t reg, int16_t val){
+    switchBank(bank);
+    int8_t MSByte = (int8_t)((val>>8) & 0xFF);
+    uint8_t LSByte = val & 0xFF;
+    _wire->beginTransmission(I2C_addr);
+    _wire->write(reg);
+    _wire->write(MSByte);
+    _wire->write(LSByte);
+
+    return _wire->endTransmission();
 }

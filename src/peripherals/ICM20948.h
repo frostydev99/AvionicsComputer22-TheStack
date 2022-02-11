@@ -23,9 +23,9 @@
 
 struct Vector
 {
-    float x;
-    float y;
-    float z;
+    int16_t x;
+    int16_t y;
+    int16_t z;
 };
 
 class ICM20948
@@ -46,6 +46,7 @@ public:
     void printVector(Vector print);
 
     Vector getGyroRawValues(); // TODO FOR TESTING ONLY
+    Vector getAccRawValues();  //TODO FOR TESTING ONLY
 
 private:
 
@@ -59,12 +60,10 @@ private:
     uint8_t writeRegister16(uint8_t bank, uint8_t reg, int16_t val);
     uint8_t readRegister8(uint8_t bank, uint8_t reg);
     int16_t readRegister16(uint8_t bank, uint8_t reg);
-    int16_t processHighLowBytes(int8_t Hbyte, int8_t Lbyte);
+    int16_t processHighLowBytes(uint8_t Hbyte, uint8_t Lbyte);
 
     uint8_t resetSensor();
     void sleep(bool sleep);
-
-    Vector getAccRawValues();
     // TODO FOR TESTING ONLY Vector getGyroRawValues();
     int16_t getTempRawValues();
 

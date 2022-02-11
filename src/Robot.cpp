@@ -52,7 +52,13 @@ void Robot::zeroAllSensors(){
  * Configuring robot subsystems for start of mission states sequence
  */
 void Robot::beginStateMachine(){
-
+	while(!Serial) {}
+	  if(!imu->init()){
+	    Serial.println("ICM20948 does not respond");
+	  }
+	  else{
+	    Serial.println("ICM20948 is connected");
+	  }
 	Serial.println(F("STARTED ROBOT LOOP"));
 	//zeroAllSensors();
 
@@ -64,9 +70,9 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 	//digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 	//Serial.println(millis());
-	Serial.println(timestamp);
+	//	Serial.println(timestamp);
 	imu->readSensorData();
-	imu->printVector(imu->getGyroRawValues());
+	imu->printVector(imu->getAccRawValues());
 
 
 }
