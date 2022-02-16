@@ -43,14 +43,21 @@ float MPL3115A2::readPressure() {
     Wire.write(MPL3115A2_REGISTER_PRESSURE_MSB);//Accessing Pressure register of barometer
     Wire.endTransmission(false);//Ending transmission, no longer writing to bus
     Wire.requestFrom(MPL3115A2_ADDRESS, 3, false);//Request three bytes from barometer
-    uint32_t pressure = Wire.read();
-    pressure <<= 8;
-    pressure |= Wire.read();
-    pressure <<= 8;
-    pressure |= Wire.read();
-    pressure >>= 4;
-    float reading = pressure;
-    return reading / 4.0;
+
+    uint8_t msb, csb, lsb;
+    msb = Wire.read();
+    csb = Wire.read();
+    lsb = Wire.read();
+
+    // Obtain integer part of the pressure reading
+    uint32_t integerPart = (msb << 10) | (csb << 2) | (lsb >> 6);
+
+    // Get fractional part
+    uint8_t fractionalPart = ((lsb >> 4) & 3);
+
+    // Integer and fractional parts combined
+    float reading = integerPart + (fractionalPart * 0.25);
+    return reading;
 }
 
 /*

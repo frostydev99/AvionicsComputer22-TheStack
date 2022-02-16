@@ -19,7 +19,7 @@ Robot::Robot(){};
 bool Robot::systemInit(){
 
 	//pinMode(LED_BUILTIN, OUTPUT);		// ! will conflict with CLK if using SPI !
-	baro_->init();
+	baro->init();
 
 	return true;
 
@@ -66,6 +66,8 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	//Serial.println(millis());
 	Serial.println(timestamp);
 
+	float currentPressure = baro->readPressure();
+	Serial.println(currentPressure);
 
 }
 

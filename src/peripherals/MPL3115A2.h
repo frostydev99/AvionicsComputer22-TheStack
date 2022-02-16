@@ -18,7 +18,6 @@ private:
     float altitude;
     float maxAltitudeReading;
     float zeroAltitude;
-    float readPressure();
     float readAltitude();
     bool checkLaunched();
     bool checkApogee();
@@ -31,6 +30,7 @@ public:
     void init();
     void update();
     void disable();
+    float readPressure();
     float getPressure();
     float getAltitude();
     bool hasLaunched;
