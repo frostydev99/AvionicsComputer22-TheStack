@@ -28,16 +28,44 @@ void MPL3115A2::disable(){
 }
 
 /*
+ * Clears then sets the OST bit which causes the sensor to immediately take
+ * another reading, needed to sample faster than 1Hz
+ */
+void MPL3115A2::toggleOneShot() {
+	uint8_t ctrl_reg1 = read8I2C(MPL3115A2_CTRL_REG1); // Read the barometer's current settings
+	ctrl_reg1 &= ~(1<<1); // Clear OST bit
+	write8I2C(MPL3115A2_CTRL_REG1, ctrl_reg1);
+
+	ctrl_reg1 = read8I2C(MPL3115A2_CTRL_REG1); // Read the settings to be safe
+	ctrl_reg1 |= (1<<1); // Set the OST bit
+	write8I2C(MPL3115A2_CTRL_REG1, ctrl_reg1);
+}
+
+/*
+ * Polls the barometer for its status, pressure, and temperature registers
+ */
+void MPL3115A2::pollSensor(uint8_t* buffer) {
+	toggleOneShot();
+
+	Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
+	Wire.write(MPL3115A2_REGISTER_DR_STATUS);//Accessing status register of the barometer
+	Wire.endTransmission(false);//Ending transmission, no longer writing to bus
+	Wire.requestFrom(MPL3115A2_ADDRESS, 6, false);//Request three bytes from barometer
+
+	buffer[0] = Wire.read(); // Barometer status
+	buffer[1] = Wire.read(); // Pressure MSB
+	buffer[2] = Wire.read(); // Pressure CSB
+	buffer[3] = Wire.read(); // Pressure LSB
+	buffer[4] = Wire.read(); // Temperature MSB
+	buffer[5] = Wire.read(); // Temperature LSB
+}
+
+/*
  * Function for reading the current pressure
  * @return pressure in Pascals
  */
 float MPL3115A2::readPressure() {
-
-    Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
-    Wire.write(MPL3115A2_CTRL_REG1);//Accessing Control register 1 of barometer
-    uint8_t ctrl_reg1 = B00000010;//sets control register to immediately read barometer
-    Wire.write(ctrl_reg1);
-    Wire.endTransmission(false);//Ending transmission, no longer writing to bus
+	toggleOneShot();
 
     Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
     Wire.write(MPL3115A2_REGISTER_PRESSURE_MSB);//Accessing Pressure register of barometer
@@ -61,16 +89,32 @@ float MPL3115A2::readPressure() {
 }
 
 /*
+ * Function for reading the current temperature
+ * @return temperature in Celsius
+ */
+float MPL3115A2::readTemperature() {
+	toggleOneShot();
+
+	Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
+	Wire.write(MPL3115A2_REGISTER_TEMPERATURE_MSB);//Accessing Pressure register of barometer
+	Wire.endTransmission(false);//Ending transmission, no longer writing to bus
+	Wire.requestFrom(MPL3115A2_ADDRESS, 2, false);//Request three bytes from barometer
+
+	uint8_t lsb;
+	int8_t msb = Wire.read();
+	lsb = Wire.read();
+
+	uint8_t fractionalPart = (lsb >> 4);
+	float reading = msb + (fractionalPart * 0.0625);
+	return reading;
+}
+
+/*
  * Function for reading the current altitude
  * @return altitude in meters
  */
 float MPL3115A2::readAltitude() {
-
-    Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
-    Wire.write(MPL3115A2_CTRL_REG1);//Accessing Control register 1 of barometer
-    uint8_t ctrl_reg1 = B10000010;//sets control register to immediately read barometer in altitude mode
-    Wire.write(ctrl_reg1);
-    Wire.endTransmission(false);//Ending transmission, no longer writing to bus
+	toggleOneShot();
 
     Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
     Wire.write(MPL3115A2_REGISTER_PRESSURE_MSB);//Accessing Pressure register of barometer
@@ -146,17 +190,30 @@ float MPL3115A2::getAltitude() {
     return this->altitude - this->zeroAltitude;
 }
 
+/*
+ * Reads a byte from the given register address
+ * @params regAddress - the address of the register to access
+ * @return the byte read from the given register
+ */
+uint8_t MPL3115A2::read8I2C(uint8_t regAddress) {
+	Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
+	Wire.write(regAddress);//Accessing input register of barometer
+	Wire.endTransmission(false);//Ending transmission, no longer writing to bus
+	Wire.requestFrom(MPL3115A2_ADDRESS, 1, false);//Request one byte from barometer
+	return Wire.read();//return read byte
 
-
-
+}
 
 /*
-uint8_t Baro_mpl3115A2::read8(uint8_t address) {
-    Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
-    Wire.write(address);//Accessing input register of barometer
-    Wire.endTransmission(false);//Ending transmission, no longer writing to bus
-    Wire.requestFrom(MPL3115A2_ADDRESS, 1, false);//Request one byte from barometer
-    return Wire.read();//return read byte
+ * Writes a byte to a given register
+ * @params regAddress - the register address to access
+ * @params value - the byte to write to the given register
+ * @return void
+ */
+void MPL3115A2::write8I2C(uint8_t regAddress, uint8_t value) {
+	Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
+	Wire.write(regAddress);//Accessing Control register 1 of barometer
+	Wire.write(value);
+	Wire.endTransmission(false);//Ending transmission, no longer writing to bus
 }
-*/
 

@@ -69,6 +69,9 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	float currentPressure = baro->readPressure();
 	Serial.println(currentPressure);
 
+	float currentTemperature = baro->readTemperature();
+	Serial.println(currentTemperature);
+
 }
 
 
