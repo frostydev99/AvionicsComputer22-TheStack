@@ -7,9 +7,14 @@
 
 #include <Wire.h>
 
-// ICM20948 Register Values
+#define ICM20948_ADDRESS			 0x68
+
+// ICM20948 register addresses
 #define ICM20948_PWR_MGMT_1          0x06
 #define ICM20948_ODR_ALIGN_EN        0x09
+
+#define GYRO_CONFIG_1				 0x01	// Register ID in bank 2
+#define ACCEL_CONFIG_1				 0x14	// Register ID in bank 2
 
 #define ICM20948_ACCEL_OUT           0x2D // accel data registers begin
 #define ICM20948_GYRO_OUT            0x33 // gyro data registers begin
@@ -18,8 +23,16 @@
 
 #define ICM20948_RESET               0x80
 
-// Register bits
+
+// ICM20948 register data bits
 #define ICM20948_SLEEP               0x40
+
+#define PLUS_MINUS_2G				 0
+#define PLUS_MINUS_4G				 1
+#define PLUS_MINUS_8G				 2
+#define PLUS_MINUS_16G				 3
+
+
 
 struct Vector
 {
@@ -40,6 +53,8 @@ public:
     ICM20948(uint8_t address);
 
     bool init();
+    void setAccScale(uint8_t value);
+    void setGyroScare(uint8_t value);
 
     void readSensorData();
 
@@ -50,11 +65,19 @@ public:
     Vector getGyroRawValues(); // TODO FOR TESTING ONLY
     Vector getAccRawValues();  //TODO FOR TESTING ONLY
 
+    int16_t getTempRawValues();
+
+    uint8_t getPlusMinus2Gs();
+    uint8_t getPlusMinus4Gs();
+    uint8_t getPlusMinus8Gs();
+    uint8_t getPlusMinus16Gs();
+
+
 private:
 
     uint8_t currBank;
     uint8_t regVal;
-    uint8_t SensorRegister[14];
+    uint8_t SensorRegister[14];			// last polled sensor register values stored here
 
     void switchBank(uint8_t newBank);
 
@@ -67,9 +90,12 @@ private:
     uint8_t resetSensor();
     void sleep(bool sleep);
     // TODO FOR TESTING ONLY Vector getGyroRawValues();
-    int16_t getTempRawValues();
+
 
     void complementaryFilter();
+
+    uint8_t read8I2C(uint8_t regAddress);
+    void write8I2C(uint8_t regAddress, uint8_t value);
 
 };
 

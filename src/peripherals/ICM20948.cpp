@@ -93,6 +93,33 @@ bool ICM20948::init()
 	return true; //TODO should this return true?
 }
 
+
+/*
+ * Set the ACCEL_FS_SEL register to configure the sensitivity range of measurements
+ * @param value is 0-3 to set the sensitivity
+ * 0: +-2g
+ * 1: +-4g
+ * 2: +-8g
+ * 3: +-16g
+ */
+void ICM20948::setAccScale(uint8_t value) {
+
+    if(value > 3) value = 3; 			// ACCEL_FS_SEL cannot be larger than B011
+    value <<= 1;           				// align it for the ACCEL_CONFIG register
+
+	switchBank(2);						// register ID is for bank 2
+
+	uint8_t setting = 0;
+	setting = read8I2C(ACCEL_CONFIG_1);
+
+	setting &= B11111001;				// clear out old ACCEL_FS_SEL bits
+	setting |= value;					// mask in new ACCEL_FS_SEL bits
+
+	write8I2C(ACCEL_CONFIG_1, setting);
+
+}
+
+
 /*
  * TODO comment this boy
  * @return TODO
@@ -123,19 +150,25 @@ void ICM20948::sleep(bool sleep)
 }
 
 /*
- * TODO comment this boy
+ * Read all data from the 14 IMU data registers (ACCELXYZ, GYROXYZ, TEMP)
+ * and save it to a buffer in this class for parsing/reading
  */
 void ICM20948::readSensorData(){
-	switchBank(0); // TODO do we need to set this every time?
+
+	switchBank(0); 				// Should be done every time
+
 	_wire->beginTransmission(I2C_addr);
 	_wire->write(ICM20948_ACCEL_OUT);
 	_wire->endTransmission(false);
+
 	_wire->requestFrom(I2C_addr,14);
-	if(_wire->available()){
-		for(int i=0; i<14;i++){
-			this->SensorRegister[i] = _wire->read();
-		}
+
+	for(uint8_t i = 0; i < 14; i++){
+
+		this->SensorRegister[i] = _wire->read();
+
 	}
+
 }
 
 /*
@@ -193,6 +226,24 @@ void ICM20948::printVector(Vector print){
 	Serial.print("\n");
 }
 
+
+uint8_t ICM20948::getPlusMinus2Gs() {
+	return PLUS_MINUS_2G;
+}
+
+uint8_t ICM20948::getPlusMinus4Gs() {
+	return PLUS_MINUS_4G;
+}
+
+uint8_t ICM20948::getPlusMinus8Gs() {
+	return PLUS_MINUS_8G;
+}
+
+uint8_t ICM20948::getPlusMinus16Gs() {
+	return PLUS_MINUS_16G;
+}
+
+
 /*
  * TODO comment this boy
  * @param bank TODO
@@ -246,4 +297,30 @@ uint8_t ICM20948::writeRegister16(uint8_t bank, uint8_t reg, int16_t val){
     _wire->write(LSByte);
 
     return _wire->endTransmission();
+}
+
+
+/*
+ *
+ */
+uint8_t ICM20948::read8I2C(uint8_t regAddress) {
+
+    _wire->beginTransmission(ICM20948_ADDRESS);
+    _wire->write(regAddress);        			// Address to read data from
+    _wire->endTransmission(false);   		// Send data to I2C with option for a repeated start
+    _wire->requestFrom(ICM20948_ADDRESS, 1);   // Request the data
+    return Wire.read();
+
+}
+
+/*
+ *
+ */
+void ICM20948::write8I2C(uint8_t regAddress, uint8_t value) {
+
+	_wire->beginTransmission(ICM20948_ADDRESS);
+	_wire->write(regAddress);
+	_wire->write(value);
+	_wire->endTransmission(true);
+
 }
