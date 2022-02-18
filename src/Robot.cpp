@@ -60,6 +60,18 @@ void Robot::beginStateMachine(){
 	    Serial.println("ICM20948 is connected");
 	  }
 	Serial.println(F("STARTED ROBOT LOOP"));
+	Serial.print("Accel X");
+	Serial.print(",");
+	Serial.print("Accel Y");
+	Serial.print(",");
+	Serial.print("Accel Z");
+	Serial.print(",");
+	Serial.print("Gyro X");
+	Serial.print(",");
+	Serial.print("Gyro Y");
+	Serial.print(",");
+	Serial.print("Gyro Z");
+	Serial.print("\n");
 	//zeroAllSensors();
 
 }
@@ -67,12 +79,29 @@ void Robot::beginStateMachine(){
 
 void Robot::updateStateMachine(uint32_t timestamp){
 
+	uint8_t * timestampBytes = (uint8_t *) &timestamp;
 
-	//digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-	//Serial.println(millis());
-	//	Serial.println(timestamp);
+	// Data start bytes
+	Serial.write(83); // S
+	Serial.write(84); // T
+	Serial.write(82); // R
+	Serial.write(84); // T
+
+    Serial.write(84); // T - Timestamp
+    Serial.write(83); // S
+    Serial.write(timestampBytes[3]);
+    Serial.write(timestampBytes[2]);
+    Serial.write(timestampBytes[1]);
+    Serial.write(timestampBytes[0]);
+
 	imu->readSensorData();
-	imu->printVector(imu->getAccRawValues());
+	imu->printBuffer();
+
+    // Data end bytes
+    Serial.write(69); // E
+    Serial.write(78); // N
+    Serial.write(68); // D
+    Serial.write(66); // B
 
 
 }

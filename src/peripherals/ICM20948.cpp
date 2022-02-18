@@ -32,7 +32,51 @@ void ICM20948::switchBank(uint8_t bank)
 		_wire->endTransmission(false);
 	}
 }
+void ICM20948::printBuffer(){
+//	for(int i = 0; i<14;i++){
+//		Serial.print(SensorRegister[i]);
+//		Serial.print("\t");
+//	}
 
+			// Accelerometer x-axis
+			Serial.write(65); // A
+			Serial.write(88); // X
+			Serial.write(SensorRegister[0]);
+			Serial.write(SensorRegister[1]);
+
+			// Accelerometer y-axis
+			Serial.write(65); // A
+			Serial.write(89); // Y
+			Serial.write(SensorRegister[2]);
+			Serial.write(SensorRegister[3]);
+
+			// Accelerometer z-axis
+			Serial.write(65); // A
+			Serial.write(90); // Z
+			Serial.write(SensorRegister[4]);
+			Serial.write(SensorRegister[5]);
+
+			// Gyro x-axis
+			Serial.write(71); // G
+			Serial.write(88); // X
+			Serial.write(SensorRegister[6]);
+			Serial.write(SensorRegister[7]);
+
+			// Gyro y-axis
+			Serial.write(71); // G
+			Serial.write(89); // Y
+			Serial.write(SensorRegister[8]);
+			Serial.write(SensorRegister[9]);
+
+			// Gyro z-axis
+			Serial.write(71); // G
+			Serial.write(90); // Z
+			Serial.write(SensorRegister[10]);
+			Serial.write(SensorRegister[11]);
+
+
+
+}
 /*
  * TODO comment this boy
  * @return TODO
@@ -89,7 +133,7 @@ void ICM20948::readSensorData(){
 	_wire->requestFrom(I2C_addr,14);
 	if(_wire->available()){
 		for(int i=0; i<14;i++){
-			this->buffer[i] = _wire->read();
+			this->SensorRegister[i] = _wire->read();
 		}
 	}
 }
@@ -110,9 +154,9 @@ int16_t ICM20948::processHighLowBytes(uint8_t Hbyte, uint8_t Lbyte){
  */
 Vector ICM20948::getAccRawValues(){
 	Vector accRaw;
-	accRaw.x = processHighLowBytes(buffer[0],buffer[1]); // TODO what is this casting?
-	accRaw.y = processHighLowBytes(buffer[2],buffer[3]); // TODO what is this casting?
-	accRaw.z = processHighLowBytes(buffer[4],buffer[5]); // TODO what is this casting?
+	accRaw.x = processHighLowBytes(SensorRegister[0],SensorRegister[1]); // TODO what is this casting?
+	accRaw.y = processHighLowBytes(SensorRegister[2],SensorRegister[3]); // TODO what is this casting?
+	accRaw.z = processHighLowBytes(SensorRegister[4],SensorRegister[5]); // TODO what is this casting?
 	return accRaw;
 }
 
@@ -122,9 +166,9 @@ Vector ICM20948::getAccRawValues(){
  */
 Vector ICM20948::getGyroRawValues(){
 	Vector gyroRaw;
-	gyroRaw.x = processHighLowBytes(buffer[6],buffer[7]); // TODO what is this casting?
-	gyroRaw.y = processHighLowBytes(buffer[8],buffer[9]); // TODO what is this casting?
-	gyroRaw.z = processHighLowBytes(buffer[10],buffer[11]); // TODO what is this casting?
+	gyroRaw.x = processHighLowBytes(SensorRegister[6],SensorRegister[7]); // TODO what is this casting?
+	gyroRaw.y = processHighLowBytes(SensorRegister[8],SensorRegister[9]); // TODO what is this casting?
+	gyroRaw.z = processHighLowBytes(SensorRegister[10],SensorRegister[11]); // TODO what is this casting?
 	return gyroRaw;
 }
 
@@ -133,7 +177,7 @@ Vector ICM20948::getGyroRawValues(){
  * @return Temperature in ??? TODO
  */
 int16_t ICM20948::getTempRawValues(){
-	return processHighLowBytes(buffer[12],buffer[13]);
+	return processHighLowBytes(SensorRegister[12],SensorRegister[13]);
 }
 
 /*

@@ -45,6 +45,8 @@ public:
 
     void printVector(Vector print);
 
+    void printBuffer();
+
     Vector getGyroRawValues(); // TODO FOR TESTING ONLY
     Vector getAccRawValues();  //TODO FOR TESTING ONLY
 
@@ -52,7 +54,7 @@ private:
 
     uint8_t currBank;
     uint8_t regVal;
-    uint8_t buffer[14];
+    uint8_t SensorRegister[14];
 
     void switchBank(uint8_t newBank);
 
