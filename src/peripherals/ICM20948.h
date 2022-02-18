@@ -31,13 +31,13 @@ struct Vector
 class ICM20948
 {
 
-	int I2C_addr;
+	uint8_t I2C_addr;
 
     TwoWire *_wire;
 
 public:
 
-    ICM20948(int address);
+    ICM20948(uint8_t address);
 
     bool init();
 

@@ -11,7 +11,7 @@
  * TODO comment this boy
  * @param address
  */
-ICM20948::ICM20948(int address)
+ICM20948::ICM20948(uint8_t address)
 {
 	_wire = &Wire;
 	I2C_addr = address;
