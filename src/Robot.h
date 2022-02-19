@@ -42,8 +42,9 @@ private:
 
 	RobotState robotState = IDLE;			// initial system state is IDLE
 
-	MPL3115A2 * baro = new MPL3115A2();
 	ICM20948 * imu = new ICM20948(0x68);
+	MPL3115A2 * baro = new MPL3115A2();
+
 
 public:
 
