@@ -69,7 +69,7 @@ void Robot::beginStateMachine(){
 
 	transceiver->SetParityBit(0);	 		// SpeedParityBit
 	transceiver->SetUARTBaudRate(3);		// 3 = 9600 baud
-	transceiver->SetAirDataRate(5);			// 2 = B010 =  2.4kbps (default)
+	transceiver->SetAirDataRate(4);			// 2 = B010 =  2.4kbps (default)
 											// 5 = B101 = 19.2kbps
 	transceiver->SetTransmissionMode(0);	// OptionTrans
 	transceiver->SetPullupMode(1);			// OptionPullup
@@ -104,10 +104,6 @@ void Robot::updateStateMachine(uint32_t timestamp){
 //
 //	transceiver->SendStruct(&MyData, sizeof(MyData));
 //
-//	//Serial.write(13);				// CR
-//	//Serial.write(MyData.Count);
-//	//Serial.write(10);				// LF
-//
 //	Serial.print(F("Sent: "));
 //	Serial.println(MyData.Count);
 
@@ -137,7 +133,9 @@ void Robot::updateStateMachine(uint32_t timestamp){
 		Serial.print(MyData.count14); Serial.print(F(", "));
 		Serial.print(MyData.count15); Serial.print(F(", "));
 		Serial.print(MyData.count16); Serial.print(F(", "));
-		Serial.print(MyData.count17);
+		Serial.print(MyData.count17); Serial.print(F(", "));
+		Serial.print(MyData.count18); Serial.print(F(", "));
+		Serial.print(MyData.count19);
 		Serial.println();
 	}
 
