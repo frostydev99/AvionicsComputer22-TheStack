@@ -6,6 +6,7 @@
 
 #include "Robot.h"
 
+
 /*
 * Constructor for the robot system object, should only be one instance, one main system per processor
 */
@@ -33,6 +34,30 @@ bool Robot::systemInit(){
 
 
 //	delay(10);							// let sensors start up
+
+	Serial1.begin(9600);
+	transceiver->init();
+
+	//transceiver->SetMode();
+	transceiver->SetAddressH(0);
+	transceiver->SetAddressL(0);
+	transceiver->SetChannel(1);
+	//transceiver->SetOptions();
+
+	transceiver->SetParityBit(0);	 		// SpeedParityBit
+	transceiver->SetUARTBaudRate(3);		// 3 = 9600 baud
+	transceiver->SetAirDataRate(4);			// 2 = B010 =  2.4kbps (default)
+											// 4 = B100 = 9.6kbps
+											// 5 = B101 = 19.2kbps
+	transceiver->SetTransmissionMode(0);	// OptionTrans
+	transceiver->SetPullupMode(1);			// OptionPullup
+	transceiver->SetWORTIming(0);			// OptionWakeup
+	transceiver->SetFECMode(1);				// OptionFEC
+	transceiver->SetTransmitPower(0);		// default
+
+	transceiver->SaveParameters(PERMANENT);
+	transceiver->PrintParameters();
+
 
 
 	return true;
@@ -68,6 +93,8 @@ void Robot::zeroAllSensors(){
 void Robot::beginStateMachine(){
 
 	//zeroAllSensors();
+
+
 
 }
 
@@ -175,6 +202,53 @@ void Robot::updateStateMachine(uint32_t timestamp){
 //    Serial.write(78); // N
 //    Serial.write(68); // D
 //    Serial.write(66); // B
+
+
+
+
+	// SENDING
+//	if(MyData.Count == 255){
+//		MyData.Count = 0;
+//	} else {
+//		MyData.Count++;
+//	}
+//
+//	transceiver->SendStruct(&MyData, sizeof(MyData));
+//
+//	Serial.print(F("Sent: "));
+//	Serial.println(MyData.Count);
+
+
+	// RECEIVING
+	if(transceiver->available()) {
+
+		transceiver->GetStruct(&MyData, sizeof(MyData));
+
+		//Serial.print(timestamp); Serial.print(F(": "));
+		//Serial.println(MyData.Count);
+
+		Serial.print(MyData.Count); Serial.print(F(", "));
+		Serial.print(MyData.count1); Serial.print(F(", "));
+		Serial.print(MyData.count2); Serial.print(F(", "));
+		Serial.print(MyData.count3); Serial.print(F(", "));
+		Serial.print(MyData.count4); Serial.print(F(", "));
+		Serial.print(MyData.count5); Serial.print(F(", "));
+		Serial.print(MyData.count6); Serial.print(F(", "));
+		Serial.print(MyData.count7); Serial.print(F(", "));
+		Serial.print(MyData.count8); Serial.print(F(", "));
+		Serial.print(MyData.count9); Serial.print(F(", "));
+		Serial.print(MyData.count10); Serial.print(F(", "));
+		Serial.print(MyData.count11); Serial.print(F(", "));
+		Serial.print(MyData.count12); Serial.print(F(", "));
+		Serial.print(MyData.count13); Serial.print(F(", "));
+		Serial.print(MyData.count14); Serial.print(F(", "));
+		Serial.print(MyData.count15); Serial.print(F(", "));
+		Serial.print(MyData.count16); Serial.print(F(", "));
+		Serial.print(MyData.count17); Serial.print(F(", "));
+		Serial.print(MyData.count18); Serial.print(F(", "));
+		Serial.print(MyData.count19);
+		Serial.println();
+	}
 
 
 
