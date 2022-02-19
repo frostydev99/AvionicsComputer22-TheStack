@@ -74,15 +74,15 @@ public:
 
     int16_t getTempRawValues();
 
-    uint8_t getPlusMinus250DPS();
-    uint8_t getPlusMinus500DPS();
-    uint8_t getPlusMinus1000DPS();
-    uint8_t getPlusMinus2000DPS();
+    void setPlusMinus250DPS();
+    void setPlusMinus500DPS();
+    void setPlusMinus1000DPS();
+    void setPlusMinus2000DPS();
 
-    uint8_t getPlusMinus2Gs();
-    uint8_t getPlusMinus4Gs();
-    uint8_t getPlusMinus8Gs();
-    uint8_t getPlusMinus16Gs();
+    void setPlusMinus2Gs();
+    void setPlusMinus4Gs();
+    void setPlusMinus8Gs();
+    void setPlusMinus16Gs();
 
 
 private:

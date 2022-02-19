@@ -218,36 +218,36 @@ void ICM20948::printVector(Vector print){
 	Serial.print("\n");
 }
 
-uint8_t ICM20948::getPlusMinus250DPS() {
-	return PLUS_MINUS_250DPS;
+void ICM20948::setPlusMinus250DPS() {
+	setGyroScale(PLUS_MINUS_250DPS);
 }
 
-uint8_t ICM20948::getPlusMinus500DPS() {
-	return PLUS_MINUS_500DPS;
+void ICM20948::setPlusMinus500DPS() {
+	setGyroScale(PLUS_MINUS_500DPS);
 }
 
-uint8_t ICM20948::getPlusMinus1000DPS() {
-	return PLUS_MINUS_1000DPS;
+void ICM20948::setPlusMinus1000DPS() {
+	setGyroScale(PLUS_MINUS_1000DPS);
 }
 
-uint8_t ICM20948::getPlusMinus2000DPS() {
-	return PLUS_MINUS_2000DPS;
+void ICM20948::setPlusMinus2000DPS() {
+	setGyroScale(PLUS_MINUS_2000DPS);
 }
 
-uint8_t ICM20948::getPlusMinus2Gs() {
-	return PLUS_MINUS_2G;
+void ICM20948::setPlusMinus2Gs() {
+	setAccScale(PLUS_MINUS_2G);
 }
 
-uint8_t ICM20948::getPlusMinus4Gs() {
-	return PLUS_MINUS_4G;
+void ICM20948::setPlusMinus4Gs() {
+	setAccScale(PLUS_MINUS_4G);
 }
 
-uint8_t ICM20948::getPlusMinus8Gs() {
-	return PLUS_MINUS_8G;
+void ICM20948::setPlusMinus8Gs() {
+	setAccScale(PLUS_MINUS_8G);
 }
 
-uint8_t ICM20948::getPlusMinus16Gs() {
-	return PLUS_MINUS_16G;
+void ICM20948::setPlusMinus16Gs() {
+	setAccScale(PLUS_MINUS_16G);
 }
 
 

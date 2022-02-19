@@ -19,16 +19,17 @@ Robot::Robot(){};
 bool Robot::systemInit(){
 
 
-	imu->init();
-
-	imu->setGyroScale(imu->getPlusMinus2000DPS());
-	imu->setAccScale(imu->getPlusMinus16Gs());
-
-
+	// Set up barometer
 	baro->init();
 
 	baro->setModeAltimeter();
 	baro->setOverSampleRate(0);
+
+	// Set up IMU
+	imu->init();
+
+	imu->setPlusMinus2000DPS();
+	imu->setPlusMinus16Gs();
 
 
 //	delay(2);							// let barometer start up
@@ -76,14 +77,14 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 	imu->readSensorData();
 	uint8_t * gyroAccelBytes = imu->getRawSensorRegisters();
-	//imu->printVector(imu->getAccRawValues());
+	imu->printVector(imu->getAccRawValues());
 	//Serial.println(imu->getTempRawValues());
 
 	baro->readSensorData();
 
 	float altitude = baro->getPressure();
 	uint8_t * altitudeBytes = (uint8_t *) &altitude;
-//	Serial.println(altitude);
+	Serial.println(altitude);
 
 	float temperature = baro->getTemperature();
 	uint8_t * temperatureBytes = (uint8_t *) &temperature;
@@ -93,87 +94,87 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 
     //Data start bytes
-    Serial.write(66); // B
-    Serial.write(69); // E
-    Serial.write(71); // G
-    Serial.write(66); // B
-
-    Serial.write(84); // T - Timestamp
-    Serial.write(83); // S
-    Serial.write(80); // P
-    Serial.write(timestampBytes[3]);
-    Serial.write(timestampBytes[2]);
-    Serial.write(timestampBytes[1]);
-    Serial.write(timestampBytes[0]);
-
-    Serial.write(83); // S - State
-    Serial.write(84); // T
-    Serial.write(84); // T
-    Serial.write(0);  // state zero hardcode for now
-
-    Serial.write(65); // A - Altitute
-    Serial.write(76); // L
-    Serial.write(84); // T
-    Serial.write(altitudeBytes[3]);
-    Serial.write(altitudeBytes[2]);
-    Serial.write(altitudeBytes[1]);
-    Serial.write(altitudeBytes[0]);
-
-    Serial.write(84); // T - Temperature
-    Serial.write(77); // M
-    Serial.write(80); // P
-    Serial.write(temperatureBytes[3]);
-    Serial.write(temperatureBytes[2]);
-    Serial.write(temperatureBytes[1]);
-    Serial.write(temperatureBytes[0]);
-
-    // Accelerometer x-axis
-	Serial.write(65); // A
-	Serial.write(67); // C
-	Serial.write(88); // X
-	Serial.write(gyroAccelBytes[0]);
-	Serial.write(gyroAccelBytes[1]);
-
-	// Accelerometer y-axis
-	Serial.write(65); // A
-	Serial.write(67); // C
-	Serial.write(89); // Y
-	Serial.write(gyroAccelBytes[2]);
-	Serial.write(gyroAccelBytes[3]);
-
-	// Accelerometer z-axis
-	Serial.write(65); // A
-	Serial.write(67); // C
-	Serial.write(90); // Z
-	Serial.write(gyroAccelBytes[4]);
-	Serial.write(gyroAccelBytes[5]);
-
-	// Gyro x-axis
-	Serial.write(71); // G
-	Serial.write(89); // Y
-	Serial.write(88); // X
-	Serial.write(gyroAccelBytes[6]);
-	Serial.write(gyroAccelBytes[7]);
-
-	// Gyro y-axis
-	Serial.write(71); // G
-	Serial.write(89); // Y
-	Serial.write(89); // Y
-	Serial.write(gyroAccelBytes[8]);
-	Serial.write(gyroAccelBytes[9]);
-
-	// Gyro z-axis
-	Serial.write(71); // G
-	Serial.write(89); // Y
-	Serial.write(90); // Z
-	Serial.write(gyroAccelBytes[10]);
-	Serial.write(gyroAccelBytes[11]);
-
-    // Data end bytes
-    Serial.write(69); // E
-    Serial.write(78); // N
-    Serial.write(68); // D
-    Serial.write(66); // B
+//    Serial.write(66); // B
+//    Serial.write(69); // E
+//    Serial.write(71); // G
+//    Serial.write(66); // B
+//
+//    Serial.write(84); // T - Timestamp
+//    Serial.write(83); // S
+//    Serial.write(80); // P
+//    Serial.write(timestampBytes[3]);
+//    Serial.write(timestampBytes[2]);
+//    Serial.write(timestampBytes[1]);
+//    Serial.write(timestampBytes[0]);
+//
+//    Serial.write(83); // S - State
+//    Serial.write(84); // T
+//    Serial.write(84); // T
+//    Serial.write(0);  // state zero hardcode for now
+//
+//    Serial.write(65); // A - Altitute
+//    Serial.write(76); // L
+//    Serial.write(84); // T
+//    Serial.write(altitudeBytes[3]);
+//    Serial.write(altitudeBytes[2]);
+//    Serial.write(altitudeBytes[1]);
+//    Serial.write(altitudeBytes[0]);
+//
+//    Serial.write(84); // T - Temperature
+//    Serial.write(77); // M
+//    Serial.write(80); // P
+//    Serial.write(temperatureBytes[3]);
+//    Serial.write(temperatureBytes[2]);
+//    Serial.write(temperatureBytes[1]);
+//    Serial.write(temperatureBytes[0]);
+//
+//    // Accelerometer x-axis
+//	Serial.write(65); // A
+//	Serial.write(67); // C
+//	Serial.write(88); // X
+//	Serial.write(gyroAccelBytes[0]);
+//	Serial.write(gyroAccelBytes[1]);
+//
+//	// Accelerometer y-axis
+//	Serial.write(65); // A
+//	Serial.write(67); // C
+//	Serial.write(89); // Y
+//	Serial.write(gyroAccelBytes[2]);
+//	Serial.write(gyroAccelBytes[3]);
+//
+//	// Accelerometer z-axis
+//	Serial.write(65); // A
+//	Serial.write(67); // C
+//	Serial.write(90); // Z
+//	Serial.write(gyroAccelBytes[4]);
+//	Serial.write(gyroAccelBytes[5]);
+//
+//	// Gyro x-axis
+//	Serial.write(71); // G
+//	Serial.write(89); // Y
+//	Serial.write(88); // X
+//	Serial.write(gyroAccelBytes[6]);
+//	Serial.write(gyroAccelBytes[7]);
+//
+//	// Gyro y-axis
+//	Serial.write(71); // G
+//	Serial.write(89); // Y
+//	Serial.write(89); // Y
+//	Serial.write(gyroAccelBytes[8]);
+//	Serial.write(gyroAccelBytes[9]);
+//
+//	// Gyro z-axis
+//	Serial.write(71); // G
+//	Serial.write(89); // Y
+//	Serial.write(90); // Z
+//	Serial.write(gyroAccelBytes[10]);
+//	Serial.write(gyroAccelBytes[11]);
+//
+//    // Data end bytes
+//    Serial.write(69); // E
+//    Serial.write(78); // N
+//    Serial.write(68); // D
+//    Serial.write(66); // B
 
 
 
