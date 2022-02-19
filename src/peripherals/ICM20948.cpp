@@ -95,6 +95,28 @@ bool ICM20948::init()
 
 
 /*
+ * Set the GYRO_FS_SEL register to configure the sensitivity range of measurements
+ * @param value is 0-3 to set the sensitivity
+ */
+void ICM20948::setGyroScale(uint8_t value) {
+
+    if(value > 3) value = 3; 			// GYRO_FS_SEL cannot be larger than B011
+    value <<= 1;           				// align it for the GYRO_CONFIG_1 register
+
+	switchBank(2);						// register ID is for bank 2
+
+	uint8_t setting = 0;
+	setting = read8I2C(GYRO_CONFIG_1);
+
+	setting &= B11111001;				// clear out old GYRO_FS_SEL bits
+	setting |= value;					// mask in new GYRO_FS_SEL bits
+
+	write8I2C(GYRO_CONFIG_1, setting);
+
+}
+
+
+/*
  * Set the ACCEL_FS_SEL register to configure the sensitivity range of measurements
  * @param value is 0-3 to set the sensitivity
  * 0: +-2g
@@ -105,7 +127,7 @@ bool ICM20948::init()
 void ICM20948::setAccScale(uint8_t value) {
 
     if(value > 3) value = 3; 			// ACCEL_FS_SEL cannot be larger than B011
-    value <<= 1;           				// align it for the ACCEL_CONFIG register
+    value <<= 1;           				// align it for the ACCEL_CONFIG_1 register
 
 	switchBank(2);						// register ID is for bank 2
 
@@ -226,6 +248,21 @@ void ICM20948::printVector(Vector print){
 	Serial.print("\n");
 }
 
+uint8_t ICM20948::getPlusMinus250DPS() {
+	return PLUS_MINUS_250DPS;
+}
+
+uint8_t ICM20948::getPlusMinus500DPS() {
+	return PLUS_MINUS_500DPS;
+}
+
+uint8_t ICM20948::getPlusMinus1000DPS() {
+	return PLUS_MINUS_1000DPS;
+}
+
+uint8_t ICM20948::getPlusMinus2000DPS() {
+	return PLUS_MINUS_2000DPS;
+}
 
 uint8_t ICM20948::getPlusMinus2Gs() {
 	return PLUS_MINUS_2G;

@@ -27,10 +27,15 @@
 // ICM20948 register data bits
 #define ICM20948_SLEEP               0x40
 
-#define PLUS_MINUS_2G				 0
-#define PLUS_MINUS_4G				 1
-#define PLUS_MINUS_8G				 2
-#define PLUS_MINUS_16G				 3
+#define PLUS_MINUS_250DPS			 0		// 131 	 = 131  LSB / (dps)
+#define PLUS_MINUS_500DPS			 1		// 131/2 = 65.5 LSB / (dps)
+#define PLUS_MINUS_1000DPS			 2		// 131/4 = 32.8 LSB / (dps)
+#define PLUS_MINUS_2000DPS			 3		// 131/8 = 16.4 LSB / (dps)
+
+#define PLUS_MINUS_2G				 0		// 2^14 = 16384 LSB/g
+#define PLUS_MINUS_4G				 1		// 2^13 = 8192  LSB/g
+#define PLUS_MINUS_8G				 2		// 2^12 = 4096  LSB/g
+#define PLUS_MINUS_16G				 3		// 2^11 = 2048  LSB/g
 
 
 
@@ -53,8 +58,8 @@ public:
     ICM20948(uint8_t address);
 
     bool init();
+    void setGyroScale(uint8_t value);
     void setAccScale(uint8_t value);
-    void setGyroScare(uint8_t value);
 
     void readSensorData();
 
@@ -66,6 +71,11 @@ public:
     Vector getAccRawValues();  //TODO FOR TESTING ONLY
 
     int16_t getTempRawValues();
+
+    uint8_t getPlusMinus250DPS();
+    uint8_t getPlusMinus500DPS();
+    uint8_t getPlusMinus1000DPS();
+    uint8_t getPlusMinus2000DPS();
 
     uint8_t getPlusMinus2Gs();
     uint8_t getPlusMinus4Gs();

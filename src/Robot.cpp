@@ -31,6 +31,7 @@ bool Robot::systemInit(){
 	else{Serial.println("ICM20948 is connected");}
 
 
+	imu->setGyroScale(imu->getPlusMinus2000DPS());
 	imu->setAccScale(imu->getPlusMinus8Gs());
 
 
@@ -76,7 +77,7 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 
 	imu->readSensorData();
-	imu->printVector(imu->getAccRawValues());
+	imu->printVector(imu->getGyroRawValues());
 	//Serial.println(imu->getTempRawValues());
 
 
