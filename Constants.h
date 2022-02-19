@@ -13,6 +13,26 @@
  * constants like PI, as well as system constants determined through calibration.
  *******************************************************************************/
 
+
+
+/*
+ * Pins for Polaris PCB
+ */
+#define E32_LORA_RX	 0		// PCB silkscreen 3
+#define E32_LORA_TX  1		// PCB silkscreen 4
+#define E32_LORA_M0  2		// PCB silkscreen 25
+#define E32_LORA_M1  3		// PCB silkscreen 18
+#define E32_LORA_AUX 4		// PCB silkscreen D0
+#define PIN_5		 5		// PCB silkscreen D1
+
+#define SPI_FLASH_CS 10		// PCB silkscreen ?
+
+
+
+
+
+
+
 /*
  * Use the primary (USB connector) serial interface to send, receive, or stream data.
  *
@@ -24,7 +44,7 @@
 #define USE_SERIAL						// enable calls to Serial such as print statements
 
 // Set to zero for loop as fast as possible
-#define LOOPER_PERIOD 10							// milliseconds, 10 ms or 100 Hz
+#define LOOPER_PERIOD 10 //100						// milliseconds, 10 ms or 100 Hz
 
 // Must be greater than or equal to 1
 #define TOTAL_LOOPS 1
