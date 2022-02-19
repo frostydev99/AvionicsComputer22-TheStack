@@ -19,7 +19,15 @@ Robot::Robot(){};
 bool Robot::systemInit(){
 
 	//pinMode(LED_BUILTIN, OUTPUT);		// ! will conflict with CLK if using SPI !
+
+
 	baro->init();
+
+	baro->setModeAltimeter();
+	baro->setOverSampleRate(0);
+
+	delay(50);							// let barometer start up
+
 
 	return true;
 
@@ -62,14 +70,12 @@ void Robot::beginStateMachine(){
 void Robot::updateStateMachine(uint32_t timestamp){
 
 
-	//digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-	//Serial.println(millis());
-	Serial.println(timestamp);
+	baro->readSensorData();
 
-	float currentPressure = baro->readPressure();
+	float currentPressure = baro->getPressure();
 	Serial.println(currentPressure);
 
-	float currentTemperature = baro->readTemperature();
+	float currentTemperature = baro->getTemperature();
 	Serial.println(currentTemperature);
 
 }

@@ -3,61 +3,104 @@
 #include "Wire.h"
 
 MPL3115A2::MPL3115A2(){
-    this->pressure = 0;
-    this->altitude = 0;
-    this-> maxAltitudeReading = 0;
-    this-> zeroAltitude = 0;
-    this->reachedApogee = false;
-    this->hasLaunched = false;
+
 }
 
 /*
  * Function for initializing the barometer
  */
 void MPL3115A2::init(){
-	uint8_t whoami;// = read8(MPL3115A2_WHOAMI);
+
+	uint8_t whoami = 0;
 	Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
 	Wire.write(MPL3115A2_WHOAMI);//Accessing WHOAMI register of barometer
 	Wire.endTransmission(false);//Ending transmission, no longer writing to bus
 	Wire.requestFrom(MPL3115A2_ADDRESS, 1, false);//Request one byte from barometer
 	whoami = Wire.read();//read the byte from barometer whoami
+
 }
 
 void MPL3115A2::disable(){
 
 }
 
+
+void MPL3115A2::setModeBarometer() {
+
+    uint8_t setting = 0;
+    setting = read8I2C(MPL3115A2_CTRL_REG1);
+
+    setting &= ~(1<<7);   // clear ALT bit
+    write8I2C(MPL3115A2_CTRL_REG1, setting);
+
+}
+
+void MPL3115A2::setModeAltimeter() {
+
+    uint8_t setting = 0;
+    setting = read8I2C(MPL3115A2_CTRL_REG1);
+
+    setting |= (1<<7);   // set ALT bit
+    write8I2C(MPL3115A2_CTRL_REG1, setting);
+
+}
+
+/*
+ *
+ */
+void MPL3115A2::setOverSampleRate(uint8_t oversampleVal) {
+
+    if(oversampleVal > 7) oversampleVal = 7; //OS cannot be larger than B0111
+    oversampleVal <<= 3;                      // align it for the CTRL_REG1 register
+
+    uint8_t setting = read8I2C(MPL3115A2_CTRL_REG1);    //Read current settings
+    setting &= B11000111;                      			//Clear out old OS bits
+    setting |= oversampleVal;                 			//Mask in new OS bits
+    write8I2C(MPL3115A2_CTRL_REG1, setting);
+
+}
+
+
 /*
  * Clears then sets the OST bit which causes the sensor to immediately take
  * another reading, needed to sample faster than 1Hz
  */
 void MPL3115A2::toggleOneShot() {
+
 	uint8_t ctrl_reg1 = read8I2C(MPL3115A2_CTRL_REG1); // Read the barometer's current settings
-	ctrl_reg1 &= ~(1<<1); // Clear OST bit
+	ctrl_reg1 &= ~(1<<1); 							   // Clear OST bit
 	write8I2C(MPL3115A2_CTRL_REG1, ctrl_reg1);
 
-	ctrl_reg1 = read8I2C(MPL3115A2_CTRL_REG1); // Read the settings to be safe
-	ctrl_reg1 |= (1<<1); // Set the OST bit
+	ctrl_reg1 = read8I2C(MPL3115A2_CTRL_REG1); 		   // Read the settings to be safe
+	ctrl_reg1 |= (1<<1); 							   // Set the OST bit
 	write8I2C(MPL3115A2_CTRL_REG1, ctrl_reg1);
+
 }
 
 /*
  * Polls the barometer for its status, pressure, and temperature registers
  */
-void MPL3115A2::pollSensor(uint8_t* buffer) {
-	toggleOneShot();
+void MPL3115A2::readSensorData() {
 
-	Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
-	Wire.write(MPL3115A2_REGISTER_DR_STATUS);//Accessing status register of the barometer
-	Wire.endTransmission(false);//Ending transmission, no longer writing to bus
-	Wire.requestFrom(MPL3115A2_ADDRESS, 6, false);//Request three bytes from barometer
+	setModeAltimeter();
 
-	buffer[0] = Wire.read(); // Barometer status
-	buffer[1] = Wire.read(); // Pressure MSB
-	buffer[2] = Wire.read(); // Pressure CSB
-	buffer[3] = Wire.read(); // Pressure LSB
-	buffer[4] = Wire.read(); // Temperature MSB
-	buffer[5] = Wire.read(); // Temperature LSB
+	toggleOneShot();		// Only do this once before reading from the sensor
+
+	Wire.beginTransmission(MPL3115A2_ADDRESS);		//Beginning transmission with barometer
+	Wire.write(MPL3115A2_REGISTER_DR_STATUS);		//Accessing status register of the barometer
+	Wire.endTransmission(false);					//Ending transmission
+	Wire.requestFrom(MPL3115A2_ADDRESS, 6, false);	//Request 6 bytes from barometer
+
+	sensorRegisters[0] = Wire.read(); 				// Barometer status
+	sensorRegisters[1] = Wire.read(); 				// Pressure MSB
+	sensorRegisters[2] = Wire.read(); 				// Pressure CSB
+	sensorRegisters[3] = Wire.read(); 				// Pressure LSB
+	sensorRegisters[4] = Wire.read(); 				// Temperature MSB
+	sensorRegisters[5] = Wire.read(); 				// Temperature LSB
+
+	readAltitude();
+	readTemperature();
+
 }
 
 /*
@@ -65,17 +108,63 @@ void MPL3115A2::pollSensor(uint8_t* buffer) {
  * @return pressure in Pascals
  */
 float MPL3115A2::readPressure() {
-	toggleOneShot();
 
-    Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
-    Wire.write(MPL3115A2_REGISTER_PRESSURE_MSB);//Accessing Pressure register of barometer
-    Wire.endTransmission(false);//Ending transmission, no longer writing to bus
-    Wire.requestFrom(MPL3115A2_ADDRESS, 3, false);//Request three bytes from barometer
+	//toggleOneShot();		Only do this once before reading from the sensor
 
-    uint8_t msb, csb, lsb;
-    msb = Wire.read();
-    csb = Wire.read();
-    lsb = Wire.read();
+    //Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
+    //Wire.write(MPL3115A2_REGISTER_PRESSURE_MSB);//Accessing Pressure register of barometer
+    //Wire.endTransmission(false);//Ending transmission, no longer writing to bus
+    //Wire.requestFrom(MPL3115A2_ADDRESS, 3, false);//Request three bytes from barometer
+
+	float reading = rawToPressure(sensorRegisters[1], sensorRegisters[2], sensorRegisters[3]);
+
+    return reading;
+}
+
+
+/*
+ * Take an altitude measurement from the sensor, simply calls readPressure because
+ * MPL3115 will store pressure or altitude in the same register locations
+ * depending on if set to pressure or altitude mode
+ * @return altitude in meters above sea level converted from the pressure sensor
+ * using the standard atmospheric model
+ */
+float MPL3115A2::readAltitude() {
+
+    //toggleOneShot();    !!! ONLY DO THIS ONCE BEFORE READING !!!
+
+    float altitude = readPressure();
+
+    return altitude;
+
+}
+
+
+/*
+ * Function for reading the current temperature
+ * @return temperature in Celsius
+ */
+float MPL3115A2::readTemperature() {
+
+	//toggleOneShot();		Only do this once before reading from the sensor
+
+	//Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
+	//Wire.write(MPL3115A2_REGISTER_TEMPERATURE_MSB);//Accessing Pressure register of barometer
+	//Wire.endTransmission(false);//Ending transmission, no longer writing to bus
+	//Wire.requestFrom(MPL3115A2_ADDRESS, 2, false);//Request three bytes from barometer
+
+	float reading = rawToTemperature(sensorRegisters[4], sensorRegisters[5]);
+
+	return reading;
+}
+
+
+/*
+ *
+ */
+float MPL3115A2::rawToPressure(uint8_t msb, uint8_t csb, uint8_t lsb) {
+
+	float pressure = 0.0;
 
     // Obtain integer part of the pressure reading
     uint32_t integerPart = (msb << 10) | (csb << 2) | (lsb >> 6);
@@ -84,51 +173,33 @@ float MPL3115A2::readPressure() {
     uint8_t fractionalPart = ((lsb >> 4) & 3);
 
     // Integer and fractional parts combined
-    float reading = integerPart + (fractionalPart * 0.25);
-    return reading;
+    pressure = integerPart + (fractionalPart * 0.25);
+
+    this->pressure = pressure;
+
+	return pressure;
 }
 
+
 /*
- * Function for reading the current temperature
- * @return temperature in Celsius
+ *
  */
-float MPL3115A2::readTemperature() {
-	toggleOneShot();
+float MPL3115A2::rawToTemperature(uint8_t msb, uint8_t lsb) {
 
-	Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
-	Wire.write(MPL3115A2_REGISTER_TEMPERATURE_MSB);//Accessing Pressure register of barometer
-	Wire.endTransmission(false);//Ending transmission, no longer writing to bus
-	Wire.requestFrom(MPL3115A2_ADDRESS, 2, false);//Request three bytes from barometer
+	float temperature = 0.0;
 
-	uint8_t lsb;
-	int8_t msb = Wire.read();
-	lsb = Wire.read();
-
+	// Get fractional part
 	uint8_t fractionalPart = (lsb >> 4);
-	float reading = msb + (fractionalPart * 0.0625);
-	return reading;
+
+	// Integer and fractional parts combined
+	temperature = msb + (fractionalPart * 0.0625);
+
+	this->temperature = temperature;
+
+	return temperature;
+
 }
 
-/*
- * Function for reading the current altitude
- * @return altitude in meters
- */
-float MPL3115A2::readAltitude() {
-	toggleOneShot();
-
-    Wire.beginTransmission(MPL3115A2_ADDRESS);//Beginning transmission with barometer
-    Wire.write(MPL3115A2_REGISTER_PRESSURE_MSB);//Accessing Pressure register of barometer
-    Wire.endTransmission(false);//Ending transmission, no longer writing to bus
-    Wire.requestFrom(MPL3115A2_ADDRESS, 3, false);//Request three bytes from barometer
-    uint32_t alt = Wire.read();
-    alt <<= 8;
-    alt |= Wire.read();
-    alt <<= 8;
-    alt |= Wire.read();
-
-    float reading = alt;
-    return reading / 65536.0;
-}
 
 /*
  * Function for setting the zero altitude
@@ -138,56 +209,25 @@ void MPL3115A2::setZeroAltitude(){
 	this->zeroAltitude = this->readAltitude();
 }
 
-/*
- * Function for updating the altitude and pressure readings
- * also checks for launch and apogee
- * @return void
- */
-void MPL3115A2::update() {
-    this->pressure = readPressure();
-    this->altitude = readAltitude();
-
-    if(this->altitude > this->maxAltitudeReading){
-       	this->maxAltitudeReading = this->altitude;//sets maximum altitude if current is greater than max
-    }
-
-    if(!this->reachedApogee){
-    this->reachedApogee = checkApogee();//checks for apogee if it hasnt been reached yet
-    }
-
-    if(!this->hasLaunched){
-        this->hasLaunched = checkLaunched();//checks for launch if it hasnt happened yet
-    }
-
-    Serial.print("Pressure: ");
-    Serial.println(this->pressure);
-    Serial.print("Altitude: ");
-    Serial.println(this->altitude);
-
-}
-
-/*
- * Function for checking if apogee has been reached
- * @return true if current alt is significantly less than maximum alt
- */
-bool MPL3115A2::checkApogee(){
-	return (this->altitude < this->maxAltitudeReading - 5);
-}
-
-/*
- * Function for checking if rocket has launched
- * @return true if alt is greater than 5m
- */
-bool MPL3115A2::checkLaunched(){
-	return  getAltitude() > 5;
-}
 
 
 float MPL3115A2::getPressure() {
     return this->pressure;
 }
+
 float MPL3115A2::getAltitude() {
-    return this->altitude - this->zeroAltitude;
+    return this->altitude;
+}
+
+float MPL3115A2::getTemperature() {
+	return this->temperature;
+}
+
+/*
+ * @return the pointer to the array of raw sensor registers
+ */
+uint8_t* MPL3115A2::getRawSensorRegisters() {
+	return sensorRegisters;
 }
 
 /*

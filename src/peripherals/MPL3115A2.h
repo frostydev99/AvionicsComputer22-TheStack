@@ -16,33 +16,48 @@
 class MPL3115A2 {
 
 private:
-    float pressure;
-    float altitude;
-    float maxAltitudeReading;
-    float zeroAltitude;
-    float readAltitude();
-    bool checkLaunched();
-    bool checkApogee();
-    uint8_t read8(uint8_t address);
+
     uint8_t sensorRegisters[6];
+
+    float pressure = 0;
+    float altitude = 0;
+    float temperature = 0;
+
+    float maxAltitudeReading = 0;
+    float zeroAltitude = 0;
+
+    float rawToPressure(uint8_t msb, uint8_t csb, uint8_t lsb);
+    //float rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb);
+    float rawToTemperature(uint8_t msb, uint8_t lsb);
+
+    float readPressure();
+    float readAltitude();
+    float readTemperature();
+
     void toggleOneShot();
+
     uint8_t read8I2C(uint8_t regAddress);
     void write8I2C(uint8_t regAddress, uint8_t value);
 
 public:
     MPL3115A2();
-    boolean initBaro();
-    void setZeroAltitude();
+
     void init();
-    void update();
     void disable();
-    float readPressure();
-    float readTemperature();
+
+    void setModeBarometer();
+    void setModeAltimeter();
+    void setOverSampleRate(uint8_t oversampleVal);
+
+    void setZeroAltitude();
+
+    uint8_t* getRawSensorRegisters();
     float getPressure();
     float getAltitude();
-    bool hasLaunched;
-    bool reachedApogee;
-    void pollSensor(uint8_t* buffer);
+    float getTemperature();
+
+    void readSensorData();
+
 };
 
 #endif
