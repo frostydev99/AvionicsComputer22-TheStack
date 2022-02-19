@@ -31,6 +31,7 @@ class MPL3115A2 {
 private:
 
     uint8_t sensorRegisters[6];			// last polled sensor register values stored here
+    uint32_t pressureAndTemp;			// Pressure (or altitude) and temperature bytes together
 
     float pressure = 0;
     float altitude = 0;
@@ -42,6 +43,8 @@ private:
     float rawToPressure(uint8_t msb, uint8_t csb, uint8_t lsb);
     //float rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb);
     float rawToTemperature(uint8_t msb, uint8_t lsb);
+
+    void rawDataToFourBytes();
 
     float readPressure();
     float readAltitude();
@@ -75,11 +78,14 @@ public:
     void setZeroAltitude();
 
     uint8_t* getRawSensorRegisters();
+    uint32_t getPressureAndTempCombined();
     float getPressure();
     float getAltitude();
     float getTemperature();
 
     void readSensorData();
+
+    void setDataFromCombinedRaw(uint32_t combinedRaw);
 
 };
 

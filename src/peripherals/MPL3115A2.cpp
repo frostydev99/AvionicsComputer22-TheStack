@@ -134,6 +134,8 @@ void MPL3115A2::readSensorData() {
 	readAltitude();
 	readTemperature();
 
+	rawDataToFourBytes();
+
 }
 
 /*
@@ -235,6 +237,60 @@ float MPL3115A2::rawToTemperature(uint8_t msb, uint8_t lsb) {
 
 
 /*
+ * Combine the 20-bit pressure (Q18.2 fixed point) and 12-bit temperature (Q8.4 fixed point)
+ * into a uint32_t or array of 4 bytes for compact data transmission
+ */
+void MPL3115A2::rawDataToFourBytes() {
+
+	uint32_t pressureRaw = (sensorRegisters[1] << 24) | (sensorRegisters[2] << 16)
+			| (sensorRegisters[3] << 8);
+
+	uint32_t temperatureRaw = (sensorRegisters[4] << 4) | (sensorRegisters[5] >> 4);
+
+	uint32_t combinedRaw = pressureRaw | temperatureRaw;	// add them together (binary OR)
+
+	// Set the combined bytes to the pressure and temperature combined array
+	uint8_t * combinedBytes = (uint8_t *) &combinedRaw;
+	uint8_t * pressureAndTempBytes = (uint8_t *) &pressureAndTemp;
+
+	pressureAndTempBytes[3] = combinedBytes[3];		// big endian
+	pressureAndTempBytes[2] = combinedBytes[2];
+	pressureAndTempBytes[1] = combinedBytes[1];
+	pressureAndTempBytes[0] = combinedBytes[0];
+
+}
+
+
+/*
+ * This function is for using this barometer class for decoding the combined
+ * raw pressure and temperature bytes and splitting them into the sensorRegisters
+ * array to be parsed into the values as floats
+ * @param combinedRaw is the four bytes of combined raw pressure and temperature sensor data
+ */
+void MPL3115A2::setDataFromCombinedRaw(uint32_t combinedRaw) {
+
+	uint8_t * combinedBytes = (uint8_t *) &combinedRaw;
+
+	uint8_t pressureMSB = combinedBytes[3];
+	uint8_t pressureCSB = combinedBytes[2];
+	uint8_t pressureLSB = combinedBytes[1] &= B11110000;	// keep only first 4 bits
+
+	uint8_t temperatureMSB = (combinedBytes[1] << 4) | (combinedBytes[0] >> 4);
+	uint8_t temperatureLSB = (combinedBytes[0] << 4);
+
+	sensorRegisters[1] = pressureMSB;
+	sensorRegisters[2] = pressureCSB;
+	sensorRegisters[3] = pressureLSB;
+	sensorRegisters[4] = temperatureMSB;
+	sensorRegisters[5] = temperatureLSB;
+
+	readAltitude();
+	readTemperature();
+
+}
+
+
+/*
  * Function for setting the zero altitude
  * @return void
  */
@@ -261,6 +317,14 @@ float MPL3115A2::getTemperature() {
  */
 uint8_t* MPL3115A2::getRawSensorRegisters() {
 	return sensorRegisters;
+}
+
+
+/*
+ *
+ */
+uint32_t MPL3115A2::getPressureAndTempCombined() {
+	return pressureAndTemp;
 }
 
 /*
