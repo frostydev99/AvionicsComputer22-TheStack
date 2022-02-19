@@ -76,38 +76,39 @@ void Robot::beginStateMachine(){
 void Robot::updateStateMachine(uint32_t timestamp){
 
 
-	imu->readSensorData();
-	imu->printVector(imu->getGyroRawValues());
+//	imu->readSensorData();
+//	imu->printVector(imu->getGyroRawValues());
 	//Serial.println(imu->getTempRawValues());
 
 
 
 
-//	// Send IMU data for the groundstation to be parsed and displayed
-//	uint8_t * timestampBytes = (uint8_t *) &timestamp;
-//
-//	imu->readSensorData();
-//
-//	//Data start bytes
-//	Serial.write(66); // B
-//	Serial.write(69); // E
-//	Serial.write(71); // G
-//	Serial.write(66); // B
-//
-//	Serial.write(84); // T - Timestamp
-//	Serial.write(83); // S
-//	Serial.write(timestampBytes[3]);
-//	Serial.write(timestampBytes[2]);
-//	Serial.write(timestampBytes[1]);
-//	Serial.write(timestampBytes[0]);
-//
-//	imu->printBuffer();
-//
-//	// Data end bytes
-//	Serial.write(69); // E
-//	Serial.write(78); // N
-//	Serial.write(68); // D
-//	Serial.write(66); // B
+	// Send IMU data for the groundstation to be parsed and displayed
+	uint8_t * timestampBytes = (uint8_t *) &timestamp;
+
+	imu->readSensorData();
+
+	//Data start bytes
+	Serial.write(66); // B
+	Serial.write(69); // E
+	Serial.write(71); // G
+	Serial.write(66); // B
+
+	Serial.write(84); // T - Timestamp
+	Serial.write(83); // S
+	Serial.write(80); // P
+	Serial.write(timestampBytes[3]);
+	Serial.write(timestampBytes[2]);
+	Serial.write(timestampBytes[1]);
+	Serial.write(timestampBytes[0]);
+
+	imu->printBuffer();
+
+	// Data end bytes
+	Serial.write(69); // E
+	Serial.write(78); // N
+	Serial.write(68); // D
+	Serial.write(66); // B
 
 
 }

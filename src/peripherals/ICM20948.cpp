@@ -40,24 +40,28 @@ void ICM20948::printBuffer(){
 
 			// Accelerometer x-axis
 			Serial.write(65); // A
+			Serial.write(67); // C
 			Serial.write(88); // X
 			Serial.write(SensorRegister[0]);
 			Serial.write(SensorRegister[1]);
 
 			// Accelerometer y-axis
 			Serial.write(65); // A
+			Serial.write(67); // C
 			Serial.write(89); // Y
 			Serial.write(SensorRegister[2]);
 			Serial.write(SensorRegister[3]);
 
 			// Accelerometer z-axis
 			Serial.write(65); // A
+			Serial.write(67); // C
 			Serial.write(90); // Z
 			Serial.write(SensorRegister[4]);
 			Serial.write(SensorRegister[5]);
 
 			// Gyro x-axis
 			Serial.write(71); // G
+			Serial.write(89); // Y
 			Serial.write(88); // X
 			Serial.write(SensorRegister[6]);
 			Serial.write(SensorRegister[7]);
@@ -65,11 +69,13 @@ void ICM20948::printBuffer(){
 			// Gyro y-axis
 			Serial.write(71); // G
 			Serial.write(89); // Y
+			Serial.write(89); // Y
 			Serial.write(SensorRegister[8]);
 			Serial.write(SensorRegister[9]);
 
 			// Gyro z-axis
 			Serial.write(71); // G
+			Serial.write(89); // Y
 			Serial.write(90); // Z
 			Serial.write(SensorRegister[10]);
 			Serial.write(SensorRegister[11]);
