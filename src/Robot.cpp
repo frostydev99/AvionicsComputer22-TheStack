@@ -23,16 +23,16 @@ bool Robot::systemInit(){
 	baro->init();
 
 	baro->setModeAltimeter();
-	baro->setOverSampleRate(0);
+	baro->setOverSample6ms();
 
 	// Set up IMU
 	imu->init();
 
-	imu->setPlusMinus2000DPS();
-	imu->setPlusMinus16Gs();
+	imu->setPlusMinus2000DPS();			// maximum angular rate measuring
+	imu->setPlusMinus16Gs();			// maximum acceleration measuring
 
 
-//	delay(2);							// let barometer start up
+//	delay(10);							// let sensors start up
 
 
 	return true;

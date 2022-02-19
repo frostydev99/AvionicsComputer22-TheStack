@@ -61,6 +61,39 @@ void MPL3115A2::setOverSampleRate(uint8_t oversampleVal) {
 }
 
 
+void MPL3115A2::setOverSample6ms() {
+	setOverSampleRate(OS_6MS);
+}
+
+void MPL3115A2::setOverSample10ms() {
+	setOverSampleRate(OS_10MS);
+}
+
+void MPL3115A2::setOverSample18ms() {
+	setOverSampleRate(OS_18MS);
+}
+
+void MPL3115A2::setOverSample34ms() {
+	setOverSampleRate(OS_34MS);
+}
+
+void MPL3115A2::setOverSample66ms() {
+	setOverSampleRate(OS_66MS);
+}
+
+void MPL3115A2::setOverSample130ms() {
+	setOverSampleRate(OS_130MS);
+}
+
+void MPL3115A2::setOverSample258ms() {
+	setOverSampleRate(OS_258MS);
+}
+
+void MPL3115A2::setOverSample512ms() {
+	setOverSampleRate(OS_512MS);
+}
+
+
 /*
  * Clears then sets the OST bit which causes the sensor to immediately take
  * another reading, needed to sample faster than 1Hz

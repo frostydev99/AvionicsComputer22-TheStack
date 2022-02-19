@@ -7,17 +7,17 @@
 
 #include <Wire.h>
 
-#define ICM20948_ADDRESS			 0x68
+#define ICM20948_ADDRESS			 0x68	// default I2C address (AD0 pin pulled low)
 
 // ICM20948 register addresses
 #define ICM20948_PWR_MGMT_1          0x06
 #define ICM20948_ODR_ALIGN_EN        0x09
 
-#define GYRO_CONFIG_1				 0x01	// Register ID in bank 2
-#define ACCEL_CONFIG_1				 0x14	// Register ID in bank 2
+#define GYRO_CONFIG_1				 0x01	// register ID in bank 2
+#define ACCEL_CONFIG_1				 0x14	// register ID in bank 2
 
-#define ICM20948_ACCEL_OUT           0x2D // accel data registers begin
-#define ICM20948_GYRO_OUT            0x33 // gyro data registers begin
+#define ICM20948_ACCEL_OUT           0x2D 	// accel data registers begin
+#define ICM20948_GYRO_OUT            0x33 	// gyro data registers begin
 
 #define ICM20948_REG_BANK_SEL        0x7F
 
@@ -49,7 +49,7 @@ struct Vector
 class ICM20948
 {
 
-	uint8_t I2C_addr;
+	uint8_t I2C_addr = ICM20948_ADDRESS;	// default
 
     TwoWire *_wire;
 
@@ -87,8 +87,8 @@ public:
 
 private:
 
-    uint8_t currBank;
-    uint8_t regVal;
+    uint8_t currBank = 0;
+    uint8_t regVal = 0;
     uint8_t SensorRegister[14];			// last polled sensor register values stored here
 
     void switchBank(uint8_t newBank);
