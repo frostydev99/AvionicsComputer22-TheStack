@@ -24,7 +24,7 @@
 #define USE_SERIAL						// enable calls to Serial such as print statements
 
 // Set to zero for loop as fast as possible
-#define LOOPER_PERIOD 10 //50						// milliseconds, 10 ms or 100 Hz
+#define LOOPER_PERIOD 10 //100						// milliseconds, 10 ms or 100 Hz
 
 // Must be greater than or equal to 1
 #define TOTAL_LOOPS 1

@@ -24,6 +24,26 @@ bool Robot::systemInit(){
 	Serial1.begin(9600);
 	transceiver->init();
 
+	//transceiver->SetMode();
+	transceiver->SetAddressH(0);
+	transceiver->SetAddressL(0);
+	transceiver->SetChannel(1);
+	//transceiver->SetOptions();
+
+	transceiver->SetParityBit(0);	 		// SpeedParityBit
+	transceiver->SetUARTBaudRate(3);		// 3 = 9600 baud
+	transceiver->SetAirDataRate(4);			// 2 = B010 =  2.4kbps (default)
+											// 4 = B100 = 9.6kbps
+											// 5 = B101 = 19.2kbps
+	transceiver->SetTransmissionMode(0);	// OptionTrans
+	transceiver->SetPullupMode(1);			// OptionPullup
+	transceiver->SetWORTIming(0);			// OptionWakeup
+	transceiver->SetFECMode(1);				// OptionFEC
+	transceiver->SetTransmitPower(0);		// default
+
+	transceiver->SaveParameters(PERMANENT);
+	transceiver->PrintParameters();
+
 
 
 	return true;
@@ -61,24 +81,6 @@ void Robot::beginStateMachine(){
 	Serial.println(F("STARTED ROBOT LOOP"));
 	//zeroAllSensors();
 
-	//transceiver->SetMode();
-	transceiver->SetAddressH(0);
-	transceiver->SetAddressL(0);
-	transceiver->SetChannel(1);
-	//transceiver->SetOptions();
-
-	transceiver->SetParityBit(0);	 		// SpeedParityBit
-	transceiver->SetUARTBaudRate(3);		// 3 = 9600 baud
-	transceiver->SetAirDataRate(4);			// 2 = B010 =  2.4kbps (default)
-											// 5 = B101 = 19.2kbps
-	transceiver->SetTransmissionMode(0);	// OptionTrans
-	transceiver->SetPullupMode(1);			// OptionPullup
-	transceiver->SetWORTIming(0);			// OptionWakeup
-	transceiver->SetFECMode(1);				// OptionFEC
-	transceiver->SetTransmitPower(0);		// default
-
-	transceiver->SaveParameters(PERMANENT);
-	transceiver->PrintParameters();
 
 
 }
