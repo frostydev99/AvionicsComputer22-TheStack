@@ -70,6 +70,8 @@ public:
     Vector getGyroRawValues(); // TODO FOR TESTING ONLY
     Vector getAccRawValues();  //TODO FOR TESTING ONLY
 
+    uint8_t* getRawSensorRegisters();
+
     int16_t getTempRawValues();
 
     uint8_t getPlusMinus250DPS();

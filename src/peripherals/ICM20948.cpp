@@ -33,54 +33,11 @@ void ICM20948::switchBank(uint8_t bank)
 	}
 }
 void ICM20948::printBuffer(){
-//	for(int i = 0; i<14;i++){
-//		Serial.print(SensorRegister[i]);
-//		Serial.print("\t");
-//	}
 
-			// Accelerometer x-axis
-			Serial.write(65); // A
-			Serial.write(67); // C
-			Serial.write(88); // X
-			Serial.write(SensorRegister[0]);
-			Serial.write(SensorRegister[1]);
-
-			// Accelerometer y-axis
-			Serial.write(65); // A
-			Serial.write(67); // C
-			Serial.write(89); // Y
-			Serial.write(SensorRegister[2]);
-			Serial.write(SensorRegister[3]);
-
-			// Accelerometer z-axis
-			Serial.write(65); // A
-			Serial.write(67); // C
-			Serial.write(90); // Z
-			Serial.write(SensorRegister[4]);
-			Serial.write(SensorRegister[5]);
-
-			// Gyro x-axis
-			Serial.write(71); // G
-			Serial.write(89); // Y
-			Serial.write(88); // X
-			Serial.write(SensorRegister[6]);
-			Serial.write(SensorRegister[7]);
-
-			// Gyro y-axis
-			Serial.write(71); // G
-			Serial.write(89); // Y
-			Serial.write(89); // Y
-			Serial.write(SensorRegister[8]);
-			Serial.write(SensorRegister[9]);
-
-			// Gyro z-axis
-			Serial.write(71); // G
-			Serial.write(89); // Y
-			Serial.write(90); // Z
-			Serial.write(SensorRegister[10]);
-			Serial.write(SensorRegister[11]);
-
-
+	for(uint8_t i = 0; i < 14; i++){
+		Serial.print(SensorRegister[i]);
+		Serial.print("\t");
+	}
 
 }
 /*
@@ -239,6 +196,13 @@ Vector ICM20948::getGyroRawValues(){
  */
 int16_t ICM20948::getTempRawValues(){
 	return processHighLowBytes(SensorRegister[12],SensorRegister[13]);
+}
+
+/*
+ * @return the pointer to the array of raw sensor registers
+ */
+uint8_t* ICM20948::getRawSensorRegisters() {
+	return SensorRegister;
 }
 
 /*

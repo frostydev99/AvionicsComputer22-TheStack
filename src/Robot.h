@@ -42,8 +42,14 @@ private:
 
 	RobotState robotState = IDLE;			// initial system state is IDLE
 
+	// Sensors
 	ICM20948 * imu = new ICM20948(0x68);
 	MPL3115A2 * baro = new MPL3115A2();
+
+	// Data registers of sensors
+	uint8_t baroRegisters[6];
+	uint8_t imuRegisters[14];
+
 
 
 public:

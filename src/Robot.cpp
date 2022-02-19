@@ -75,6 +75,7 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 
 	imu->readSensorData();
+	uint8_t * gyroAccelBytes = imu->getRawSensorRegisters();
 	//imu->printVector(imu->getAccRawValues());
 	//Serial.println(imu->getTempRawValues());
 
@@ -126,8 +127,47 @@ void Robot::updateStateMachine(uint32_t timestamp){
     Serial.write(temperatureBytes[1]);
     Serial.write(temperatureBytes[0]);
 
-    // IMU PRINTS
-    imu->printBuffer();
+    // Accelerometer x-axis
+	Serial.write(65); // A
+	Serial.write(67); // C
+	Serial.write(88); // X
+	Serial.write(gyroAccelBytes[0]);
+	Serial.write(gyroAccelBytes[1]);
+
+	// Accelerometer y-axis
+	Serial.write(65); // A
+	Serial.write(67); // C
+	Serial.write(89); // Y
+	Serial.write(gyroAccelBytes[2]);
+	Serial.write(gyroAccelBytes[3]);
+
+	// Accelerometer z-axis
+	Serial.write(65); // A
+	Serial.write(67); // C
+	Serial.write(90); // Z
+	Serial.write(gyroAccelBytes[4]);
+	Serial.write(gyroAccelBytes[5]);
+
+	// Gyro x-axis
+	Serial.write(71); // G
+	Serial.write(89); // Y
+	Serial.write(88); // X
+	Serial.write(gyroAccelBytes[6]);
+	Serial.write(gyroAccelBytes[7]);
+
+	// Gyro y-axis
+	Serial.write(71); // G
+	Serial.write(89); // Y
+	Serial.write(89); // Y
+	Serial.write(gyroAccelBytes[8]);
+	Serial.write(gyroAccelBytes[9]);
+
+	// Gyro z-axis
+	Serial.write(71); // G
+	Serial.write(89); // Y
+	Serial.write(90); // Z
+	Serial.write(gyroAccelBytes[10]);
+	Serial.write(gyroAccelBytes[11]);
 
     // Data end bytes
     Serial.write(69); // E
