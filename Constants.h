@@ -23,6 +23,8 @@
 #define E32_LORA_M0  2		// PCB silkscreen 25
 #define E32_LORA_M1  3		// PCB silkscreen 18
 #define E32_LORA_AUX 4		// PCB silkscreen D0
+
+
 #define PIN_5		 5		// PCB silkscreen D1
 
 #define SPI_FLASH_CS 10		// PCB silkscreen ?

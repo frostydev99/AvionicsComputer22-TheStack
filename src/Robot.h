@@ -32,6 +32,7 @@
 #define PIN_AX 4
 
 
+
 /*
  * Robot has TODO primary states of autonomous operation throughout its mission which begins when the system is powered on
  *
@@ -63,14 +64,16 @@ private:
 	MPL3115A2 * baro = new MPL3115A2();
 
 	// Data registers of sensors
-	uint8_t baroRegisters[6];
-	uint8_t imuRegisters[14];
+	//uint8_t baroRegisters[5];
+	uint8_t imuRegisters[12];
 
 
 	LoRaE32 * transceiver = new LoRaE32(&Serial1, PIN_M0, PIN_M1, PIN_AX);
+	//LoRaE32 * transceiver = new LoRaE32(&Serial1, E32_LORA_M0, E32_LORA_M1, E32_LORA_AUX);
+
 
 	struct DATA {
-	  uint8_t Count   = 0;
+	  uint8_t count0  = 0;
 	  uint8_t count1  = 1;
 	  uint8_t count2  = 2;
 	  uint8_t count3  = 3;

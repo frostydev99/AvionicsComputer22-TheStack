@@ -101,6 +101,7 @@ void Robot::beginStateMachine(){
 
 void Robot::updateStateMachine(uint32_t timestamp){
 
+	uint8_t * timestampBytes = (uint8_t *) &timestamp;
 
 	imu->readSensorData();
 	uint8_t * gyroAccelBytes = imu->getRawSensorRegisters();
@@ -108,16 +109,48 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	//Serial.println(imu->getTempRawValues());
 
 	baro->readSensorData();
+	uint32_t  altAndTemperature = baro->getPressureAndTempCombined();
+	uint8_t * barometerBytes = (uint8_t *) &altAndTemperature;
 
 	float altitude = baro->getPressure();
 	uint8_t * altitudeBytes = (uint8_t *) &altitude;
-	Serial.println(altitude);
+	//Serial.println(altitude);
 
 	float temperature = baro->getTemperature();
 	uint8_t * temperatureBytes = (uint8_t *) &temperature;
-//	//Serial.println(temperature);
+	//Serial.println(temperature);
 
-	uint8_t * timestampBytes = (uint8_t *) &timestamp;
+
+
+	// SENDING
+
+//	MyData.count0 = timestampBytes[3];
+//	MyData.count1 = timestampBytes[2];
+//	MyData.count2 = timestampBytes[1];
+//	MyData.count3 = timestampBytes[0];
+//
+//	MyData.count4 = barometerBytes[0];
+//	MyData.count5 = barometerBytes[1];
+//	MyData.count6 = barometerBytes[2];
+//	MyData.count7 = barometerBytes[3];
+//
+//	MyData.count8 = gyroAccelBytes[0];
+//	MyData.count9 = gyroAccelBytes[1];
+//	MyData.count10 = gyroAccelBytes[2];
+//	MyData.count11 = gyroAccelBytes[3];
+//	MyData.count12 = gyroAccelBytes[4];
+//	MyData.count13 = gyroAccelBytes[5];
+//	MyData.count14 = gyroAccelBytes[6];
+//	MyData.count15 = gyroAccelBytes[7];
+//	MyData.count16 = gyroAccelBytes[8];
+//	MyData.count17 = gyroAccelBytes[9];
+//	MyData.count18 = gyroAccelBytes[10];
+//	MyData.count19 = gyroAccelBytes[11];
+//
+//
+//	transceiver->SendStruct(&MyData, sizeof(MyData));
+//	Serial.println(MyData.count2);
+
 
 
     //Data start bytes
@@ -206,49 +239,40 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 
 
-	// SENDING
-//	if(MyData.Count == 255){
-//		MyData.Count = 0;
-//	} else {
-//		MyData.Count++;
-//	}
-//
-//	transceiver->SendStruct(&MyData, sizeof(MyData));
-//
-//	Serial.print(F("Sent: "));
-//	Serial.println(MyData.Count);
 
 
 	// RECEIVING
-	if(transceiver->available()) {
+//	if(transceiver->available()) {
+//
+//		transceiver->GetStruct(&MyData, sizeof(MyData));
 
-		transceiver->GetStruct(&MyData, sizeof(MyData));
+
 
 		//Serial.print(timestamp); Serial.print(F(": "));
 		//Serial.println(MyData.Count);
 
-		Serial.print(MyData.Count); Serial.print(F(", "));
-		Serial.print(MyData.count1); Serial.print(F(", "));
-		Serial.print(MyData.count2); Serial.print(F(", "));
-		Serial.print(MyData.count3); Serial.print(F(", "));
-		Serial.print(MyData.count4); Serial.print(F(", "));
-		Serial.print(MyData.count5); Serial.print(F(", "));
-		Serial.print(MyData.count6); Serial.print(F(", "));
-		Serial.print(MyData.count7); Serial.print(F(", "));
-		Serial.print(MyData.count8); Serial.print(F(", "));
-		Serial.print(MyData.count9); Serial.print(F(", "));
-		Serial.print(MyData.count10); Serial.print(F(", "));
-		Serial.print(MyData.count11); Serial.print(F(", "));
-		Serial.print(MyData.count12); Serial.print(F(", "));
-		Serial.print(MyData.count13); Serial.print(F(", "));
-		Serial.print(MyData.count14); Serial.print(F(", "));
-		Serial.print(MyData.count15); Serial.print(F(", "));
-		Serial.print(MyData.count16); Serial.print(F(", "));
-		Serial.print(MyData.count17); Serial.print(F(", "));
-		Serial.print(MyData.count18); Serial.print(F(", "));
-		Serial.print(MyData.count19);
-		Serial.println();
-	}
+//		Serial.print(MyData.count0); Serial.print(F(", "));
+//		Serial.print(MyData.count1); Serial.print(F(", "));
+//		Serial.print(MyData.count2); Serial.print(F(", "));
+//		Serial.print(MyData.count3); Serial.print(F(", "));
+//		Serial.print(MyData.count4); Serial.print(F(", "));
+//		Serial.print(MyData.count5); Serial.print(F(", "));
+//		Serial.print(MyData.count6); Serial.print(F(", "));
+//		Serial.print(MyData.count7); Serial.print(F(", "));
+//		Serial.print(MyData.count8); Serial.print(F(", "));
+//		Serial.print(MyData.count9); Serial.print(F(", "));
+//		Serial.print(MyData.count10); Serial.print(F(", "));
+//		Serial.print(MyData.count11); Serial.print(F(", "));
+//		Serial.print(MyData.count12); Serial.print(F(", "));
+//		Serial.print(MyData.count13); Serial.print(F(", "));
+//		Serial.print(MyData.count14); Serial.print(F(", "));
+//		Serial.print(MyData.count15); Serial.print(F(", "));
+//		Serial.print(MyData.count16); Serial.print(F(", "));
+//		Serial.print(MyData.count17); Serial.print(F(", "));
+//		Serial.print(MyData.count18); Serial.print(F(", "));
+//		Serial.print(MyData.count19);
+//		Serial.println();
+//	}
 
 
 
