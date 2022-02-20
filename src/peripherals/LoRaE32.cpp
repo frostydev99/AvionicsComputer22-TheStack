@@ -121,7 +121,7 @@ bool LoRaE32::SendStruct(const void *TheStructure, uint16_t size_) {
 
 		_buf = _s->write((uint8_t *) TheStructure, size_);
 
-		CompleteTask(1000);
+		//CompleteTask(1000);
 
 		return (_buf == size_);
 }

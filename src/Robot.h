@@ -14,16 +14,11 @@
 #include "loops/Looper.h"
 #include "loops/loop.h"
 
+//#include "peripherals/MetroTimer.h"
+#include "peripherals/LoRaE32.h"
 
 #include "peripherals/ICM20948.h"
 #include "peripherals/MPL3115A2.h"
-
-//#include "subsystems/DriveTrain.h"
-
-//#include "peripheral/GyroAccel.h"
-//#include "peripheral/LoRaRadio.h"
-
-#include "peripherals/LoRaE32.h"
 
 
 // TODO make these properly
@@ -57,6 +52,9 @@ class Robot : public SystemInterface {
 private:
 
 	RobotState robotState = IDLE;			// initial system state is IDLE
+
+
+	MetroTimer transmitTimer = MetroTimer(100);		// passed to timer in milliseconds
 
 
 	// Sensors
