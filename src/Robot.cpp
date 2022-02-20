@@ -20,21 +20,6 @@ Robot::Robot(){};
 bool Robot::systemInit(){
 
 
-	// Set up barometer
-	baro->init();
-
-	baro->setModeAltimeter();
-	baro->setOverSample6ms();
-
-	// Set up IMU
-	imu->init();
-
-	imu->setPlusMinus2000DPS();			// maximum angular rate measuring
-	imu->setPlusMinus16Gs();			// maximum acceleration measuring
-
-
-//	delay(10);							// let sensors start up
-
 	Serial1.begin(9600);
 	transceiver->init();
 
@@ -58,6 +43,21 @@ bool Robot::systemInit(){
 	transceiver->SaveParameters(PERMANENT);
 	transceiver->PrintParameters();
 
+
+	// Set up barometer
+	baro->init();
+
+	baro->setModeAltimeter();
+	baro->setOverSample6ms();
+
+	// Set up IMU
+	imu->init();
+
+	imu->setPlusMinus2000DPS();			// maximum angular rate measuring
+	imu->setPlusMinus16Gs();			// maximum acceleration measuring
+
+
+//	delay(10);							// let sensors start up
 
 
 	return true;
@@ -101,29 +101,29 @@ void Robot::beginStateMachine(){
 
 void Robot::updateStateMachine(uint32_t timestamp){
 
-	uint8_t * timestampBytes = (uint8_t *) &timestamp;
-
-	imu->readSensorData();
-	uint8_t * gyroAccelBytes = imu->getRawSensorRegisters();
-	imu->printVector(imu->getAccRawValues());
-	//Serial.println(imu->getTempRawValues());
-
-	baro->readSensorData();
-	uint32_t  altAndTemperature = baro->getPressureAndTempCombined();
-	uint8_t * barometerBytes = (uint8_t *) &altAndTemperature;
-
-	float altitude = baro->getPressure();
-	uint8_t * altitudeBytes = (uint8_t *) &altitude;
-	//Serial.println(altitude);
-
-	float temperature = baro->getTemperature();
-	uint8_t * temperatureBytes = (uint8_t *) &temperature;
-	//Serial.println(temperature);
-
-
-
-	// SENDING
-
+//	uint8_t * timestampBytes = (uint8_t *) &timestamp;
+//
+//	imu->readSensorData();
+//	uint8_t * gyroAccelBytes = imu->getRawSensorRegisters();
+//	imu->printVector(imu->getAccRawValues());
+//	//Serial.println(imu->getTempRawValues());
+//
+//	baro->readSensorData();
+//	uint32_t  altAndTemperature = baro->getPressureAndTempCombined();
+//	uint8_t * barometerBytes = (uint8_t *) &altAndTemperature;
+//
+//	float altitude = baro->getPressure();
+//	uint8_t * altitudeBytes = (uint8_t *) &altitude;
+//	//Serial.println(altitude);
+//
+//	float temperature = baro->getTemperature();
+//	uint8_t * temperatureBytes = (uint8_t *) &temperature;
+//	//Serial.println(temperature);
+//
+//
+//
+//	// SENDING
+//
 //	MyData.count0 = timestampBytes[3];
 //	MyData.count1 = timestampBytes[2];
 //	MyData.count2 = timestampBytes[1];
@@ -149,8 +149,8 @@ void Robot::updateStateMachine(uint32_t timestamp){
 //
 //
 //	transceiver->SendStruct(&MyData, sizeof(MyData));
-//	Serial.println(MyData.count2);
-
+//
+//	Serial.println(MyData.count9);
 
 
     //Data start bytes
@@ -241,15 +241,115 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 
 
-	// RECEIVING
-//	if(transceiver->available()) {
-//
-//		transceiver->GetStruct(&MyData, sizeof(MyData));
+	 //RECEIVING
+	if(transceiver->available()) {
+
+		transceiver->GetStruct(&MyData, sizeof(MyData));
 
 
+		uint32_t altAndTemperature = 0;
+		uint8_t * barometerBytes = (uint8_t *) &altAndTemperature;
 
-		//Serial.print(timestamp); Serial.print(F(": "));
-		//Serial.println(MyData.Count);
+		barometerBytes[0] = MyData.count4;
+		barometerBytes[1] = MyData.count5;
+		barometerBytes[2] = MyData.count6;
+		barometerBytes[3] = MyData.count7;
+
+		baro->setDataFromCombinedRaw(altAndTemperature);
+
+		float altitude = baro->getPressure();
+		uint8_t * altitudeBytes = (uint8_t *) &altitude;
+		//Serial.println(altitude);
+
+		float temperature = baro->getTemperature();
+		uint8_t * temperatureBytes = (uint8_t *) &temperature;
+		//Serial.println(temperature);
+
+
+		//Data start bytes
+		Serial.write(66); // B
+		Serial.write(69); // E
+		Serial.write(71); // G
+		Serial.write(66); // B
+
+		Serial.write(84); // T - Timestamp
+		Serial.write(83); // S
+		Serial.write(80); // P
+		Serial.write(MyData.count0);
+		Serial.write(MyData.count1);
+		Serial.write(MyData.count2);
+		Serial.write(MyData.count3);
+
+		Serial.write(83); // S - State
+		Serial.write(84); // T
+		Serial.write(84); // T
+		Serial.write(0);  // state zero hardcode for now
+
+		Serial.write(65); // A - Altitute
+		Serial.write(76); // L
+		Serial.write(84); // T
+		Serial.write(altitudeBytes[3]);
+		Serial.write(altitudeBytes[2]);
+		Serial.write(altitudeBytes[1]);
+		Serial.write(altitudeBytes[0]);
+
+		Serial.write(84); // T - Temperature
+		Serial.write(77); // M
+		Serial.write(80); // P
+		Serial.write(temperatureBytes[3]);
+		Serial.write(temperatureBytes[2]);
+		Serial.write(temperatureBytes[1]);
+		Serial.write(temperatureBytes[0]);
+
+		// Accelerometer x-axis
+		Serial.write(65); // A
+		Serial.write(67); // C
+		Serial.write(88); // X
+		Serial.write(MyData.count8);
+		Serial.write(MyData.count9);
+
+		// Accelerometer y-axis
+		Serial.write(65); // A
+		Serial.write(67); // C
+		Serial.write(89); // Y
+		Serial.write(MyData.count10);
+		Serial.write(MyData.count11);
+
+		// Accelerometer z-axis
+		Serial.write(65); // A
+		Serial.write(67); // C
+		Serial.write(90); // Z
+		Serial.write(MyData.count12);
+		Serial.write(MyData.count13);
+
+		// Gyro x-axis
+		Serial.write(71); // G
+		Serial.write(89); // Y
+		Serial.write(88); // X
+		Serial.write(MyData.count14);
+		Serial.write(MyData.count15);
+
+		// Gyro y-axis
+		Serial.write(71); // G
+		Serial.write(89); // Y
+		Serial.write(89); // Y
+		Serial.write(MyData.count16);
+		Serial.write(MyData.count17);
+
+		// Gyro z-axis
+		Serial.write(71); // G
+		Serial.write(89); // Y
+		Serial.write(90); // Z
+		Serial.write(MyData.count18);
+		Serial.write(MyData.count19);
+
+		// Data end bytes
+		Serial.write(69); // E
+		Serial.write(78); // N
+		Serial.write(68); // D
+		Serial.write(66); // B
+
+
 
 //		Serial.print(MyData.count0); Serial.print(F(", "));
 //		Serial.print(MyData.count1); Serial.print(F(", "));
@@ -272,7 +372,7 @@ void Robot::updateStateMachine(uint32_t timestamp){
 //		Serial.print(MyData.count18); Serial.print(F(", "));
 //		Serial.print(MyData.count19);
 //		Serial.println();
-//	}
+	}
 
 
 
