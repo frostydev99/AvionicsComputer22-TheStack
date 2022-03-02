@@ -41,7 +41,7 @@ private:
     float zeroAltitude = 0;
 
     float rawToPressure(uint8_t msb, uint8_t csb, uint8_t lsb);
-    //float rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb);
+    float rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb);
     float rawToTemperature(uint8_t msb, uint8_t lsb);
 
     void rawDataToFourBytes();
