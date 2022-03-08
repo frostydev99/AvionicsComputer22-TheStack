@@ -168,7 +168,7 @@ float MPL3115A2::readAltitude() {
 
     //toggleOneShot();    !!! ONLY DO THIS ONCE BEFORE READING !!!
 
-    float altitude = readPressure();
+    float altitude = rawToAltitude(sensorRegisters[1], sensorRegisters[2], sensorRegisters[3]);
 
     return altitude;
 
@@ -195,7 +195,8 @@ float MPL3115A2::readTemperature() {
 
 
 /*
- *
+ * From the raw sensor registers, converts the pressure to a float. The sensor is in pressure mode
+ * and returns the raw data as a Q18.2 unsigned integer.
  */
 float MPL3115A2::rawToPressure(uint8_t msb, uint8_t csb, uint8_t lsb) {
 
@@ -215,6 +216,23 @@ float MPL3115A2::rawToPressure(uint8_t msb, uint8_t csb, uint8_t lsb) {
 	return pressure;
 }
 
+/*
+ * From the raw sensor registers, converts the altitude to a float. The sensor is in altitude mode
+ * and returns the raw data as a Q16.4 signed integer.
+ */
+float MPL3115A2::rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb) {
+	float altitude = 0.0;
+
+	// Integer part of the altitude reading
+	int16_t integerPart = (msb << 8) | csb;
+	// Fractional part of the altitude reading
+	uint8_t fractionalPart = (lsb >> 4);
+
+	altitude = integerPart + (fractionalPart * 0.0625);
+
+	this->altitude = altitude;
+	return altitude;
+}
 
 /*
  *
@@ -222,12 +240,13 @@ float MPL3115A2::rawToPressure(uint8_t msb, uint8_t csb, uint8_t lsb) {
 float MPL3115A2::rawToTemperature(uint8_t msb, uint8_t lsb) {
 
 	float temperature = 0.0;
+	int16_t integerPart = msb;
 
 	// Get fractional part
-	uint8_t fractionalPart = (lsb >> 4);
+	uint8_t fractionalPart = ((lsb & B11110000) >> 4);
 
 	// Integer and fractional parts combined
-	temperature = msb + (fractionalPart * 0.0625);
+	temperature = integerPart + (fractionalPart * 0.0625);
 
 	this->temperature = temperature;
 
