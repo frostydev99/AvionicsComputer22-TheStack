@@ -14,17 +14,17 @@
 #include "loops/Looper.h"
 #include "loops/loop.h"
 
-//#include "peripherals/MetroTimer.h"
-#include "peripherals/LoRaE32.h"
-
 #include "peripherals/ICM20948.h"
 #include "peripherals/MPL3115A2.h"
+
+#include "peripherals/LoRaE32.h"
 
 
 // TODO make these properly
 #define PIN_M0 2
 #define PIN_M1 3
 #define PIN_AX 4
+
 
 
 
@@ -61,11 +61,7 @@ private:
 	ICM20948 * imu = new ICM20948(0x68);
 	MPL3115A2 * baro = new MPL3115A2();
 
-	// Data registers of sensors
-	//uint8_t baroRegisters[5];
-	uint8_t imuRegisters[12];
-
-
+	// Transmitter
 	LoRaE32 * transceiver = new LoRaE32(&Serial1, PIN_M0, PIN_M1, PIN_AX);
 	//LoRaE32 * transceiver = new LoRaE32(&Serial1, E32_LORA_M0, E32_LORA_M1, E32_LORA_AUX);
 

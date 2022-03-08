@@ -16,7 +16,7 @@
 
 
 /*
- * Pins for Polaris PCB
+ * PINS FOR POLARIS PCB
  */
 #define E32_LORA_RX	 0		// PCB silkscreen 4	//3
 #define E32_LORA_TX  1		// PCB silkscreen 3	//4
@@ -35,15 +35,25 @@
 
 
 
+
+
+
+
+
+
 /*
- * Use the primary (USB connector) serial interface to send, receive, or stream data.
- *
- * Commenting out this line should always result in the program running properly
- * upon startup, stray Serial.print() statements elsewhere in the code can cause the
- * program to stall without a serial connection present and called before Serial.begin()
- * for Arduino. Teensy USB hardware initialization is performed before setup() runs
+ * COMM BUS SETTINGS
  */
-#define USE_SERIAL						// enable calls to Serial such as print statements
+
+#define I2C_BUS_FREQUENCY 400000		// 400kHz(MPU6050 max)
+#define SPI_SCK_FREQUENCY 10000000		// 10MHz (LoRa max)
+
+#define DEBUG_BAUD_RATE 115200		//2000000
+
+
+/*
+ * LOOPER SETTINGS
+ */
 
 // Set to zero for loop as fast as possible
 #define LOOPER_PERIOD 10 //100						// milliseconds, 10 ms or 100 Hz
@@ -52,20 +62,16 @@
 #define TOTAL_LOOPS 1
 
 
-
 /*
- * COMM BUS CONSTANTS
+ * Use the primary (USB connector) serial interface to send, receive, or stream data.
+ *
+ * Commenting out this line should always result in the program running properly
+ * upon startup, stray Serial.print() statements elsewhere in the code can cause the
+ * program to stall without a serial connection present and called before Serial.begin()
+ * for Arduino. Teensy USB hardware initialization is performed before setup() runs
+ * Program failing to run while printing without serial connection not observed on Teensy 4.0
  */
-
-#define I2C_BUS_FREQUENCY 400000		// 400kHz(MPU6050 max)
-#define SPI_SCK_FREQUENCY 10000000		// 10MHz (LoRa max)
-
-
-
-/* DEBUG CONSTANTS */
-
-#define DEBUG_BAUD_RATE 115200
-//2000000
+#define USE_SERIAL						// enable calls to Serial such as print statements
 
 
 #endif /* CONSTANTS_H_ */
