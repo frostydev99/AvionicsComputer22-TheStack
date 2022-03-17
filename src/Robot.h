@@ -35,9 +35,8 @@
  */
 enum RobotState {
 
-	//TESTING,
-	//Waiting,
-	//Driving
+	BOTTOM_OF_HIGGINS,
+	TOP_OF_HIGGINS,
 	IDLE
 };
 
@@ -52,7 +51,6 @@ class Robot : public SystemInterface {
 private:
 
 	RobotState robotState = IDLE;			// initial system state is IDLE
-
 
 	MetroTimer transmitTimer = MetroTimer(100);		// passed to timer in milliseconds
 
@@ -95,6 +93,8 @@ private:
 	DATA MyData;
 
 
+
+	float altitudeThreshold = 84.875; // tuned 3/16/2022
 
 public:
 
