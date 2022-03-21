@@ -99,7 +99,7 @@ private:
 	float prevAltitude = 0;
 	float temperature = 0;
 
-	const float ALPHA = 0.8;
+	const float ALPHA = 0.8; // TODO needs to be tuned
 
 public:
 
