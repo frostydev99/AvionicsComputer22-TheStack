@@ -27,7 +27,6 @@
 #define PIN_AX 4
 
 
-
 /*
  * Robot has TODO primary states of autonomous operation throughout its mission which begins when the system is powered on
  *
@@ -95,6 +94,12 @@ private:
 
 
 	float altitudeThreshold = 84.875; // tuned 3/16/2022
+
+	float altitude = 0;
+	float prevAltitude = 0;
+	float temperature = 0;
+
+	const float ALPHA = 0.8;
 
 public:
 

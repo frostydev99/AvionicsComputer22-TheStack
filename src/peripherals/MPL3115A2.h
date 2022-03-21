@@ -22,8 +22,6 @@
 #define OS_258MS 6
 #define OS_512MS 7
 
-
-
 #include "Arduino.h"
 
 class MPL3115A2 {
@@ -39,6 +37,8 @@ private:
 
     float maxAltitudeReading = 0;
     float zeroAltitude = 0;
+
+    float prevAltitude = 0;
 
     float rawToPressure(uint8_t msb, uint8_t csb, uint8_t lsb);
     float rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb);

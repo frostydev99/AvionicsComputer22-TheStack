@@ -95,7 +95,8 @@ void Robot::beginStateMachine(){
 
 	//zeroAllSensors();
 
-
+	altitude = baro->getAltitude();
+	prevAltitude = altitude;
 
 }
 
@@ -113,11 +114,13 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	uint32_t  altAndTemperature = baro->getPressureAndTempCombined();
 	uint8_t * barometerBytes = (uint8_t *) &altAndTemperature;
 
-	float altitude = baro->getAltitude();
+	prevAltitude = altitude;
+	altitude = baro->getAltitude();
+	altitude = 	altitude + ALPHA * (prevAltitude - altitude);
 	uint8_t * altitudeBytes = (uint8_t *) &altitude;
-	//Serial.println(altitude);
+	Serial.println(altitude);
 
-	float temperature = baro->getTemperature();
+	temperature = baro->getTemperature();
 	uint8_t * temperatureBytes = (uint8_t *) &temperature;
 	//	Serial.println(temperature);
 
