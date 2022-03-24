@@ -116,9 +116,41 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 	prevAltitude = altitude;
 	altitude = baro->getAltitude();
+
+	uint8_t * timeBytes = (uint8_t *) &timestamp;
+
+	// Filter
 	altitude = 	altitude + ALPHA * (prevAltitude - altitude);
 	uint8_t * altitudeBytes = (uint8_t *) &altitude;
-	Serial.println(altitude);
+//	Serial.println(altitude);
+	Serial.write(66); //B
+	Serial.write(69); //E
+	Serial.write(71); //G
+	Serial.write(66); //B
+
+	Serial.write(65); //A
+	Serial.write(76); //L
+	Serial.write(84); //T
+
+	Serial.write(altitudeBytes[3]);
+	Serial.write(altitudeBytes[2]);
+	Serial.write(altitudeBytes[1]);
+	Serial.write(altitudeBytes[0]);
+
+	Serial.write(84); //T
+	Serial.write(83); //S
+	Serial.write(80); //P
+
+	Serial.write(timeBytes[3]);
+	Serial.write(timeBytes[2]);
+	Serial.write(timeBytes[1]);
+	Serial.write(timeBytes[0]);
+
+
+	Serial.write(69); //E
+	Serial.write(78); //N
+	Serial.write(68); //D
+	Serial.write(66); //B
 
 	temperature = baro->getTemperature();
 	uint8_t * temperatureBytes = (uint8_t *) &temperature;
