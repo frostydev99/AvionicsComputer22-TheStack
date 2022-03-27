@@ -154,7 +154,7 @@ public:
 	// ALL parameters must be sent even if only one option is changed--hence get all parameters initially
 	// so you know what the non changed parameters are know for re-sending back
 
-	bool init(uint8_t _Attempts = 5);
+	bool init(uint8_t _Attempts = 1);
 
 	// Methods to set modules working parameters
 	// !!! NOTHING WILL BE SAVED UNLESS SaveParameters() is called

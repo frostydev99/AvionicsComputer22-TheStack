@@ -20,28 +20,6 @@ Robot::Robot(){};
 bool Robot::systemInit(){
 
 
-	Serial1.begin(9600);
-	transceiver->init();
-
-	//transceiver->SetMode();
-	transceiver->SetAddressH(0);
-	transceiver->SetAddressL(0);
-	transceiver->SetChannel(1);
-	//transceiver->SetOptions();
-
-	transceiver->SetParityBit(0);	 		// SpeedParityBit
-	transceiver->SetUARTBaudRate(3);		// 3 = 9600 baud
-	transceiver->SetAirDataRate(4);			// 2 = B010 =  2.4kbps (default)
-											// 4 = B100 = 9.6kbps
-											// 5 = B101 = 19.2kbps
-	transceiver->SetTransmissionMode(0);	// OptionTrans
-	transceiver->SetPullupMode(1);			// OptionPullup
-	transceiver->SetWORTIming(0);			// OptionWakeup
-	transceiver->SetFECMode(1);				// OptionFEC
-	transceiver->SetTransmitPower(0);		// default
-
-	transceiver->SaveParameters(PERMANENT);
-	transceiver->PrintParameters();
 
 
 	// Set up barometer
@@ -57,8 +35,9 @@ bool Robot::systemInit(){
 	imu->setPlusMinus16Gs();			// maximum acceleration measuring
 
 
+	// Datalogger
+	dataLogger->subsystemInit();
 
-//	delay(10);							// let sensors start up
 
 
 	return true;
@@ -75,6 +54,8 @@ bool Robot::systemInit(){
 void Robot::registerAllLoops(Looper * runningLooper){
 
 	runningLooper->registerLoop(robotLoop);
+
+	dataLogger->registerLoops(runningLooper);
 
 }
 
@@ -95,66 +76,64 @@ void Robot::beginStateMachine(){
 
 	//zeroAllSensors();
 
-
-
 }
 
 
 void Robot::updateStateMachine(uint32_t timestamp){
 
-	uint8_t * timestampBytes = (uint8_t *) &timestamp;
+	Serial.println(timestamp);
+	//uint8_t * timestampBytes = (uint8_t *) &timestamp;
 
-	imu->readSensorData();
-	uint8_t * gyroAccelBytes = imu->getRawSensorRegisters();
+	//imu->readSensorData();
+	//uint8_t * gyroAccelBytes = imu->getRawSensorRegisters();
 
 	//imu->printVector(imu->getAccRawValues());
 	//Serial.println(imu->getTempRawValues());
 
-	baro->readSensorData();
-	uint32_t  altAndTemperature = baro->getPressureAndTempCombined();
-	uint8_t * barometerBytes = (uint8_t *) &altAndTemperature;
+	//baro->readSensorData();
+	//uint32_t  altAndTemperature = baro->getPressureAndTempCombined();
+	//uint8_t * barometerBytes = (uint8_t *) &altAndTemperature;
 
-	float altitude = baro->getAltitude();
-	uint8_t * altitudeBytes = (uint8_t *) &altitude;
-	Serial.println(altitude);
+	//float altitude = baro->getAltitude();
+	//uint8_t * altitudeBytes = (uint8_t *) &altitude;
+	//Serial.println(altitude);
 
-	float temperature = baro->getTemperature();
-	uint8_t * temperatureBytes = (uint8_t *) &temperature;
-//	Serial.println(temperature);
+	//float temperature = baro->getTemperature();
+	//uint8_t * temperatureBytes = (uint8_t *) &temperature;
+	//Serial.println(temperature);
 
 
 
 	// SENDING
-
-	if(transmitTimer.check() == 1) {		// check if the timer has passed it's interval
-
-		MyData.count0 = timestampBytes[3];
-		MyData.count1 = timestampBytes[2];
-		MyData.count2 = timestampBytes[1];
-		MyData.count3 = timestampBytes[0];
-
-		MyData.count4 = barometerBytes[0];
-		MyData.count5 = barometerBytes[1];
-		MyData.count6 = barometerBytes[2];
-		MyData.count7 = barometerBytes[3];
-
-		MyData.count8 = gyroAccelBytes[0];
-		MyData.count9 = gyroAccelBytes[1];
-		MyData.count10 = gyroAccelBytes[2];
-		MyData.count11 = gyroAccelBytes[3];
-		MyData.count12 = gyroAccelBytes[4];
-		MyData.count13 = gyroAccelBytes[5];
-		MyData.count14 = gyroAccelBytes[6];
-		MyData.count15 = gyroAccelBytes[7];
-		MyData.count16 = gyroAccelBytes[8];
-		MyData.count17 = gyroAccelBytes[9];
-		MyData.count18 = gyroAccelBytes[10];
-		MyData.count19 = gyroAccelBytes[11];
-
-		transceiver->SendStruct(&MyData, sizeof(MyData));
-
-		//Serial.println(MyData.count9);
-	}
+//	if(transmitTimer.check() == 1) {		// check if the timer has passed it's interval
+//
+//		MyData.count0 = timestampBytes[3];
+//		MyData.count1 = timestampBytes[2];
+//		MyData.count2 = timestampBytes[1];
+//		MyData.count3 = timestampBytes[0];
+//
+//		MyData.count4 = barometerBytes[0];
+//		MyData.count5 = barometerBytes[1];
+//		MyData.count6 = barometerBytes[2];
+//		MyData.count7 = barometerBytes[3];
+//
+//		MyData.count8 = gyroAccelBytes[0];
+//		MyData.count9 = gyroAccelBytes[1];
+//		MyData.count10 = gyroAccelBytes[2];
+//		MyData.count11 = gyroAccelBytes[3];
+//		MyData.count12 = gyroAccelBytes[4];
+//		MyData.count13 = gyroAccelBytes[5];
+//		MyData.count14 = gyroAccelBytes[6];
+//		MyData.count15 = gyroAccelBytes[7];
+//		MyData.count16 = gyroAccelBytes[8];
+//		MyData.count17 = gyroAccelBytes[9];
+//		MyData.count18 = gyroAccelBytes[10];
+//		MyData.count19 = gyroAccelBytes[11];
+//
+//		transceiver->SendStruct(&MyData, sizeof(MyData));
+//
+//		Serial.println(MyData.count9);
+//	}
 
 
 
@@ -262,7 +241,7 @@ void Robot::updateStateMachine(uint32_t timestamp){
 //
 //		baro->setDataFromCombinedRaw(altAndTemperature);
 //
-//		float altitude = baro->getPressure();
+//		float altitude = baro->getAltitude();
 //		uint8_t * altitudeBytes = (uint8_t *) &altitude;
 //		//Serial.println(altitude);
 //
@@ -353,30 +332,30 @@ void Robot::updateStateMachine(uint32_t timestamp){
 //		Serial.write(78); // N
 //		Serial.write(68); // D
 //		Serial.write(66); // B
-
-
-
-//		Serial.print(MyData.count0); Serial.print(F(", "));
-//		Serial.print(MyData.count1); Serial.print(F(", "));
-//		Serial.print(MyData.count2); Serial.print(F(", "));
-//		Serial.print(MyData.count3); Serial.print(F(", "));
-//		Serial.print(MyData.count4); Serial.print(F(", "));
-//		Serial.print(MyData.count5); Serial.print(F(", "));
-//		Serial.print(MyData.count6); Serial.print(F(", "));
-//		Serial.print(MyData.count7); Serial.print(F(", "));
-//		Serial.print(MyData.count8); Serial.print(F(", "));
-//		Serial.print(MyData.count9); Serial.print(F(", "));
-//		Serial.print(MyData.count10); Serial.print(F(", "));
-//		Serial.print(MyData.count11); Serial.print(F(", "));
-//		Serial.print(MyData.count12); Serial.print(F(", "));
-//		Serial.print(MyData.count13); Serial.print(F(", "));
-//		Serial.print(MyData.count14); Serial.print(F(", "));
-//		Serial.print(MyData.count15); Serial.print(F(", "));
-//		Serial.print(MyData.count16); Serial.print(F(", "));
-//		Serial.print(MyData.count17); Serial.print(F(", "));
-//		Serial.print(MyData.count18); Serial.print(F(", "));
-//		Serial.print(MyData.count19);
-//		Serial.println();
+//
+//
+//
+////		Serial.print(MyData.count0); Serial.print(F(", "));
+////		Serial.print(MyData.count1); Serial.print(F(", "));
+////		Serial.print(MyData.count2); Serial.print(F(", "));
+////		Serial.print(MyData.count3); Serial.print(F(", "));
+////		Serial.print(MyData.count4); Serial.print(F(", "));
+////		Serial.print(MyData.count5); Serial.print(F(", "));
+////		Serial.print(MyData.count6); Serial.print(F(", "));
+////		Serial.print(MyData.count7); Serial.print(F(", "));
+////		Serial.print(MyData.count8); Serial.print(F(", "));
+////		Serial.print(MyData.count9); Serial.print(F(", "));
+////		Serial.print(MyData.count10); Serial.print(F(", "));
+////		Serial.print(MyData.count11); Serial.print(F(", "));
+////		Serial.print(MyData.count12); Serial.print(F(", "));
+////		Serial.print(MyData.count13); Serial.print(F(", "));
+////		Serial.print(MyData.count14); Serial.print(F(", "));
+////		Serial.print(MyData.count15); Serial.print(F(", "));
+////		Serial.print(MyData.count16); Serial.print(F(", "));
+////		Serial.print(MyData.count17); Serial.print(F(", "));
+////		Serial.print(MyData.count18); Serial.print(F(", "));
+////		Serial.print(MyData.count19);
+////		Serial.println();
 //	}
 
 

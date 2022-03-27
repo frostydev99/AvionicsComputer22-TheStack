@@ -59,7 +59,7 @@
 #define LOOPER_PERIOD 10 //100						// milliseconds, 10 ms or 100 Hz
 
 // Must be greater than or equal to 1
-#define TOTAL_LOOPS 1
+#define TOTAL_LOOPS 2
 
 
 /*
