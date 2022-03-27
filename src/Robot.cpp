@@ -104,39 +104,6 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 
 
-	// SENDING
-//	if(transmitTimer.check() == 1) {		// check if the timer has passed it's interval
-//
-//		MyData.count0 = timestampBytes[3];
-//		MyData.count1 = timestampBytes[2];
-//		MyData.count2 = timestampBytes[1];
-//		MyData.count3 = timestampBytes[0];
-//
-//		MyData.count4 = barometerBytes[0];
-//		MyData.count5 = barometerBytes[1];
-//		MyData.count6 = barometerBytes[2];
-//		MyData.count7 = barometerBytes[3];
-//
-//		MyData.count8 = gyroAccelBytes[0];
-//		MyData.count9 = gyroAccelBytes[1];
-//		MyData.count10 = gyroAccelBytes[2];
-//		MyData.count11 = gyroAccelBytes[3];
-//		MyData.count12 = gyroAccelBytes[4];
-//		MyData.count13 = gyroAccelBytes[5];
-//		MyData.count14 = gyroAccelBytes[6];
-//		MyData.count15 = gyroAccelBytes[7];
-//		MyData.count16 = gyroAccelBytes[8];
-//		MyData.count17 = gyroAccelBytes[9];
-//		MyData.count18 = gyroAccelBytes[10];
-//		MyData.count19 = gyroAccelBytes[11];
-//
-//		transceiver->SendStruct(&MyData, sizeof(MyData));
-//
-//		Serial.println(MyData.count9);
-//	}
-
-
-
     //Data start bytes
 //    Serial.write(66); // B
 //    Serial.write(69); // E
