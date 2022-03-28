@@ -338,6 +338,16 @@ bool DataLogger::transmitTelemetry() {
 /*
  *
  */
+void DataLogger::setState(DataLoggerState state) {
+
+	loggerState = state;
+
+}
+
+
+/*
+ *
+ */
 void DataLogger::setDataPacket(uint32_t test) {
 	dataPacket.count0 = test;
 }

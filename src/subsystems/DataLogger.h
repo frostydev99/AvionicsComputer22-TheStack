@@ -128,9 +128,9 @@ public:
 			switch(logger_->loggerState){
 
 			case DATALOGGER_STARTUP:
-				//logger_->setWantedState(DATALOGGER_WRITE_BUFFER); ?
 				// check if should go to read file state?
-				logger_->loggerState = DATALOGGER_READ_FILE; //DATALOGGER_WRITE_BUFFER;
+				logger_->setState(DATALOGGER_READ_FILE); //DATALOGGER_WRITE_BUFFER;
+
 				break;
 
 			case DATALOGGER_WRITE_BUFFER:
@@ -143,7 +143,7 @@ public:
 
 				// Idle if finished reading
 				if(!logger_->readBuffer()){
-					logger_->loggerState = DATALOGGER_IDLE;
+					logger_->setState(DATALOGGER_IDLE);
 				}
 
 				break;
@@ -172,6 +172,8 @@ public:
 
 
 	void setDataPacket(uint32_t test);
+
+	void setState(DataLoggerState state);
 
 	bool subsystemInit();
 	void zeroSensors();
