@@ -20,9 +20,12 @@
  */
 typedef enum {
 	DATALOGGER_STARTUP,
-	DATALOGGER_LOGGING,
+	DATALOGGER_WRITE_BUFFER,			// writing to the circular buffer
 	DATALOGGER_READ_FILE,
 	DATALOGGER_IDLE
+	//DATALOGGER_WRITE_FILE 			// writing to a flight file
+	//DATALOGGER_COPY_BUFFER
+
 } DataLoggerState;
 
 
@@ -36,7 +39,7 @@ private:
 	DataLoggerState loggerState = DATALOGGER_STARTUP;		// initial state is startup
 
 
-	struct DATA {
+	struct Data {
 	  uint8_t count0  = 0;  uint8_t count1  = 1;  uint8_t count2  = 2;  uint8_t count3  = 3;
 	  uint8_t count4  = 4;  uint8_t count5  = 5;  uint8_t count6  = 6;  uint8_t count7  = 7;
 	  uint8_t count8  = 8;  uint8_t count9  = 9;  uint8_t count10 = 10; uint8_t count11 = 11;
@@ -46,7 +49,7 @@ private:
 	  uint8_t count24 = 24; uint8_t count25 = 25; uint8_t count26 = 26; uint8_t count27 = 27;
 	  uint8_t count28 = 28; uint8_t count29 = 29; uint8_t count30 = 30; uint8_t count31 = 31;
 	};
-	DATA dataPacket;
+	Data dataPacket;
 
 	uint32_t dataPacketSize = sizeof(dataPacket);
 
@@ -54,12 +57,18 @@ private:
 	// Flash memory
 	const uint8_t PIN_CS = SPI_FLASH_CS;
 
-	const char *fileName = "CircularBuffer.txt";
+
+	SerialFlashFile bufferFile;
+
+
+	// Circular buffer file parameters
+	const char *bufferFileName = "CircularBuffer.txt";
+
+	uint32_t begDataAddress = 0;
+	uint32_t endDataAddress = 0;
 
 	// File size of the buffer is 4 x block size, with block size = 65536 (2^16)
-	uint32_t circularBufferSize = 4 * SerialFlash.blockSize();
-
-	SerialFlashFile file;
+	uint32_t circularBufferSize = 4 * SerialFlash.blockSize(); 		// = 262144
 
 
 
@@ -77,11 +86,14 @@ private:
 
 	// Functions
 	bool flashMemoryInit();
+	void locateBufferAddresses();
+	bool updateBuffer();
+
+	bool readBuffer();
 
 	bool transcieverInit();
 	bool timeToTransmit();
 	bool transmitTelemetry();
-
 
 
 public:
@@ -100,14 +112,56 @@ public:
 
 		void onStart(uint32_t timestamp){
 
+			Serial.print(F("Logger state: ")); Serial.println(logger_->loggerState);
+
+			logger_->locateBufferAddresses();
+
+			Serial.print("Buffer begin addr: "); Serial.println(logger_->begDataAddress);
+			Serial.print("Buffer end addr: "); Serial.println(logger_->endDataAddress);
+
+
 		}
 
 		void onLoop(uint32_t timestamp){
 
-			if(logger_->timeToTransmit()) {
-				Serial.println(F("TRANSMIT"));
+			// Main system state machine
+			switch(logger_->loggerState){
+
+			case DATALOGGER_STARTUP:
+				//logger_->setWantedState(DATALOGGER_WRITE_BUFFER); ?
+				// check if should go to read file state?
+				logger_->loggerState = DATALOGGER_READ_FILE; //DATALOGGER_WRITE_BUFFER;
+				break;
+
+			case DATALOGGER_WRITE_BUFFER:
+
+				logger_->updateBuffer();
+
+				break;
+
+			case DATALOGGER_READ_FILE:
+
+				// Idle if finished reading
+				if(!logger_->readBuffer()){
+					logger_->loggerState = DATALOGGER_IDLE;
+				}
+
+				break;
+
+			case DATALOGGER_IDLE:
+					// no-op
+				break;
+
+			default:
+				break;
 
 			}
+
+
+			//if(logger_->timeToTransmit()) {
+			//	Serial.println(F("TRANSMIT"));
+			//}
+
 		}
 
 		void onStop(uint32_t timestamp){
@@ -115,6 +169,9 @@ public:
 		}
 	} * loggerLoop = new DataLoggerLoop(this);
 
+
+
+	void setDataPacket(uint32_t test);
 
 	bool subsystemInit();
 	void zeroSensors();

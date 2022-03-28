@@ -81,7 +81,9 @@ void Robot::beginStateMachine(){
 
 void Robot::updateStateMachine(uint32_t timestamp){
 
-	Serial.println(timestamp);
+	dataLogger->setDataPacket(timestamp);
+
+	//Serial.println(timestamp);
 	//uint8_t * timestampBytes = (uint8_t *) &timestamp;
 
 	//imu->readSensorData();
