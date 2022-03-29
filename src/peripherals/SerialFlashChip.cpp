@@ -26,7 +26,7 @@
  */
 
 #include "SerialFlash.h"
-#include "util/SerialFlash_directwrite.h"
+#include "SerialFlash_directwrite.h"
 
 #define CSASSERT()  DIRECT_WRITE_LOW(cspin_basereg, cspin_bitmask)
 #define CSRELEASE() DIRECT_WRITE_HIGH(cspin_basereg, cspin_bitmask)
