@@ -31,6 +31,7 @@
 typedef enum {
 	DATALOGGER_STARTUP,
 	DATALOGGER_WRITE_BUFFER,			// writing to the circular buffer
+	DATALOGGER_ERASE_BUFFER,			// erasing a block in the circular buffer
 	DATALOGGER_READ_FILE,
 	DATALOGGER_IDLE
 	//DATALOGGER_WRITE_FILE 			// writing to a flight file
@@ -64,14 +65,18 @@ private:
 
 	DataLoggerState loggerState = DATALOGGER_STARTUP;		// initial state is startup
 
+	// Data
 	DataPacket currentDataPacket;
 	uint32_t dataPacketSize = sizeof(currentDataPacket);
+
+	DataPacket dataPacketSmallBuffer[30];
+	uint8_t smallBufferIndex = 0;							// current index of packet buffer
 
 
 	// Flash memory
 	const uint8_t PIN_CS = SPI_FLASH_CS;
 
-
+	// Files
 	SerialFlashFile bufferFile;
 
 
@@ -100,9 +105,11 @@ private:
 
 	// Functions
 	bool flashMemoryInit();
-	void locateBufferAddresses();
-	bool updateBuffer();
-	bool readBuffer();
+	void locateCircBufferAddresses();
+	bool updateCircBuffer();
+	bool readCircBuffer();
+	bool addPacketToSmallBuffer();
+	void writeSmallBufferToCircBuffer();
 
 	bool transcieverInit();
 	bool timeToTransmit();
@@ -130,7 +137,7 @@ public:
 
 			Serial.print(F("Logger state: ")); Serial.println(logger_->loggerState);
 
-			logger_->locateBufferAddresses();
+			logger_->locateCircBufferAddresses();
 
 			Serial.print("Buffer begin addr: "); Serial.println(logger_->begDataAddress);
 			Serial.print("Buffer end addr: "); Serial.println(logger_->endDataAddress);
@@ -145,7 +152,7 @@ public:
 
 			case DATALOGGER_STARTUP:
 
-				//logger_->setState(DATALOGGER_WRITE_BUFFER);
+//				logger_->setState(DATALOGGER_WRITE_BUFFER);
 
 				logger_->setState(DATALOGGER_READ_FILE);
 				logger_->bufferFile.seek(0);
@@ -154,14 +161,32 @@ public:
 
 			case DATALOGGER_WRITE_BUFFER:
 
-				logger_->updateBuffer();
+				// Let block erase command finish if began
+				if(!logger_->updateCircBuffer()){
+
+					logger_->addPacketToSmallBuffer();
+					logger_->setState(DATALOGGER_ERASE_BUFFER);
+				}
+
+				break;
+
+			case DATALOGGER_ERASE_BUFFER:
+
+				logger_->addPacketToSmallBuffer();
+
+				// Continue writing once erase command is finished
+				if(SerialFlash.ready()){
+
+					logger_->writeSmallBufferToCircBuffer();
+					logger_->setState(DATALOGGER_WRITE_BUFFER);
+				}
 
 				break;
 
 			case DATALOGGER_READ_FILE:
 
 				// Idle if finished reading
-				if(!logger_->readBuffer()){
+				if(!logger_->readCircBuffer()){
 					logger_->setState(DATALOGGER_IDLE);
 				}
 
@@ -192,7 +217,6 @@ public:
 
 	void setState(DataLoggerState state);
 	void setCurrentDataPacket(DataPacket packet);
-	//void setTimestamp(uint32_t timestamp);
 
 
 	bool subsystemInit();

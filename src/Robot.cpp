@@ -84,11 +84,23 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 	DataPacket flightDataPacket;
 
+
 	uint8_t * timestampBytes = (uint8_t *) &timestamp;
+
 	flightDataPacket.count0 = timestampBytes[3];
 	flightDataPacket.count1 = timestampBytes[2];
 	flightDataPacket.count2 = timestampBytes[1];
 	flightDataPacket.count3 = timestampBytes[0];
+
+	uint16_t sensorValue = analogRead(A0); 			// read the input on analog pin 0
+	float voltage = sensorValue * (3.3 / 1023.0); 	// Volts per count
+	uint8_t * voltageBytes = (uint8_t *) &voltage;
+
+	flightDataPacket.count4 = voltageBytes[3];
+	flightDataPacket.count5 = voltageBytes[2];
+	flightDataPacket.count6 = voltageBytes[1];
+	flightDataPacket.count7 = voltageBytes[0];
+	//Serial.println(voltage);
 
 	dataLogger->setCurrentDataPacket(flightDataPacket);
 

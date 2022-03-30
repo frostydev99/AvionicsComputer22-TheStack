@@ -103,7 +103,7 @@ bool DataLogger::flashMemoryInit() {
 /*
  *	Function for locating the
  */
-void DataLogger::locateBufferAddresses() {
+void DataLogger::locateCircBufferAddresses() {
 
 	// First: find the first block that has yet to be fully populated with data
 
@@ -198,26 +198,29 @@ void DataLogger::locateBufferAddresses() {
 
 	// Move to the byte address where data should resume being written to the buffer
 	bufferFile.seek(byteToWriteAddr);
-	//bufferFile.seek(0);
 
 }
 
 
 /*
  *
+ * @return true if data written, false if block needs to be erased
  */
-bool DataLogger::updateBuffer() {
+bool DataLogger::updateCircBuffer() {
 
 	uint32_t currentAddress = bufferFile.position();
 	Serial.print("Current address: "); Serial.println(currentAddress);
 
+	// First update buffer end position
+
 	// Check if the current buffer position is at the end of the buffer
 	if(currentAddress >= circularBufferSize) {
+
 		// Wrap around if out of bounds
-		Serial.println("WRAPPED");
 		endDataAddress = 0;
 		bufferFile.seek(0);			// set the current address for writing back to the start
 	} else {
+
 		// otherwise just update to the next position to write
 		endDataAddress = currentAddress;
 	}
@@ -227,21 +230,24 @@ bool DataLogger::updateBuffer() {
 	// start of the next block
 	if(endDataAddress == begDataAddress){
 
-		Serial.println("BEG == END");
-
 		// Erase block
 		Serial.print("Erase block: "); Serial.println(begDataAddress);
+
 		uint32_t fileAddress = bufferFile.getFlashAddress();    // should be 0x00FFFF (2^16)
 		SerialFlash.eraseBlock(fileAddress + begDataAddress);	// offset by file location
-		delay(2);                                      			// erasing takes time (~200ms...)
 
-		 // Update new beginning address
-		 begDataAddress = begDataAddress + SerialFlash.blockSize();
+		// Update new beginning address
+		begDataAddress = begDataAddress + SerialFlash.blockSize();
 
-		 // Wrap around if out of bounds
-		 if(begDataAddress >= circularBufferSize){
-			 begDataAddress = 0;
+		// Wrap around if out of bounds
+		if(begDataAddress >= circularBufferSize){
+
+			begDataAddress = 0;
 		}
+
+		// Don't proceed to write if erase block command ran
+		//setState(DATALOGGER_ERASE_BUFFER);
+		return false;
 
 	}
 
@@ -254,7 +260,7 @@ bool DataLogger::updateBuffer() {
 	Serial.print("Buffer end addr: "); Serial.println(endDataAddress);
 
 
-	return false;
+	return true;
 
 }
 
@@ -262,13 +268,14 @@ bool DataLogger::updateBuffer() {
 /*
  *
  */
-bool DataLogger::readBuffer() {
+bool DataLogger::readCircBuffer() {
 
 	// If there's a next data packet to read in the file, read and print it
 	if(bufferFile.available() > 0){
 
-		uint32_t currentAddress = bufferFile.position();
-		Serial.print("Current address: "); Serial.println(currentAddress);
+		//uint32_t currentAddress = bufferFile.position();
+		//Serial.print(currentAddress); Serial.print(", ");
+		//Serial.print("Current address: "); Serial.println(currentAddress);
 
 		uint8_t buffer[dataPacketSize];             // temporary data buffer for reading
 
@@ -287,6 +294,10 @@ bool DataLogger::readBuffer() {
 		bufferPacket.count1 = buffer[1];
 		bufferPacket.count2 = buffer[2];
 		bufferPacket.count3 = buffer[3];
+		bufferPacket.count4 = buffer[4];
+		bufferPacket.count5 = buffer[5];
+		bufferPacket.count6 = buffer[6];
+		bufferPacket.count7 = buffer[7];
 
 
 		printPacketToGroundstation(bufferPacket);
@@ -299,6 +310,52 @@ bool DataLogger::readBuffer() {
 	}
 
 }
+
+
+/*
+ *
+ */
+bool DataLogger::addPacketToSmallBuffer() {
+
+	//Serial.print("INDEX: "); Serial.println(smallBufferIndex);
+	dataPacketSmallBuffer[smallBufferIndex] = currentDataPacket;
+
+	// Wrap around if out of bounds
+	uint8_t smallBufferPacketNum = sizeof(dataPacketSmallBuffer)
+			/ sizeof(dataPacketSmallBuffer[1]);
+
+	if(smallBufferIndex >= smallBufferPacketNum - 1){
+		smallBufferIndex = 0;
+		return true;
+	} else {
+		smallBufferIndex++;
+		return false;
+	}
+
+}
+
+
+/*
+ *
+ */
+void DataLogger::writeSmallBufferToCircBuffer() {
+
+
+	for(uint8_t i = 0; i < smallBufferIndex; i++){
+
+		DataPacket packet = dataPacketSmallBuffer[i];
+
+		uint32_t fileWriteLen = bufferFile.write(&packet, dataPacketSize);
+
+		uint32_t currentAddress = bufferFile.position();
+		endDataAddress = currentAddress;
+
+	}
+
+	smallBufferIndex = 0;				// reset to start of buffer after copying it
+
+}
+
 
 
 /*
@@ -350,9 +407,7 @@ bool DataLogger::transmitTelemetry() {
  *
  */
 void DataLogger::setState(DataLoggerState state) {
-
 	loggerState = state;
-
 }
 
 
@@ -360,25 +415,8 @@ void DataLogger::setState(DataLoggerState state) {
  *
  */
 void DataLogger::setCurrentDataPacket(DataPacket packet) {
-
 	currentDataPacket = packet;
-
-	//uint8_t * timestampBytes = (uint8_t *) &currTimestamp;
-
-	//dataPacket.count0 = timestampBytes[3];
-	//dataPacket.count1 = timestampBytes[2];
-	//dataPacket.count2 = timestampBytes[1];
-	//dataPacket.count3 = timestampBytes[0];
-
 }
-
-
-/*
- *
- */
-//void DataLogger::setTimestamp(uint32_t timestamp) {
-//	currTimestamp = timestamp;
-//}
 
 
 /*
@@ -393,7 +431,16 @@ void DataLogger::printPacketToGroundstation(DataPacket packet) {
 	timestampBytes[2] = packet.count1;
 	timestampBytes[1] = packet.count2;
 	timestampBytes[0] = packet.count3;
-	Serial.print("TIMESTAMP IS: "); Serial.println(ts);
+	//Serial.print("TIMESTAMP IS: ");
+	Serial.println(ts);
+
+	float voltage = 0;
+	uint8_t * voltageBytes = (uint8_t *) &voltage;
+	voltageBytes[3] = packet.count4;
+	voltageBytes[2] = packet.count5;
+	voltageBytes[1] = packet.count6;
+	voltageBytes[0] = packet.count7;
+	//Serial.print("VOLTAGE IS: "); Serial.println(voltage);
 
 
     //Data start bytes
@@ -405,11 +452,18 @@ void DataLogger::printPacketToGroundstation(DataPacket packet) {
 //    Serial.write(84); // T - Timestamp
 //    Serial.write(83); // S
 //    Serial.write(80); // P
+
 //    Serial.print(TIMESTAMP);
 //    Serial.write(packet.count0);
 //    Serial.write(packet.count1);
 //    Serial.write(packet.count2);
 //    Serial.write(packet.count3);
+//
+//    Serial.print(ALTITUDE);
+//    Serial.write(packet.count4);
+//    Serial.write(packet.count5);
+//    Serial.write(packet.count6);
+//    Serial.write(packet.count7);
 
 //    Serial.write(83); // S - State
 //    Serial.write(84); // T
