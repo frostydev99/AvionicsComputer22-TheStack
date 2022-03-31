@@ -115,18 +115,20 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	uint8_t * barometerBytes = (uint8_t *) &altAndTemperature;
 
 	prevAltitude = altitude;
-	altitude = baro->getAltitude();
+	rawAltitude = baro->getAltitude();
 
 	uint8_t * timeBytes = (uint8_t *) &timestamp;
 
 	// Filter
-	altitude = 	altitude + ALPHA * (prevAltitude - altitude);
+	altitude = 	rawAltitude + ALPHA * (prevAltitude - rawAltitude);
 	uint8_t * altitudeBytes = (uint8_t *) &altitude;
-//	Serial.println(altitude);
+	uint8_t * rawAltitudeBytes = (uint8_t *) &rawAltitude;
+//	Serial.printf("Raw: %f, Filtered: %f \n", rawAltitude, altitude);
 	Serial.write(66); //B
 	Serial.write(69); //E
 	Serial.write(71); //G
 	Serial.write(66); //B
+
 
 	Serial.write(65); //A
 	Serial.write(76); //L
@@ -136,6 +138,15 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	Serial.write(altitudeBytes[2]);
 	Serial.write(altitudeBytes[1]);
 	Serial.write(altitudeBytes[0]);
+
+	Serial.write(65); //A
+	Serial.write(67); //L
+	Serial.write(88); //T
+
+	Serial.write(rawAltitudeBytes[3]);
+	Serial.write(rawAltitudeBytes[2]);
+	Serial.write(rawAltitudeBytes[1]);
+	Serial.write(rawAltitudeBytes[0]);
 
 	Serial.write(84); //T
 	Serial.write(83); //S
@@ -157,50 +168,50 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	//	Serial.println(temperature);
 
 	// Main rocket state machine
-	switch (robotState) {
-
-	case BOTTOM_OF_HIGGINS:
-
-		if (altitude > altitudeThreshold) {
-			robotState = TOP_OF_HIGGINS;
-			Serial.printf("STATE CHANGE: From BOTTOM_OF_HIGGINS to TOP_OF_HIGGINS at %f", altitude);
-			Serial.println();
-		}
-
-		break;
-
-	case TOP_OF_HIGGINS:
-
-		if (altitude <= altitudeThreshold) {
-			robotState = BOTTOM_OF_HIGGINS;
-			Serial.printf("STATE CHANGE: From TOP_OF_HIGGINS to BOTTOM_OF_HIGGINS at %f", altitude);
-			Serial.println();
-		}
-
-		break;
-
-	case IDLE:
-
-		if (altitude > altitudeThreshold) {
-			robotState = TOP_OF_HIGGINS;
-			Serial.printf("STATE CHANGE: From IDLE to TOP_OF_HIGGINS at %f", altitude);
-			Serial.println();
-		}
-		else {
-			robotState = BOTTOM_OF_HIGGINS;
-			Serial.printf("STATE CHANGE: From IDLE to BOTTOM_OF_HIGGINS at %f", altitude);
-			Serial.println();
-		}
-
-		break;
-
-	default:
-
-		Serial.print("Code == broke");
-
-		break;
-
-	}
+//	switch (robotState) {
+//
+//	case BOTTOM_OF_HIGGINS:
+//
+//		if (altitude > altitudeThreshold) {
+//			robotState = TOP_OF_HIGGINS;
+//			Serial.printf("STATE CHANGE: From BOTTOM_OF_HIGGINS to TOP_OF_HIGGINS at %f", altitude);
+//			Serial.println();
+//		}
+//
+//		break;
+//
+//	case TOP_OF_HIGGINS:
+//
+//		if (altitude <= altitudeThreshold) {
+//			robotState = BOTTOM_OF_HIGGINS;
+//			Serial.printf("STATE CHANGE: From TOP_OF_HIGGINS to BOTTOM_OF_HIGGINS at %f", altitude);
+//			Serial.println();
+//		}
+//
+//		break;
+//
+//	case IDLE:
+//
+//		if (altitude > altitudeThreshold) {
+//			robotState = TOP_OF_HIGGINS;
+//			Serial.printf("STATE CHANGE: From IDLE to TOP_OF_HIGGINS at %f", altitude);
+//			Serial.println();
+//		}
+//		else {
+//			robotState = BOTTOM_OF_HIGGINS;
+//			Serial.printf("STATE CHANGE: From IDLE to BOTTOM_OF_HIGGINS at %f", altitude);
+//			Serial.println();
+//		}
+//
+//		break;
+//
+//	default:
+//
+//		Serial.print("Code == broke");
+//
+//		break;
+//
+//	}
 
 }
 

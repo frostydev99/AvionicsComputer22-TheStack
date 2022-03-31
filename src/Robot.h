@@ -95,11 +95,14 @@ private:
 
 	float altitudeThreshold = 84.875; // tuned 3/16/2022
 
+	float rawAltitude = 0;
+
 	float altitude = 0;
 	float prevAltitude = 0;
+
 	float temperature = 0;
 
-	const float ALPHA = 0.8; // TODO needs to be tuned
+	const float ALPHA = 0.6; // TODO needs to be tuned
 
 public:
 
