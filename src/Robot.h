@@ -93,7 +93,8 @@ private:
 
 
 
-	float altitudeThreshold = 84.875; // tuned 3/16/2022
+//	float altitudeThreshold = 84.875; // tuned 3/16/2022
+	float altitudeThreshold = 144; // tuned 3/30/2022
 
 	float rawAltitude = 0;
 
@@ -103,6 +104,12 @@ private:
 	float temperature = 0;
 
 	const float ALPHA = 0.6; // TODO needs to be tuned
+
+	// AGL
+	float altitudePrevAGL = 0;
+	float altitudeCurrentAGL = 0;
+	float altitudeRawAGL = 0;
+	float altitudeAGLOffset = 0;
 
 public:
 
@@ -133,8 +140,10 @@ public:
 	void registerAllLoops(Looper * runningLooper);
 
 	void zeroAllSensors();
+	void calibrateMPL3115A2();
 
 	void beginStateMachine();
+	void EWMAFilter();
 	void updateStateMachine(uint32_t timestamp);
 	void endStateMachine();
 

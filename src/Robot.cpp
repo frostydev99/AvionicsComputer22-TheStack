@@ -78,13 +78,28 @@ void Robot::registerAllLoops(Looper * runningLooper){
 
 }
 
-
+// Call this in the IDLE state
 void Robot::zeroAllSensors(){
 
 	//robotStateEstimator->reset(millis());
 
 	//selfRighting->zeroSensors();
 
+	calibrateMPL3115A2();
+
+}
+
+/**
+ * Uses a moving average over 1000 iterations to calculate an offset to set the altitude to ground level at start up
+ */
+void Robot::calibrateMPL3115A2() {
+	for (int i = 0; i < 1000; i++) {
+		altitudePrevAGL = altitudeCurrentAGL;
+		altitudeRawAGL = baro->getAltitude();
+		altitudeCurrentAGL = altitudeRawAGL + ALPHA * (altitudePrevAGL - altitudeRawAGL);
+	}
+	// Set the offset value for later use in subtraction
+	altitudeAGLOffset = altitudeCurrentAGL;
 }
 
 
@@ -98,8 +113,19 @@ void Robot::beginStateMachine(){
 	altitude = baro->getAltitude();
 	prevAltitude = altitude;
 
+	// AGL
+	altitudeCurrentAGL = baro->getAltitude();
+	altitudePrevAGL = altitudeCurrentAGL;
+
 }
 
+void Robot::EWMAFilter() {
+	prevAltitude = altitude;
+	rawAltitude = baro->getAltitude() - altitudeAGLOffset;
+
+	// Filter
+	altitude = 	rawAltitude + ALPHA * (prevAltitude - rawAltitude);
+}
 
 void Robot::updateStateMachine(uint32_t timestamp){
 
@@ -114,15 +140,15 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	uint32_t  altAndTemperature = baro->getPressureAndTempCombined();
 	uint8_t * barometerBytes = (uint8_t *) &altAndTemperature;
 
-	prevAltitude = altitude;
-	rawAltitude = baro->getAltitude();
-
 	uint8_t * timeBytes = (uint8_t *) &timestamp;
 
-	// Filter
-	altitude = 	rawAltitude + ALPHA * (prevAltitude - rawAltitude);
+	// Filters, including AGL Offset
+	EWMAFilter();
+
 	uint8_t * altitudeBytes = (uint8_t *) &altitude;
 	uint8_t * rawAltitudeBytes = (uint8_t *) &rawAltitude;
+
+
 //	Serial.printf("Raw: %f, Filtered: %f \n", rawAltitude, altitude);
 	Serial.write(66); //B
 	Serial.write(69); //E
@@ -191,7 +217,7 @@ void Robot::updateStateMachine(uint32_t timestamp){
 //		break;
 //
 //	case IDLE:
-//
+//		zeroAllSensors();
 //		if (altitude > altitudeThreshold) {
 //			robotState = TOP_OF_HIGGINS;
 //			Serial.printf("STATE CHANGE: From IDLE to TOP_OF_HIGGINS at %f", altitude);
