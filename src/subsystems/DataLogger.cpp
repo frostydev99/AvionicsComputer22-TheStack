@@ -247,8 +247,13 @@ bool DataLogger::updateCircBuffer() {
 
 		// Don't proceed to write if erase block command ran
 		//setState(DATALOGGER_ERASE_BUFFER);
-		return false;
+		//return false;
 
+	}
+
+	// Don't proceed to write if chip is busy (erase block command ran)
+	if(!SerialFlash.ready()){
+		return false;
 	}
 
 
@@ -256,8 +261,8 @@ bool DataLogger::updateCircBuffer() {
 	//Serial.print("Length of data written: "); Serial.println(fileWriteLen);
 	//Serial.print("Current address: "); Serial.println(currentAddress);
 
-	Serial.print("Buffer begin addr: "); Serial.println(begDataAddress);
-	Serial.print("Buffer end addr: "); Serial.println(endDataAddress);
+//	Serial.print("Buffer begin addr: "); Serial.println(begDataAddress);
+//	Serial.print("Buffer end addr: "); Serial.println(endDataAddress);
 
 
 	return true;
@@ -300,7 +305,8 @@ bool DataLogger::readCircBuffer() {
 		bufferPacket.count7 = buffer[7];
 
 
-		printPacketToGroundstation(bufferPacket);
+		printPacketToSerialMonitor(bufferPacket);
+//		printPacketToGroundstation(bufferPacket);
 
 
 		return true;
@@ -421,49 +427,29 @@ void DataLogger::setCurrentDataPacket(DataPacket packet) {
 
 /*
  *
+ * BIG ENDIAN
+ * @param packet is the DataPacket to parse and print
  */
 void DataLogger::printPacketToGroundstation(DataPacket packet) {
 
-	// CONVERT MANUALLY FOR TESTING
-	uint32_t ts = 0;
-	uint8_t * timestampBytes = (uint8_t *) &ts;
-	timestampBytes[3] = packet.count0;
-	timestampBytes[2] = packet.count1;
-	timestampBytes[1] = packet.count2;
-	timestampBytes[0] = packet.count3;
-	//Serial.print("TIMESTAMP IS: ");
-	Serial.println(ts);
-
-	float voltage = 0;
-	uint8_t * voltageBytes = (uint8_t *) &voltage;
-	voltageBytes[3] = packet.count4;
-	voltageBytes[2] = packet.count5;
-	voltageBytes[1] = packet.count6;
-	voltageBytes[0] = packet.count7;
-	//Serial.print("VOLTAGE IS: "); Serial.println(voltage);
-
-
     //Data start bytes
-//    Serial.write(66); // B
-//    Serial.write(69); // E
-//    Serial.write(71); // G
-//    Serial.write(66); // B
+	Serial.print(PRINT_BEG);
 
-//    Serial.write(84); // T - Timestamp
-//    Serial.write(83); // S
-//    Serial.write(80); // P
+    Serial.print(TIMESTAMP);
+    Serial.write(packet.count0);
+    Serial.write(packet.count1);
+    Serial.write(packet.count2);
+    Serial.write(packet.count3);
 
-//    Serial.print(TIMESTAMP);
-//    Serial.write(packet.count0);
-//    Serial.write(packet.count1);
-//    Serial.write(packet.count2);
-//    Serial.write(packet.count3);
-//
-//    Serial.print(ALTITUDE);
-//    Serial.write(packet.count4);
-//    Serial.write(packet.count5);
-//    Serial.write(packet.count6);
-//    Serial.write(packet.count7);
+    Serial.print(ALTITUDE);
+    Serial.write(packet.count4);
+    Serial.write(packet.count5);
+    Serial.write(packet.count6);
+    Serial.write(packet.count7);
+
+    // Data end bytes
+    Serial.print(PRINT_END);
+
 
 //    Serial.write(83); // S - State
 //    Serial.write(84); // T
@@ -528,11 +514,33 @@ void DataLogger::printPacketToGroundstation(DataPacket packet) {
 //	Serial.write(gyroAccelBytes[10]);
 //	Serial.write(gyroAccelBytes[11]);
 //
-    // Data end bytes
-//    Serial.write(69); // E
-//    Serial.write(78); // N
-//    Serial.write(68); // D
-//    Serial.write(66); // B
+
+}
+
+
+/*
+ *
+ */
+void DataLogger::printPacketToSerialMonitor(DataPacket packet) {
+
+	uint32_t ts = 0;
+	uint8_t * timestampBytes = (uint8_t *) &ts;
+	timestampBytes[3] = packet.count0;
+	timestampBytes[2] = packet.count1;
+	timestampBytes[1] = packet.count2;
+	timestampBytes[0] = packet.count3;
+	//Serial.print("TIMESTAMP IS: ");
+	//Serial.println(ts);
+	Serial.print(ts); Serial.print(", ");
+
+	float voltage = 0;
+	uint8_t * voltageBytes = (uint8_t *) &voltage;
+	voltageBytes[3] = packet.count4;
+	voltageBytes[2] = packet.count5;
+	voltageBytes[1] = packet.count6;
+	voltageBytes[0] = packet.count7;
+	//Serial.print("VOLTAGE IS: "); Serial.println(voltage);
+	Serial.println(voltage);
 
 }
 

@@ -115,8 +115,9 @@ private:
 	bool timeToTransmit();
 	bool transmitTelemetry();
 
-	void parseDataForGroundstation();
+	//void parseDataForGroundstation();
 	void printPacketToGroundstation(DataPacket packet);
+	void printPacketToSerialMonitor(DataPacket packet);
 
 
 public:
@@ -152,10 +153,12 @@ public:
 
 			case DATALOGGER_STARTUP:
 
-//				logger_->setState(DATALOGGER_WRITE_BUFFER);
+				Serial.println("LOGGER STARTUP");
 
-				logger_->setState(DATALOGGER_READ_FILE);
-				logger_->bufferFile.seek(0);
+				logger_->setState(DATALOGGER_WRITE_BUFFER);
+
+//				logger_->setState(DATALOGGER_READ_FILE);
+//				logger_->bufferFile.seek(0);
 
 				break;
 
@@ -171,6 +174,8 @@ public:
 				break;
 
 			case DATALOGGER_ERASE_BUFFER:
+
+				//Serial.println(F("CHIP BUSY"));
 
 				logger_->addPacketToSmallBuffer();
 

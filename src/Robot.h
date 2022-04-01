@@ -52,7 +52,7 @@ private:
 
 	DataLogger * dataLogger = new DataLogger();
 
-
+	float phase = 0;
 
 	// Sensors
 	ICM20948 * imu = new ICM20948(0x68);
