@@ -95,6 +95,9 @@ private:
 	const uint32_t TRANSMIT_PERIOD = 100;						// ms, telemetry sending period
 	MetroTimer transmitTimer = MetroTimer(TRANSMIT_PERIOD);		// passed to timer in ms
 
+	uint8_t timer = 0;
+
+
 	// Transceiver radio
 	const uint8_t PIN_M0  = E32_LORA_M0;
 	const uint8_t PIN_M1  = E32_LORA_M1;
@@ -156,10 +159,10 @@ public:
 
 				Serial.println("LOGGER STARTUP");
 
-//				logger_->setState(DATALOGGER_WRITE_BUFFER);
+				logger_->setState(DATALOGGER_WRITE_BUFFER);
 
-				logger_->setState(DATALOGGER_READ_FILE);
-				logger_->bufferFile.seek(0);
+//				logger_->setState(DATALOGGER_READ_FILE);
+//				logger_->bufferFile.seek(0);
 
 				break;
 
@@ -208,9 +211,16 @@ public:
 			}
 
 
-			//if(logger_->timeToTransmit()) {
-			//	Serial.println(F("TRANSMIT"));
-			//}
+
+			// TRANSMIT NO MATTER WHAT
+			if(logger_->timeToTransmit()) {
+
+				logger_->transmitTelemetry();
+
+				Serial.println(F("TRANSMIT"));
+			}
+
+
 
 		}
 

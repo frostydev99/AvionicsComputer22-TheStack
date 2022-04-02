@@ -42,27 +42,27 @@ bool DataLogger::transcieverInit() {
 	Serial1.begin(9600);
 
 	bool initSuccess = false;
-	//initSuccess = transceiver->init(1);
+	initSuccess = transceiver->init(1);
 
-//	//transceiver->SetMode();
-//	transceiver->SetAddressH(0);
-//	transceiver->SetAddressL(0);
-//	transceiver->SetChannel(1);
-//	//transceiver->SetOptions();
-//
-//	transceiver->SetParityBit(0);	 		// SpeedParityBit
-//	transceiver->SetUARTBaudRate(3);		// 3 = 9600 baud
-//	transceiver->SetAirDataRate(4);			// 2 = B010 =  2.4kbps (default)
-//											// 4 = B100 = 9.6kbps
-//											// 5 = B101 = 19.2kbps
-//	transceiver->SetTransmissionMode(0);	// OptionTrans
-//	transceiver->SetPullupMode(1);			// OptionPullup
-//	transceiver->SetWORTIming(0);			// OptionWakeup
-//	transceiver->SetFECMode(1);				// OptionFEC
-//	transceiver->SetTransmitPower(0);		// default
-//
-//	transceiver->SaveParameters(PERMANENT);
-//	transceiver->PrintParameters();
+	//transceiver->SetMode();
+	transceiver->SetAddressH(0);
+	transceiver->SetAddressL(0);
+	transceiver->SetChannel(1);
+	//transceiver->SetOptions();
+
+	transceiver->SetParityBit(0);	 		// SpeedParityBit
+	transceiver->SetUARTBaudRate(3);		// 3 = 9600 baud
+	transceiver->SetAirDataRate(4);			// 2 = B010 =  2.4kbps (default)
+											// 4 = B100 = 9.6kbps
+											// 5 = B101 = 19.2kbps
+	transceiver->SetTransmissionMode(0);	// OptionTrans
+	transceiver->SetPullupMode(1);			// OptionPullup
+	transceiver->SetWORTIming(0);			// OptionWakeup
+	transceiver->SetFECMode(1);				// OptionFEC
+	transceiver->SetTransmitPower(0);		// default
+
+	transceiver->SaveParameters(PERMANENT);
+	transceiver->PrintParameters();
 
 	return initSuccess;
 
@@ -170,7 +170,7 @@ void DataLogger::locateCircBufferAddresses() {
 	// Third: find the next block with data in it
 
 	// The first block to search for valid data (start 1 block after the current block)
-	uint32_t begBlockAddr = blockToWriteAddr + SerialFlash.blockSize();
+	//uint32_t begBlockAddr = blockToWriteAddr + SerialFlash.blockSize();
 
 	//looping through the remainder of the buffer
 	for(uint16_t i = 0; i < totalBlocks; i++) {
@@ -306,6 +306,30 @@ bool DataLogger::readCircBuffer() {
 		bufferPacket.count5 = buffer[5];
 		bufferPacket.count6 = buffer[6];
 		bufferPacket.count7 = buffer[7];
+		bufferPacket.count8 = buffer[8];
+		bufferPacket.count9 = buffer[9];
+		bufferPacket.count10 = buffer[10];
+		bufferPacket.count11 = buffer[11];
+		bufferPacket.count12 = buffer[12];
+		bufferPacket.count13 = buffer[13];
+		bufferPacket.count14 = buffer[14];
+		bufferPacket.count15 = buffer[15];
+		bufferPacket.count16 = buffer[16];
+		bufferPacket.count17 = buffer[17];
+		bufferPacket.count18 = buffer[18];
+		bufferPacket.count19 = buffer[19];
+		bufferPacket.count20 = buffer[20];
+		bufferPacket.count21 = buffer[21];
+		bufferPacket.count22 = buffer[22];
+		bufferPacket.count23 = buffer[23];
+		bufferPacket.count24 = buffer[24];
+		bufferPacket.count25 = buffer[25];
+		bufferPacket.count26 = buffer[26];
+		bufferPacket.count27 = buffer[27];
+		bufferPacket.count28 = buffer[28];
+		bufferPacket.count29 = buffer[29];
+		bufferPacket.count30 = buffer[30];
+		bufferPacket.count31 = buffer[31];
 
 
 
@@ -372,7 +396,17 @@ void DataLogger::writeSmallBufferToCircBuffer() {
  *
  */
 bool DataLogger::timeToTransmit() {
-	return transmitTimer.check() == 1;			//check if the timer has passed it's interval
+
+	if(timer > 10){
+		timer = 0;
+		return true;
+	} else {
+		timer++;
+		return false;
+	}
+
+
+	//return transmitTimer.check() == 1;			//check if the timer has passed it's interval
 }
 
 
@@ -406,7 +440,10 @@ bool DataLogger::transmitTelemetry() {
 //	dataPacket.count18 = gyroAccelBytes[10];
 //	dataPacket.count19 = gyroAccelBytes[11];
 
-	sendSuccess = transceiver->SendStruct(&currentDataPacket, dataPacketSize);
+
+	uint16_t dataPacketSizeToTransmit = 20;
+
+	sendSuccess = transceiver->SendStruct(&currentDataPacket, dataPacketSizeToTransmit);
 
 	return sendSuccess;
 
@@ -551,7 +588,7 @@ void DataLogger::printPacketToSerialMonitor(DataPacket packet) {
 //	pinBytes[0] = packet.count4;
 //	Serial.println(sensorVal);
 
-	Serial.println(packet.count4);
+//	Serial.println(packet.count4);
 
 
 }
