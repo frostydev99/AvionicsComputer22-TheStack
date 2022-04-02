@@ -20,7 +20,7 @@ Robot::Robot(){};
 bool Robot::systemInit(){
 
 
-
+	pinMode(PIN_PULSE, INPUT_PULLUP);
 
 	// Set up barometer
 	baro->init();
@@ -96,19 +96,27 @@ void Robot::updateStateMachine(uint32_t timestamp){
 //	float voltage = sensorValue * (3.3 / 1023.0); 	// Volts per count
 //	uint8_t * voltageBytes = (uint8_t *) &voltage;
 
-	//float voltage = sin(phase) * 2000.0 + 2050.0;
-	//phase = phase + 0.02;
-	//if (phase >= 6.283185) phase = 0;
 
-	float voltage = sin(phase);
-	uint8_t * voltageBytes = (uint8_t *) &voltage;
-	phase += 0.02;
-
-	flightDataPacket.count4 = voltageBytes[3];
-	flightDataPacket.count5 = voltageBytes[2];
-	flightDataPacket.count6 = voltageBytes[1];
-	flightDataPacket.count7 = voltageBytes[0];
+//	float voltage = sin(phase);
+//	uint8_t * voltageBytes = (uint8_t *) &voltage;
+//	phase += 0.02;
+//
+//	flightDataPacket.count4 = voltageBytes[3];
+//	flightDataPacket.count5 = voltageBytes[2];
+//	flightDataPacket.count6 = voltageBytes[1];
+//	flightDataPacket.count7 = voltageBytes[0];
 //	Serial.println(voltage);
+
+
+	// Pulses of flow rate sensor for jet engine
+	uint8_t sensorVal = digitalRead(PIN_PULSE);
+	//uint8_t * pinBytes = (uint8_t *) &sensorVal;
+
+	flightDataPacket.count4 = sensorVal;
+	//flightDataPacket.count4 = 255;//pinBytes[0];
+
+	//Serial.print("Digital pin: "); Serial.println(sensorVal);
+
 
 	dataLogger->setCurrentDataPacket(flightDataPacket);
 

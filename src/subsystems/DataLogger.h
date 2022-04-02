@@ -87,7 +87,7 @@ private:
 	uint32_t endDataAddress = 0;
 
 	// File size of the buffer is 4 x block size, with block size = 65536 (2^16)
-	uint32_t circularBufferSize = 4 * SerialFlash.blockSize(); 		// = 262144
+	uint32_t circularBufferSize = 8 * SerialFlash.blockSize();
 
 
 
@@ -137,6 +137,7 @@ public:
 		void onStart(uint32_t timestamp){
 
 			Serial.print(F("Logger state: ")); Serial.println(logger_->loggerState);
+			Serial.print(F("Buffer file size: ")); Serial.println(logger_->circularBufferSize);
 
 			logger_->locateCircBufferAddresses();
 
@@ -155,10 +156,10 @@ public:
 
 				Serial.println("LOGGER STARTUP");
 
-				logger_->setState(DATALOGGER_WRITE_BUFFER);
+//				logger_->setState(DATALOGGER_WRITE_BUFFER);
 
-//				logger_->setState(DATALOGGER_READ_FILE);
-//				logger_->bufferFile.seek(0);
+				logger_->setState(DATALOGGER_READ_FILE);
+				logger_->bufferFile.seek(0);
 
 				break;
 

@@ -94,6 +94,8 @@ bool DataLogger::flashMemoryInit() {
     Serial.print("Address: "); Serial.println(bufferFile.getFlashAddress());	// should be 65536
     Serial.print("File Position: ");Serial.println(bufferFile.position());
 
+    Serial.print("File Size: "); Serial.println(bufferFile.size());
+
 
 	return fileCreation;
 
@@ -173,7 +175,8 @@ void DataLogger::locateCircBufferAddresses() {
 	//looping through the remainder of the buffer
 	for(uint16_t i = 0; i < totalBlocks; i++) {
 
-		uint32_t blockAddress = begBlockAddr + (i * SerialFlash.blockSize());
+		//uint32_t blockAddress = begBlockAddr + (i * SerialFlash.blockSize());
+		uint32_t blockAddress = i * SerialFlash.blockSize();
 
 		// Wrap around if out of bounds
 		if(blockAddress > circularBufferSize){
@@ -303,6 +306,7 @@ bool DataLogger::readCircBuffer() {
 		bufferPacket.count5 = buffer[5];
 		bufferPacket.count6 = buffer[6];
 		bufferPacket.count7 = buffer[7];
+
 
 
 		printPacketToSerialMonitor(bufferPacket);
@@ -533,14 +537,22 @@ void DataLogger::printPacketToSerialMonitor(DataPacket packet) {
 	//Serial.println(ts);
 	Serial.print(ts); Serial.print(", ");
 
-	float voltage = 0;
-	uint8_t * voltageBytes = (uint8_t *) &voltage;
-	voltageBytes[3] = packet.count4;
-	voltageBytes[2] = packet.count5;
-	voltageBytes[1] = packet.count6;
-	voltageBytes[0] = packet.count7;
+//	float voltage = 0;
+//	uint8_t * voltageBytes = (uint8_t *) &voltage;
+//	voltageBytes[3] = packet.count4;
+//	voltageBytes[2] = packet.count5;
+//	voltageBytes[1] = packet.count6;
+//	voltageBytes[0] = packet.count7;
 	//Serial.print("VOLTAGE IS: "); Serial.println(voltage);
-	Serial.println(voltage);
+	//Serial.println(voltage);
+
+//	uint8_t sensorVal = 0;
+//	uint8_t * pinBytes = (uint8_t *) &sensorVal;
+//	pinBytes[0] = packet.count4;
+//	Serial.println(sensorVal);
+
+	Serial.println(packet.count4);
+
 
 }
 

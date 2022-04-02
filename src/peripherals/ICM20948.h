@@ -5,6 +5,7 @@
  *  Author: Charlie Tribble and Samay Govani
  */
 
+#include "Arduino.h"
 #include <Wire.h>
 
 #define ICM20948_ADDRESS			 0x68	// default I2C address (AD0 pin pulled low)

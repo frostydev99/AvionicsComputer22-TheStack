@@ -25,6 +25,7 @@
 #define PIN_M1 3
 #define PIN_AX 4
 
+#define PIN_PULSE 2
 
 
 
@@ -57,6 +58,7 @@ private:
 	// Sensors
 	ICM20948 * imu = new ICM20948(0x68);
 	MPL3115A2 * baro = new MPL3115A2();
+
 
 
 
