@@ -116,7 +116,7 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	imu->readSensorData();
 	uint8_t * gyroAccelBytes = imu->getRawSensorRegisters();
 
-	imu->printVector(imu->getAccRawValues());
+	//imu->printVector(imu->getAccRawValues());
 	//Serial.println(imu->getTempRawValues());
 
 	baro->readSensorData();
@@ -125,11 +125,11 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 	float altitude = baro->getAltitude();
 	//uint8_t * altitudeBytes = (uint8_t *) &altitude;
-	Serial.println(altitude);
+	//Serial.println(altitude);
 
 	float temperature = baro->getTemperature();
 	//uint8_t * temperatureBytes = (uint8_t *) &temperature;
-	Serial.println(temperature);
+	//Serial.println(temperature);
 
 	flightDataPacket.count4 = barometerBytes[0];
 	flightDataPacket.count5 = barometerBytes[1];

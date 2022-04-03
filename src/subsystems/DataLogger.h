@@ -87,7 +87,7 @@ private:
 	uint32_t endDataAddress = 0;
 
 	// File size of the buffer is 4 x block size, with block size = 65536 (2^16)
-	uint32_t circularBufferSize = 8 * SerialFlash.blockSize();
+	uint32_t circularBufferSize = 250 * SerialFlash.blockSize();
 
 
 
@@ -213,12 +213,12 @@ public:
 
 
 			// TRANSMIT NO MATTER WHAT
-			if(logger_->timeToTransmit()) {
-
-				logger_->transmitTelemetry();
-
-				Serial.println(F("TRANSMIT"));
-			}
+//			if(logger_->timeToTransmit()) {
+//
+//				logger_->transmitTelemetry();
+//
+//				Serial.println(F("TRANSMIT"));
+//			}
 
 
 

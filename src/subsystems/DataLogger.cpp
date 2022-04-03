@@ -24,7 +24,7 @@ bool DataLogger::subsystemInit(){
 
 	// Transceiver radio
 	bool radioInit = false;
-	radioInit = transcieverInit();
+	//radioInit = transcieverInit();
 
 
 	//delay(10);
@@ -571,8 +571,8 @@ void DataLogger::printPacketToSerialMonitor(DataPacket packet) {
 	timestampBytes[1] = packet.count2;
 	timestampBytes[0] = packet.count3;
 	//Serial.print("TIMESTAMP IS: ");
-	//Serial.println(ts);
-	Serial.print(ts); Serial.print(", ");
+	Serial.println(ts);
+//	Serial.print(ts); //Serial.print(", ");
 
 //	float voltage = 0;
 //	uint8_t * voltageBytes = (uint8_t *) &voltage;
@@ -588,8 +588,29 @@ void DataLogger::printPacketToSerialMonitor(DataPacket packet) {
 //	pinBytes[0] = packet.count4;
 //	Serial.println(sensorVal);
 
-//	Serial.println(packet.count4);
-
+	Serial.print("Count 0: "); Serial.println(packet.count0);
+	Serial.print("Count 1: "); Serial.println(packet.count1);
+	Serial.print("Count 2: "); Serial.println(packet.count2);
+	Serial.print("Count 3: "); Serial.println(packet.count3);
+	Serial.print("Count 4: "); Serial.println(packet.count4);
+	Serial.print("Count 5: "); Serial.println(packet.count5);
+	Serial.print("Count 6: "); Serial.println(packet.count6);
+	Serial.print("Count 7: "); Serial.println(packet.count7);
+	Serial.print("Count 8: "); Serial.println(packet.count8);
+	Serial.print("Count 9: "); Serial.println(packet.count9);
+	Serial.print("Count 10: "); Serial.println(packet.count10);
+	Serial.print("Count 11: "); Serial.println(packet.count11);
+	Serial.print("Count 12: "); Serial.println(packet.count12);
+	Serial.print("Count 13: "); Serial.println(packet.count13);
+	Serial.print("Count 14: "); Serial.println(packet.count14);
+	Serial.print("Count 15: "); Serial.println(packet.count15);
+	Serial.print("Count 16: "); Serial.println(packet.count16);
+	Serial.print("Count 17: "); Serial.println(packet.count17);
+	Serial.print("Count 18: "); Serial.println(packet.count18);
+	Serial.print("Count 19: "); Serial.println(packet.count19);
+	Serial.print("Count 20: "); Serial.println(packet.count20);
+	Serial.print("Count 21: "); Serial.println(packet.count21);
+	Serial.print("Count 22: "); Serial.println(packet.count22);
 
 }
 
