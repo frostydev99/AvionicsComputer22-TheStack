@@ -281,8 +281,8 @@ bool DataLogger::readCircBuffer() {
 	// If there's a next data packet to read in the file, read and print it
 	if(bufferFile.available() > 0){
 
-		//uint32_t currentAddress = bufferFile.position();
-		//Serial.print(currentAddress); Serial.print(", ");
+		uint32_t currentAddress = bufferFile.position();
+		Serial.print(currentAddress); Serial.print(", ");
 		//Serial.print("Current address: "); Serial.println(currentAddress);
 
 		uint8_t buffer[dataPacketSize];             // temporary data buffer for reading
@@ -332,8 +332,8 @@ bool DataLogger::readCircBuffer() {
 		bufferPacket.count31 = buffer[31];
 
 
-
-		printPacketToSerialMonitor(bufferPacket);
+		printRawDataToSerialMonitor(bufferPacket);
+//		printPacketToSerialMonitor(bufferPacket);
 //		printPacketToGroundstation(bufferPacket);
 
 
@@ -564,6 +564,7 @@ void DataLogger::printPacketToGroundstation(DataPacket packet) {
  */
 void DataLogger::printPacketToSerialMonitor(DataPacket packet) {
 
+	// Timestamp (and state)
 	uint32_t ts = 0;
 	uint8_t * timestampBytes = (uint8_t *) &ts;
 	timestampBytes[3] = packet.count0;
@@ -571,8 +572,55 @@ void DataLogger::printPacketToSerialMonitor(DataPacket packet) {
 	timestampBytes[1] = packet.count2;
 	timestampBytes[0] = packet.count3;
 	//Serial.print("TIMESTAMP IS: ");
-	Serial.println(ts);
-//	Serial.print(ts); //Serial.print(", ");
+	Serial.print(ts); Serial.print(", ");
+
+	// Barometer
+	Serial.print(packet.count4); Serial.print(", ");
+	Serial.print(packet.count5); Serial.print(", ");
+	Serial.print(packet.count6); Serial.print(", ");
+	Serial.print(packet.count7); Serial.print(", ");
+
+	// IMU
+	const float ACCEL_LSB = 2048;    // 2048 LSB / G
+	const float GYRO_LSB  = 16.4;	 // 16.4 LSB / (dps)
+
+	int16_t rawAccX, rawAccY, rawAccZ = 0;
+	uint8_t * bytesAccX = (uint8_t *) &rawAccX;
+	uint8_t * bytesAccY = (uint8_t *) &rawAccY;
+	uint8_t * bytesAccZ = (uint8_t *) &rawAccZ;
+
+	int16_t rawGyroX, rawGyroY, rawGyroZ = 0;
+	uint8_t * bytesGyroX = (uint8_t *) &rawGyroX;
+	uint8_t * bytesGyroY = (uint8_t *) &rawGyroY;
+	uint8_t * bytesGyroZ = (uint8_t *) &rawGyroZ;
+
+	bytesAccX[1] = packet.count8;  bytesAccX[0] = packet.count9;
+	bytesAccY[1] = packet.count10; bytesAccY[0] = packet.count11;
+	bytesAccZ[1] = packet.count12; bytesAccZ[0] = packet.count13;
+
+	bytesGyroX[1] = packet.count14; bytesGyroX[0] = packet.count15;
+	bytesGyroY[1] = packet.count16; bytesGyroY[0] = packet.count17;
+	bytesGyroZ[1] = packet.count18; bytesGyroZ[0] = packet.count19;
+
+	float accX = (float) rawAccX * 1 / ACCEL_LSB;
+	float accY = (float) rawAccY * 1 / ACCEL_LSB;
+	float accZ = (float) rawAccZ * 1 / ACCEL_LSB;
+
+	float gyroX = (float) rawGyroX * 1 / GYRO_LSB;
+	float gyroY = (float) rawGyroY * 1 / GYRO_LSB;
+	float gyroZ = (float) rawGyroZ * 1 / GYRO_LSB;
+
+	Serial.print(accX); Serial.print(", ");
+	Serial.print(accY); Serial.print(", ");
+	Serial.print(accZ); Serial.print(", ");
+
+	Serial.print(gyroX); Serial.print(", ");
+	Serial.print(gyroY); Serial.print(", ");
+	Serial.print(gyroZ); //Serial.print(", ");
+
+	Serial.println();
+
+
 
 //	float voltage = 0;
 //	uint8_t * voltageBytes = (uint8_t *) &voltage;
@@ -588,29 +636,49 @@ void DataLogger::printPacketToSerialMonitor(DataPacket packet) {
 //	pinBytes[0] = packet.count4;
 //	Serial.println(sensorVal);
 
-	Serial.print("Count 0: "); Serial.println(packet.count0);
-	Serial.print("Count 1: "); Serial.println(packet.count1);
-	Serial.print("Count 2: "); Serial.println(packet.count2);
-	Serial.print("Count 3: "); Serial.println(packet.count3);
-	Serial.print("Count 4: "); Serial.println(packet.count4);
-	Serial.print("Count 5: "); Serial.println(packet.count5);
-	Serial.print("Count 6: "); Serial.println(packet.count6);
-	Serial.print("Count 7: "); Serial.println(packet.count7);
-	Serial.print("Count 8: "); Serial.println(packet.count8);
-	Serial.print("Count 9: "); Serial.println(packet.count9);
-	Serial.print("Count 10: "); Serial.println(packet.count10);
-	Serial.print("Count 11: "); Serial.println(packet.count11);
-	Serial.print("Count 12: "); Serial.println(packet.count12);
-	Serial.print("Count 13: "); Serial.println(packet.count13);
-	Serial.print("Count 14: "); Serial.println(packet.count14);
-	Serial.print("Count 15: "); Serial.println(packet.count15);
-	Serial.print("Count 16: "); Serial.println(packet.count16);
-	Serial.print("Count 17: "); Serial.println(packet.count17);
-	Serial.print("Count 18: "); Serial.println(packet.count18);
-	Serial.print("Count 19: "); Serial.println(packet.count19);
-	Serial.print("Count 20: "); Serial.println(packet.count20);
-	Serial.print("Count 21: "); Serial.println(packet.count21);
-	Serial.print("Count 22: "); Serial.println(packet.count22);
+
+
+}
+
+
+/*
+ *
+ */
+void DataLogger::printRawDataToSerialMonitor(DataPacket packet) {
+
+	Serial.print(packet.count0); Serial.print(F(", "));
+	Serial.print(packet.count1); Serial.print(F(", "));
+	Serial.print(packet.count2); Serial.print(F(", "));
+	Serial.print(packet.count3); Serial.print(F(", "));
+	Serial.print(packet.count4); Serial.print(F(", "));
+	Serial.print(packet.count5); Serial.print(F(", "));
+	Serial.print(packet.count6); Serial.print(F(", "));
+	Serial.print(packet.count7); Serial.print(F(", "));
+	Serial.print(packet.count8); Serial.print(F(", "));
+	Serial.print(packet.count9); Serial.print(F(", "));
+	Serial.print(packet.count10); Serial.print(F(", "));
+	Serial.print(packet.count11); Serial.print(F(", "));
+	Serial.print(packet.count12); Serial.print(F(", "));
+	Serial.print(packet.count13); Serial.print(F(", "));
+	Serial.print(packet.count14); Serial.print(F(", "));
+	Serial.print(packet.count15); Serial.print(F(", "));
+	Serial.print(packet.count16); Serial.print(F(", "));
+	Serial.print(packet.count17); Serial.print(F(", "));
+	Serial.print(packet.count18); Serial.print(F(", "));
+	Serial.print(packet.count19); Serial.print(F(", "));
+	Serial.print(packet.count20); Serial.print(F(", "));
+	Serial.print(packet.count21); Serial.print(F(", "));
+	Serial.print(packet.count22); Serial.print(F(", "));
+	Serial.print(packet.count23); Serial.print(F(", "));
+	Serial.print(packet.count24); Serial.print(F(", "));
+	Serial.print(packet.count25); Serial.print(F(", "));
+	Serial.print(packet.count26); Serial.print(F(", "));
+	Serial.print(packet.count27); Serial.print(F(", "));
+	Serial.print(packet.count28); Serial.print(F(", "));
+	Serial.print(packet.count29); Serial.print(F(", "));
+	Serial.print(packet.count30); Serial.print(F(", "));
+	Serial.print(packet.count31); Serial.println();
+
 
 }
 

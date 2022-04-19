@@ -272,10 +272,10 @@ void MPL3115A2::rawDataToFourBytes() {
 	uint8_t * combinedBytes = (uint8_t *) &combinedRaw;
 	uint8_t * pressureAndTempBytes = (uint8_t *) &pressureAndTemp;
 
-	pressureAndTempBytes[3] = combinedBytes[3];		// big endian
-	pressureAndTempBytes[2] = combinedBytes[2];
+	pressureAndTempBytes[0] = combinedBytes[0];		// big endian
 	pressureAndTempBytes[1] = combinedBytes[1];
-	pressureAndTempBytes[0] = combinedBytes[0];
+	pressureAndTempBytes[2] = combinedBytes[2];
+	pressureAndTempBytes[3] = combinedBytes[3];
 
 }
 

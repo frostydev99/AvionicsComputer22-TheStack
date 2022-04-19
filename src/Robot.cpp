@@ -36,7 +36,7 @@ bool Robot::systemInit(){
 
 
 	// Datalogger
-	dataLogger->subsystemInit();
+//	dataLogger->subsystemInit();
 
 
 
@@ -55,7 +55,7 @@ void Robot::registerAllLoops(Looper * runningLooper){
 
 	runningLooper->registerLoop(robotLoop);
 
-	dataLogger->registerLoops(runningLooper);
+//	dataLogger->registerLoops(runningLooper);
 
 }
 
@@ -82,75 +82,70 @@ void Robot::beginStateMachine(){
 void Robot::updateStateMachine(uint32_t timestamp){
 
 
-	DataPacket flightDataPacket;
+	packet.setTimestamp(timestamp);
+	packet.setAccelX(-1);
+	packet.setState(-1);
+
+	packet.updateRocketPacket();
+
+	uint8_t * timestampBytes = (uint8_t *) packet.getRocketPacketPtr();
+	Serial.println(timestampBytes[5]);
 
 
-	uint8_t * timestampBytes = (uint8_t *) &timestamp;
-
-	flightDataPacket.count0 = timestampBytes[3];
-	flightDataPacket.count1 = timestampBytes[2];
-	flightDataPacket.count2 = timestampBytes[1];
-	flightDataPacket.count3 = timestampBytes[0];
-
-//	uint16_t sensorValue = analogRead(A0); 			// read the input on analog pin 0
-//	float voltage = sensorValue * (3.3 / 1023.0); 	// Volts per count
-//	uint8_t * voltageBytes = (uint8_t *) &voltage;
 
 
-//	float voltage = sin(phase);
-//	uint8_t * voltageBytes = (uint8_t *) &voltage;
-//	phase += 0.02;
-//
-//	flightDataPacket.count4 = voltageBytes[3];
-//	flightDataPacket.count5 = voltageBytes[2];
-//	flightDataPacket.count6 = voltageBytes[1];
-//	flightDataPacket.count7 = voltageBytes[0];
-//	Serial.println(voltage);
 
+	//DataPacket flightDataPacket;
 
+	//uint8_t * timestampBytes = (uint8_t *) &timestamp;
+
+//	flightDataPacket.count0 = timestampBytes[3];
+//	flightDataPacket.count1 = timestampBytes[2];
+//	flightDataPacket.count2 = timestampBytes[1];
+//	flightDataPacket.count3 = timestampBytes[0];
 
 
 	//Serial.println(timestamp);
 	//uint8_t * timestampBytes = (uint8_t *) &timestamp;
 
-	imu->readSensorData();
-	uint8_t * gyroAccelBytes = imu->getRawSensorRegisters();
+//	imu->readSensorData();
+//	uint8_t * gyroAccelBytes = imu->getRawSensorRegisters();
 
 	//imu->printVector(imu->getAccRawValues());
 	//Serial.println(imu->getTempRawValues());
 
-	baro->readSensorData();
-	uint32_t  altAndTemperature = baro->getPressureAndTempCombined();
-	uint8_t * barometerBytes = (uint8_t *) &altAndTemperature;
+//	baro->readSensorData();
+//	uint32_t  altAndTemperature = baro->getPressureAndTempCombined();
+//	uint8_t * barometerBytes = (uint8_t *) &altAndTemperature;
 
-	float altitude = baro->getAltitude();
+//	float altitude = baro->getAltitude();
 	//uint8_t * altitudeBytes = (uint8_t *) &altitude;
-	//Serial.println(altitude);
+//	Serial.println(altitude);
 
-	float temperature = baro->getTemperature();
+//	float temperature = baro->getTemperature();
 	//uint8_t * temperatureBytes = (uint8_t *) &temperature;
-	//Serial.println(temperature);
+//	Serial.println(temperature);
 
-	flightDataPacket.count4 = barometerBytes[0];
-	flightDataPacket.count5 = barometerBytes[1];
-	flightDataPacket.count6 = barometerBytes[2];
-	flightDataPacket.count7 = barometerBytes[3];
+//	flightDataPacket.count4 = barometerBytes[0];
+//	flightDataPacket.count5 = barometerBytes[1];
+//	flightDataPacket.count6 = barometerBytes[2];
+//	flightDataPacket.count7 = barometerBytes[3];
+//
+//	flightDataPacket.count8 = gyroAccelBytes[0];
+//	flightDataPacket.count9 = gyroAccelBytes[1];
+//	flightDataPacket.count10 = gyroAccelBytes[2];
+//	flightDataPacket.count11 = gyroAccelBytes[3];
+//	flightDataPacket.count12 = gyroAccelBytes[4];
+//	flightDataPacket.count13 = gyroAccelBytes[5];
+//	flightDataPacket.count14 = gyroAccelBytes[6];
+//	flightDataPacket.count15 = gyroAccelBytes[7];
+//	flightDataPacket.count16 = gyroAccelBytes[8];
+//	flightDataPacket.count17 = gyroAccelBytes[9];
+//	flightDataPacket.count18 = gyroAccelBytes[10];
+//	flightDataPacket.count19 = gyroAccelBytes[11];
 
-	flightDataPacket.count8 = gyroAccelBytes[0];
-	flightDataPacket.count9 = gyroAccelBytes[1];
-	flightDataPacket.count10 = gyroAccelBytes[2];
-	flightDataPacket.count11 = gyroAccelBytes[3];
-	flightDataPacket.count12 = gyroAccelBytes[4];
-	flightDataPacket.count13 = gyroAccelBytes[5];
-	flightDataPacket.count14 = gyroAccelBytes[6];
-	flightDataPacket.count15 = gyroAccelBytes[7];
-	flightDataPacket.count16 = gyroAccelBytes[8];
-	flightDataPacket.count17 = gyroAccelBytes[9];
-	flightDataPacket.count18 = gyroAccelBytes[10];
-	flightDataPacket.count19 = gyroAccelBytes[11];
 
-
-	dataLogger->setCurrentDataPacket(flightDataPacket);
+//	dataLogger->setCurrentDataPacket(flightDataPacket);
 
 
 

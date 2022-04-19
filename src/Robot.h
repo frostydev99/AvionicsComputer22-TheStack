@@ -17,7 +17,9 @@
 #include "peripherals/ICM20948.h"
 #include "peripherals/MPL3115A2.h"
 
-#include "subsystems/DataLogger.h"
+#include "utilities/RocketDataPacket.h"
+
+//#include "subsystems/DataLogger.h"
 
 
 // TODO make these properly
@@ -51,8 +53,12 @@ private:
 
 	RobotState robotState = ROBOT_IDLE;				// initial system state is IDLE
 
+
+	RocketDataPacket packet;
+
+
 	// Subsystems
-	DataLogger * dataLogger = new DataLogger();
+	//DataLogger * dataLogger = new DataLogger();
 
 
 	// Sensors

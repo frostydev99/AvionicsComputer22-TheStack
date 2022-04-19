@@ -121,6 +121,7 @@ private:
 	//void parseDataForGroundstation();
 	void printPacketToGroundstation(DataPacket packet);
 	void printPacketToSerialMonitor(DataPacket packet);
+	void printRawDataToSerialMonitor(DataPacket packet);
 
 
 public:
@@ -157,12 +158,12 @@ public:
 
 			case DATALOGGER_STARTUP:
 
-				Serial.println("LOGGER STARTUP");
+				//Serial.println("LOGGER STARTUP");
 
-				logger_->setState(DATALOGGER_WRITE_BUFFER);
+//				logger_->setState(DATALOGGER_WRITE_BUFFER);
 
 //				logger_->setState(DATALOGGER_READ_FILE);
-//				logger_->bufferFile.seek(0);
+//				logger_->bufferFile.seek( 0 );  // 15372000
 
 				break;
 
@@ -215,9 +216,9 @@ public:
 			// TRANSMIT NO MATTER WHAT
 //			if(logger_->timeToTransmit()) {
 //
-//				logger_->transmitTelemetry();
-//
-//				Serial.println(F("TRANSMIT"));
+//				//logger_->transmitTelemetry();
+//				Serial.print(F("TRANSMIT at: "));
+//				Serial.println(timestamp);
 //			}
 
 
