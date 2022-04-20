@@ -20,8 +20,6 @@ Robot::Robot(){};
 bool Robot::systemInit(){
 
 
-	pinMode(PIN_PULSE, INPUT_PULLUP);
-
 	// Set up barometer
 	baro->init();
 
@@ -83,13 +81,24 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 
 	packet.setTimestamp(timestamp);
-	packet.setAccelX(-1);
 	packet.setState(-1);
+	packet.setAltitude(9999.99);
+	packet.setTemperature(-4.5);
+	packet.setAccelX(1);
+	packet.setAccelY(2);
+	packet.setAccelZ(3);
+	packet.setGyroX(4);
+	packet.setGyroY(5);
+	packet.setGyroZ(6);
 
-	packet.updateRocketPacket();
+	packet.setAltAndTempCombined(4294967233);	// using binary to decimal converter
 
-	uint8_t * timestampBytes = (uint8_t *) packet.getRocketPacketPtr();
-	Serial.println(timestampBytes[5]);
+	//packet.updateRocketPacket();
+	packet.updateFromTelemPacket();
+
+	//uint8_t * timestampBytes = (uint8_t *) packet.getRocketPacketPtr();
+	Serial.println(packet.getAltitude());
+	Serial.println(packet.getTemperature());
 
 
 

@@ -22,14 +22,6 @@
 //#include "subsystems/DataLogger.h"
 
 
-// TODO make these properly
-#define PIN_M0 2
-#define PIN_M1 3
-#define PIN_AX 4
-
-#define PIN_PULSE 2
-
-
 
 /*
  * Robot has TODO primary states of autonomous operation throughout its mission which begins when the system is powered on

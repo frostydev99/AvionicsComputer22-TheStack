@@ -23,22 +23,13 @@ class RocketDataPacket : public DataPacket {
 private:
 
 	/*
-	 * Rocket data packet structure for logging, transmitting, and printing for the user
-	 * Size is 28 bytes
-	 * 4 for time stamp
-	 * 4 for state (despite declared as 1)
-	 * 4 for altitude
-	 * 4 for temperature
-	 * 2 for acceleration x
-	 * 2 for acceleration y
-	 * 2 for acceleration z
-	 * 2 for angular rate x
-	 * 2 for angular rate y
-	 * 2 for angular rate z
+	 * Rocket packet
+	 * Standard Rocket data packet structure for logging/transmitting/printing for the user
+	 * sizeof(currentRocketPacket) = 28 bytes
 	 */
 	struct RocketPacket {
 		uint32_t timestamp;		// bytes 0 - 3
-		uint8_t state;			// byte 4 (5 - 7 go unused)
+		uint8_t state;			// byte 4 (5 - 7 go unused despite declared as 1)
 		float altitude;			// bytes 8 - 11
 		float temperature;		// bytes 12 - 15
 		int16_t accelX;			// bytes 16 & 17
@@ -51,6 +42,27 @@ private:
 	} currentRocketPacket;
 
 
+	/*
+	 * Telemetry rocket packet
+	 * Compressed data packet structure for transmitting
+	 * Combines state (4 bits) and timestamp (28 bits) readings into 4 bytes
+	 * Combines altitude (20 bits) and temperature (12 bits) readings into 4 bytes
+	 * sizeof(currentTelemRocketPacket) = 20 bytes
+	 */
+	struct TelemRocketPacket {
+		uint32_t stateAndTsCombined;
+		uint32_t altAndTempCombined;
+		int16_t accelX;
+		int16_t accelY;
+		int16_t accelZ;
+		int16_t gyroX;
+		int16_t gyroY;
+		int16_t gyroZ;
+
+	} currentTelemRocketPacket;
+
+
+	// Rocket packet
 	uint8_t state 		= 0;
 	float altitude 		= 0;
 	float temperature 	= 0;
@@ -61,12 +73,14 @@ private:
 	int16_t gyroY 		= 0;
 	int16_t gyroZ 		= 0;
 
+	// Telemetry rocket packet
+	uint32_t stateAndTsCombined = 0;
+	uint32_t altAndTempCombined = 0;
 
 
-	//void updateRocketPacket();
-	//void updateTelemPacket();
-	//void updateShortTelemPacket();
-
+	// See peripherals/MPL3115A2.h
+	float rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb);
+	float rawToTemperature(uint8_t msb, uint8_t lsb);
 
 
 public:
@@ -74,9 +88,21 @@ public:
 	RocketDataPacket();
 	//	~RocketDataPacket(){}
 
+	//void updateFromRocketPacket();
+	void updateFromTelemPacket();
+	//void updateFromShortTelemPacket();
+
 	void updateRocketPacket();  // TODO Should be private, or not exist? Used in setters?
+								// Update ALL data packets?
+
+
+	// Are these unneeded when using the struct pointer?
+	void setRocketPacket(const void *packet);
+	void setRocketTelemPacket(const void *packet);
+	void setRocketShortTelemPacket(const void *packet);
 
 	const void* getRocketPacketPtr();
+	const void* getTelemRocketPacketPtr();
 
 	uint8_t getState();
 	float getAltitude();
@@ -88,13 +114,11 @@ public:
 	int16_t getGyroY();
 	int16_t getGyroZ();
 
-	void setRocketPacket(const void *packet);
-	void setRocketTelemPacket(const void *packet);
-	void setRocketShortTelemPacket(const void *packet);
-
 	void setState(uint8_t st);
+	void setStateAndTsCombined(uint32_t combinedRaw);
 	void setAltitude(float alt);
 	void setTemperature(float temp);
+	void setAltAndTempCombined(uint32_t combinedRaw);
 	void setAccelX(int16_t aX);
 	void setAccelY(int16_t aY);
 	void setAccelZ(int16_t aZ);

@@ -240,7 +240,7 @@ float MPL3115A2::rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb) {
 float MPL3115A2::rawToTemperature(uint8_t msb, uint8_t lsb) {
 
 	float temperature = 0.0;
-	int16_t integerPart = msb;
+	int8_t integerPart = msb;
 
 	// Get fractional part
 	uint8_t fractionalPart = ((lsb & B11110000) >> 4);
@@ -292,7 +292,7 @@ void MPL3115A2::setDataFromCombinedRaw(uint32_t combinedRaw) {
 
 	uint8_t pressureMSB = combinedBytes[3];
 	uint8_t pressureCSB = combinedBytes[2];
-	uint8_t pressureLSB = combinedBytes[1] &= B11110000;	// keep only first 4 bits
+	uint8_t pressureLSB = combinedBytes[1] & B11110000;	// keep only first 4 bits
 
 	uint8_t temperatureMSB = (combinedBytes[1] << 4) | (combinedBytes[0] >> 4);
 	uint8_t temperatureLSB = (combinedBytes[0] << 4);
