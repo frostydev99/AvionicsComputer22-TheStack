@@ -218,7 +218,7 @@ float MPL3115A2::rawToPressure(uint8_t msb, uint8_t csb, uint8_t lsb) {
 
 /*
  * From the raw sensor registers, converts the altitude to a float. The sensor is in altitude mode
- * and returns the raw data as a Q16.4 signed integer.
+ * and returns the raw data as a Q16.4 fixed point.
  */
 float MPL3115A2::rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb) {
 	float altitude = 0.0;
@@ -235,7 +235,8 @@ float MPL3115A2::rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb) {
 }
 
 /*
- *
+ * Converting temperature raw data to a float. The sensor register data is a raw
+ * Q8.4 signed fixed point
  */
 float MPL3115A2::rawToTemperature(uint8_t msb, uint8_t lsb) {
 

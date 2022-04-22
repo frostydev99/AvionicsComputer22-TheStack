@@ -85,12 +85,34 @@ public:
     void setPlusMinus8Gs();
     void setPlusMinus16Gs();
 
+    int16_t getRawAccelX();
+    int16_t getRawAccelY();
+    int16_t getRawAccelZ();
+    int16_t getRawGyroX();
+    int16_t getRawGyroY();
+    int16_t getRawGyroZ();
+
 
 private:
 
     uint8_t currBank = 0;
     uint8_t regVal = 0;
     uint8_t SensorRegister[14];			// last polled sensor register values stored here
+
+    int16_t rawAccelX = 0;
+    int16_t rawAccelY = 0;
+    int16_t rawAccelZ = 0;
+    int16_t rawGyroX = 0;
+    int16_t rawGyroY = 0;
+    int16_t rawGyroZ = 0;
+
+    float accelX = 0;
+    float accelY = 0;
+    float accelZ = 0;
+    float gyroX = 0;
+    float gyroY = 0;
+    float gyroZ = 0;
+
 
     void switchBank(uint8_t newBank);
 

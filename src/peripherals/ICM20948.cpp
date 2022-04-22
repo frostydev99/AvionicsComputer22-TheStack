@@ -146,13 +146,19 @@ void ICM20948::readSensorData(){
 	_wire->write(ICM20948_ACCEL_OUT);
 	_wire->endTransmission(false);
 
-	_wire->requestFrom(I2C_addr,14);
+	_wire->requestFrom(I2C_addr, 14);
 
 	for(uint8_t i = 0; i < 14; i++){
-
 		this->SensorRegister[i] = _wire->read();
-
 	}
+
+	// Set globals
+	rawAccelX = processHighLowBytes(SensorRegister[0], SensorRegister[1]);
+	rawAccelY = processHighLowBytes(SensorRegister[2], SensorRegister[3]);
+	rawAccelZ = processHighLowBytes(SensorRegister[4], SensorRegister[5]);
+	rawGyroX  = processHighLowBytes(SensorRegister[6], SensorRegister[7]);
+	rawGyroY  = processHighLowBytes(SensorRegister[8], SensorRegister[9]);
+	rawGyroZ  = processHighLowBytes(SensorRegister[10], SensorRegister[11]);
 
 }
 
@@ -248,6 +254,31 @@ void ICM20948::setPlusMinus8Gs() {
 
 void ICM20948::setPlusMinus16Gs() {
 	setAccScale(PLUS_MINUS_16G);
+}
+
+
+int16_t ICM20948::getRawAccelX() {
+	return rawAccelX;
+}
+
+int16_t ICM20948::getRawAccelY() {
+	return rawAccelY;
+}
+
+int16_t ICM20948::getRawAccelZ() {
+	return rawAccelZ;
+}
+
+int16_t ICM20948::getRawGyroX() {
+	return rawGyroX;
+}
+
+int16_t ICM20948::getRawGyroY() {
+	return rawGyroY;
+}
+
+int16_t ICM20948::getRawGyroZ() {
+	return rawGyroZ;
 }
 
 

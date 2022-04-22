@@ -16,11 +16,12 @@
 /*
  *	Rocket DataPacket class
  *	Includes sensor readings from the barometer and IMU
- *	Different packet forms for functionality like minimal data to transmit
+ *	Different packet forms for optimization like minimal data to transmit
  */
 class RocketDataPacket : public DataPacket {
 
-private:
+//private:
+public:
 
 	/*
 	 * Rocket packet

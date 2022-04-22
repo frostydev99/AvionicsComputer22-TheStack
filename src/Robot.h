@@ -19,7 +19,7 @@
 
 #include "utilities/RocketDataPacket.h"
 
-//#include "subsystems/DataLogger.h"
+#include "subsystems/DataLogger.h"
 
 
 
@@ -47,10 +47,11 @@ private:
 
 
 	RocketDataPacket packet;
+	RocketDataPacket testPacket;
 
 
 	// Subsystems
-	//DataLogger * dataLogger = new DataLogger();
+	DataLogger * dataLogger = new DataLogger();
 
 
 	// Sensors

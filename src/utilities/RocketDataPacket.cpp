@@ -18,6 +18,7 @@ RocketDataPacket::RocketDataPacket(){};
  */
 void RocketDataPacket::updateRocketPacket() {
 
+	// Rocket packet
 	currentRocketPacket.timestamp = timestamp;
 	currentRocketPacket.state = state;
 	currentRocketPacket.altitude = altitude;
@@ -29,8 +30,9 @@ void RocketDataPacket::updateRocketPacket() {
 	currentRocketPacket.gyroY = gyroY;
 	currentRocketPacket.gyroZ = gyroZ;
 
-//	currentTelemRocketPacket.stateAndTsCombined = stateAndTsCombined;
-//	currentTelemRocketPacket.altAndTempCombined = altAndTempCombined;
+	// Telemetry rocket packet
+	currentTelemRocketPacket.stateAndTsCombined = stateAndTsCombined;
+	currentTelemRocketPacket.altAndTempCombined = altAndTempCombined;
 
 
 }
@@ -45,7 +47,8 @@ void RocketDataPacket::updateFromTelemPacket() {
 //	altAndTempCombined = currentTelemRocketPacket.altAndTempCombined;
 
 	// State and Time stamp parsing
-
+	// TODO actually include state...
+	currentTelemRocketPacket.stateAndTsCombined = timestamp;
 
 	// Altitude and Temperature parsing
 	uint8_t * altAndTempPtr = (uint8_t *) &altAndTempCombined;
@@ -57,18 +60,33 @@ void RocketDataPacket::updateFromTelemPacket() {
 	uint8_t temperatureMSB = (altAndTempPtr[1] << 4)  |  (altAndTempPtr[0] >> 4);
 	uint8_t temperatureLSB = (altAndTempPtr[0] << 4);
 
-	rawToAltitude(altitudeMSB, altitudeCSB, altitudeLSB);
-	rawToTemperature(temperatureMSB, temperatureLSB);
+	rawToAltitude(altitudeMSB, altitudeCSB, altitudeLSB);	// sets altitude in function
+	rawToTemperature(temperatureMSB, temperatureLSB);		// sets temperature in function
 
+	currentTelemRocketPacket.altAndTempCombined = altAndTempCombined;
 
-	updateRocketPacket();
+	// IMU readings
+//	accelX = currentTelemRocketPacket.accelX;
+//	accelY = currentTelemRocketPacket.accelY;
+//	accelZ = currentTelemRocketPacket.accelZ;
+//	gyroX = currentTelemRocketPacket.gyroX;
+//	gyroY = currentTelemRocketPacket.gyroY;
+//	gyroZ = currentTelemRocketPacket.gyroZ;
+
+	currentTelemRocketPacket.accelX = accelX;
+	currentTelemRocketPacket.accelY = accelY;
+	currentTelemRocketPacket.accelZ = accelZ;
+	currentTelemRocketPacket.gyroX = gyroX;
+	currentTelemRocketPacket.gyroY = gyroY;
+	currentTelemRocketPacket.gyroZ = gyroZ;
+
 
 }
 
 
 /*
  * From the raw sensor registers, converts the altitude to a float. The sensor is in altitude mode
- * and returns the raw data as a Q16.4 signed integer.
+ * and returns the raw data as a Q16.4 signed fixed point.
  */
 float RocketDataPacket::rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb) {
 	float altitude = 0.0;
@@ -85,7 +103,8 @@ float RocketDataPacket::rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb) {
 }
 
 /*
- *
+ * Converting temperature raw data to a float. The sensor register data is a raw
+ * Q8.4 signed fixed point
  */
 float RocketDataPacket::rawToTemperature(uint8_t msb, uint8_t lsb) {
 
@@ -191,11 +210,11 @@ void RocketDataPacket::setGyroX(int16_t gX) {
 }
 
 void RocketDataPacket::setGyroY(int16_t gY) {
-	gyroX = gY;
+	gyroY = gY;
 }
 
 void RocketDataPacket::setGyroZ(int16_t gZ) {
-	gyroX = gZ;
+	gyroZ = gZ;
 }
 
 

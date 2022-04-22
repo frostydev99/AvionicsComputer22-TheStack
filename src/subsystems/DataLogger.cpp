@@ -260,7 +260,7 @@ bool DataLogger::updateCircBuffer() {
 	}
 
 
-	uint32_t fileWriteLen = bufferFile.write(&currentDataPacket, dataPacketSize);
+	uint32_t fileWriteLen = bufferFile.write(currentDataPacket, dataPacketSize);
 	//Serial.print("Length of data written: "); Serial.println(fileWriteLen);
 	//Serial.print("Current address: "); Serial.println(currentAddress);
 
@@ -296,43 +296,10 @@ bool DataLogger::readCircBuffer() {
 		//	Serial.println(buffer[i]);
 		//}
 
-		DataPacket bufferPacket;
-		// for loop?
-		bufferPacket.count0 = buffer[0];
-		bufferPacket.count1 = buffer[1];
-		bufferPacket.count2 = buffer[2];
-		bufferPacket.count3 = buffer[3];
-		bufferPacket.count4 = buffer[4];
-		bufferPacket.count5 = buffer[5];
-		bufferPacket.count6 = buffer[6];
-		bufferPacket.count7 = buffer[7];
-		bufferPacket.count8 = buffer[8];
-		bufferPacket.count9 = buffer[9];
-		bufferPacket.count10 = buffer[10];
-		bufferPacket.count11 = buffer[11];
-		bufferPacket.count12 = buffer[12];
-		bufferPacket.count13 = buffer[13];
-		bufferPacket.count14 = buffer[14];
-		bufferPacket.count15 = buffer[15];
-		bufferPacket.count16 = buffer[16];
-		bufferPacket.count17 = buffer[17];
-		bufferPacket.count18 = buffer[18];
-		bufferPacket.count19 = buffer[19];
-		bufferPacket.count20 = buffer[20];
-		bufferPacket.count21 = buffer[21];
-		bufferPacket.count22 = buffer[22];
-		bufferPacket.count23 = buffer[23];
-		bufferPacket.count24 = buffer[24];
-		bufferPacket.count25 = buffer[25];
-		bufferPacket.count26 = buffer[26];
-		bufferPacket.count27 = buffer[27];
-		bufferPacket.count28 = buffer[28];
-		bufferPacket.count29 = buffer[29];
-		bufferPacket.count30 = buffer[30];
-		bufferPacket.count31 = buffer[31];
 
+		setCurrentDataPacket(buffer, dataPacketSize);
 
-		printRawDataToSerialMonitor(bufferPacket);
+		//printRawDataToSerialMonitor(bufferPacket);
 //		printPacketToSerialMonitor(bufferPacket);
 //		printPacketToGroundstation(bufferPacket);
 
@@ -351,12 +318,13 @@ bool DataLogger::readCircBuffer() {
  */
 bool DataLogger::addPacketToSmallBuffer() {
 
-	//Serial.print("INDEX: "); Serial.println(smallBufferIndex);
-	dataPacketSmallBuffer[smallBufferIndex] = currentDataPacket;
+	Serial.print("INDEX: "); Serial.println(smallBufferIndex);
+
+	uint8_t* packetPtr = &dataPacketSmallBuffer[smallBufferIndex][0];
+	memcpy(currentDataPacket, packetPtr, dataPacketSize);
 
 	// Wrap around if out of bounds
-	uint8_t smallBufferPacketNum = sizeof(dataPacketSmallBuffer)
-			/ sizeof(dataPacketSmallBuffer[1]);
+	uint8_t smallBufferPacketNum = sizeof(dataPacketSmallBuffer) / dataPacketSize;
 
 	if(smallBufferIndex >= smallBufferPacketNum - 1){
 		smallBufferIndex = 0;
@@ -377,9 +345,9 @@ void DataLogger::writeSmallBufferToCircBuffer() {
 
 	for(uint8_t i = 0; i < smallBufferIndex; i++){
 
-		DataPacket packet = dataPacketSmallBuffer[i];
+		uint8_t* packetPtr = &dataPacketSmallBuffer[i][0];
 
-		uint32_t fileWriteLen = bufferFile.write(&packet, dataPacketSize);
+		uint32_t fileWriteLen = bufferFile.write(packetPtr, dataPacketSize);
 
 		uint32_t currentAddress = bufferFile.position();
 		endDataAddress = currentAddress;
@@ -443,7 +411,7 @@ bool DataLogger::transmitTelemetry() {
 
 	uint16_t dataPacketSizeToTransmit = 20;
 
-	sendSuccess = transceiver->SendStruct(&currentDataPacket, dataPacketSizeToTransmit);
+	sendSuccess = transceiver->SendStruct(currentDataPacket, dataPacketSizeToTransmit);
 
 	return sendSuccess;
 
@@ -459,10 +427,22 @@ void DataLogger::setState(DataLoggerState state) {
 
 
 /*
- *
+ * Set the currentDataPacket of the DataLogger
+ * @param packet is the pointer to the start of the packet with data to copy
+ * @param packetSize is the amount of data to copy to the currentDataPacket
  */
-void DataLogger::setCurrentDataPacket(DataPacket packet) {
-	currentDataPacket = packet;
+void DataLogger::setCurrentDataPacket(const void* packet, uint8_t packetSize) {
+	memcpy(currentDataPacket, packet, packetSize);
+}
+
+
+/*
+ * Get the currentDataPacket of the DataLogger
+ * @param packet is the pointer to the start of the packet to copy data into
+ * @param packetSize is the amount of data to copy
+ */
+void DataLogger::getCurrentDataPacket(void* packet, uint8_t packetSize) {
+	memcpy(packet, currentDataPacket, packetSize);
 }
 
 
@@ -471,216 +451,216 @@ void DataLogger::setCurrentDataPacket(DataPacket packet) {
  * BIG ENDIAN
  * @param packet is the DataPacket to parse and print
  */
-void DataLogger::printPacketToGroundstation(DataPacket packet) {
-
-    //Data start bytes
-	Serial.print(PRINT_BEG);
-
-    Serial.print(TIMESTAMP);
-    Serial.write(packet.count0);
-    Serial.write(packet.count1);
-    Serial.write(packet.count2);
-    Serial.write(packet.count3);
-
-    Serial.print(ALTITUDE);
-    Serial.write(packet.count4);
-    Serial.write(packet.count5);
-    Serial.write(packet.count6);
-    Serial.write(packet.count7);
-
-    // Data end bytes
-    Serial.print(PRINT_END);
-
-
-//    Serial.write(83); // S - State
-//    Serial.write(84); // T
-//    Serial.write(84); // T
-//    Serial.write(0);  // state zero hardcode for now
+//void DataLogger::printPacketToGroundstation(DataPacket packet) {
 //
-//    Serial.write(65); // A - Altitute
-//    Serial.write(76); // L
-//    Serial.write(84); // T
-//    Serial.write(altitudeBytes[3]);
-//    Serial.write(altitudeBytes[2]);
-//    Serial.write(altitudeBytes[1]);
-//    Serial.write(altitudeBytes[0]);
+//    //Data start bytes
+//	Serial.print(PRINT_BEG);
 //
-//    Serial.write(84); // T - Temperature
-//    Serial.write(77); // M
-//    Serial.write(80); // P
-//    Serial.write(temperatureBytes[3]);
-//    Serial.write(temperatureBytes[2]);
-//    Serial.write(temperatureBytes[1]);
-//    Serial.write(temperatureBytes[0]);
+//    Serial.print(TIMESTAMP);
+//    Serial.write(packet.count0);
+//    Serial.write(packet.count1);
+//    Serial.write(packet.count2);
+//    Serial.write(packet.count3);
 //
-//    // Accelerometer x-axis
-//	Serial.write(65); // A
-//	Serial.write(67); // C
-//	Serial.write(88); // X
-//	Serial.write(gyroAccelBytes[0]);
-//	Serial.write(gyroAccelBytes[1]);
+//    Serial.print(ALTITUDE);
+//    Serial.write(packet.count4);
+//    Serial.write(packet.count5);
+//    Serial.write(packet.count6);
+//    Serial.write(packet.count7);
 //
-//	// Accelerometer y-axis
-//	Serial.write(65); // A
-//	Serial.write(67); // C
-//	Serial.write(89); // Y
-//	Serial.write(gyroAccelBytes[2]);
-//	Serial.write(gyroAccelBytes[3]);
+//    // Data end bytes
+//    Serial.print(PRINT_END);
 //
-//	// Accelerometer z-axis
-//	Serial.write(65); // A
-//	Serial.write(67); // C
-//	Serial.write(90); // Z
-//	Serial.write(gyroAccelBytes[4]);
-//	Serial.write(gyroAccelBytes[5]);
 //
-//	// Gyro x-axis
-//	Serial.write(71); // G
-//	Serial.write(89); // Y
-//	Serial.write(88); // X
-//	Serial.write(gyroAccelBytes[6]);
-//	Serial.write(gyroAccelBytes[7]);
+////    Serial.write(83); // S - State
+////    Serial.write(84); // T
+////    Serial.write(84); // T
+////    Serial.write(0);  // state zero hardcode for now
+////
+////    Serial.write(65); // A - Altitute
+////    Serial.write(76); // L
+////    Serial.write(84); // T
+////    Serial.write(altitudeBytes[3]);
+////    Serial.write(altitudeBytes[2]);
+////    Serial.write(altitudeBytes[1]);
+////    Serial.write(altitudeBytes[0]);
+////
+////    Serial.write(84); // T - Temperature
+////    Serial.write(77); // M
+////    Serial.write(80); // P
+////    Serial.write(temperatureBytes[3]);
+////    Serial.write(temperatureBytes[2]);
+////    Serial.write(temperatureBytes[1]);
+////    Serial.write(temperatureBytes[0]);
+////
+////    // Accelerometer x-axis
+////	Serial.write(65); // A
+////	Serial.write(67); // C
+////	Serial.write(88); // X
+////	Serial.write(gyroAccelBytes[0]);
+////	Serial.write(gyroAccelBytes[1]);
+////
+////	// Accelerometer y-axis
+////	Serial.write(65); // A
+////	Serial.write(67); // C
+////	Serial.write(89); // Y
+////	Serial.write(gyroAccelBytes[2]);
+////	Serial.write(gyroAccelBytes[3]);
+////
+////	// Accelerometer z-axis
+////	Serial.write(65); // A
+////	Serial.write(67); // C
+////	Serial.write(90); // Z
+////	Serial.write(gyroAccelBytes[4]);
+////	Serial.write(gyroAccelBytes[5]);
+////
+////	// Gyro x-axis
+////	Serial.write(71); // G
+////	Serial.write(89); // Y
+////	Serial.write(88); // X
+////	Serial.write(gyroAccelBytes[6]);
+////	Serial.write(gyroAccelBytes[7]);
+////
+////	// Gyro y-axis
+////	Serial.write(71); // G
+////	Serial.write(89); // Y
+////	Serial.write(89); // Y
+////	Serial.write(gyroAccelBytes[8]);
+////	Serial.write(gyroAccelBytes[9]);
+////
+////	// Gyro z-axis
+////	Serial.write(71); // G
+////	Serial.write(89); // Y
+////	Serial.write(90); // Z
+////	Serial.write(gyroAccelBytes[10]);
+////	Serial.write(gyroAccelBytes[11]);
+////
 //
-//	// Gyro y-axis
-//	Serial.write(71); // G
-//	Serial.write(89); // Y
-//	Serial.write(89); // Y
-//	Serial.write(gyroAccelBytes[8]);
-//	Serial.write(gyroAccelBytes[9]);
-//
-//	// Gyro z-axis
-//	Serial.write(71); // G
-//	Serial.write(89); // Y
-//	Serial.write(90); // Z
-//	Serial.write(gyroAccelBytes[10]);
-//	Serial.write(gyroAccelBytes[11]);
-//
-
-}
+//}
 
 
 /*
  *
  */
-void DataLogger::printPacketToSerialMonitor(DataPacket packet) {
-
-	// Timestamp (and state)
-	uint32_t ts = 0;
-	uint8_t * timestampBytes = (uint8_t *) &ts;
-	timestampBytes[3] = packet.count0;
-	timestampBytes[2] = packet.count1;
-	timestampBytes[1] = packet.count2;
-	timestampBytes[0] = packet.count3;
-	//Serial.print("TIMESTAMP IS: ");
-	Serial.print(ts); Serial.print(", ");
-
-	// Barometer
-	Serial.print(packet.count4); Serial.print(", ");
-	Serial.print(packet.count5); Serial.print(", ");
-	Serial.print(packet.count6); Serial.print(", ");
-	Serial.print(packet.count7); Serial.print(", ");
-
-	// IMU
-	const float ACCEL_LSB = 2048;    // 2048 LSB / G
-	const float GYRO_LSB  = 16.4;	 // 16.4 LSB / (dps)
-
-	int16_t rawAccX, rawAccY, rawAccZ = 0;
-	uint8_t * bytesAccX = (uint8_t *) &rawAccX;
-	uint8_t * bytesAccY = (uint8_t *) &rawAccY;
-	uint8_t * bytesAccZ = (uint8_t *) &rawAccZ;
-
-	int16_t rawGyroX, rawGyroY, rawGyroZ = 0;
-	uint8_t * bytesGyroX = (uint8_t *) &rawGyroX;
-	uint8_t * bytesGyroY = (uint8_t *) &rawGyroY;
-	uint8_t * bytesGyroZ = (uint8_t *) &rawGyroZ;
-
-	bytesAccX[1] = packet.count8;  bytesAccX[0] = packet.count9;
-	bytesAccY[1] = packet.count10; bytesAccY[0] = packet.count11;
-	bytesAccZ[1] = packet.count12; bytesAccZ[0] = packet.count13;
-
-	bytesGyroX[1] = packet.count14; bytesGyroX[0] = packet.count15;
-	bytesGyroY[1] = packet.count16; bytesGyroY[0] = packet.count17;
-	bytesGyroZ[1] = packet.count18; bytesGyroZ[0] = packet.count19;
-
-	float accX = (float) rawAccX * 1 / ACCEL_LSB;
-	float accY = (float) rawAccY * 1 / ACCEL_LSB;
-	float accZ = (float) rawAccZ * 1 / ACCEL_LSB;
-
-	float gyroX = (float) rawGyroX * 1 / GYRO_LSB;
-	float gyroY = (float) rawGyroY * 1 / GYRO_LSB;
-	float gyroZ = (float) rawGyroZ * 1 / GYRO_LSB;
-
-	Serial.print(accX); Serial.print(", ");
-	Serial.print(accY); Serial.print(", ");
-	Serial.print(accZ); Serial.print(", ");
-
-	Serial.print(gyroX); Serial.print(", ");
-	Serial.print(gyroY); Serial.print(", ");
-	Serial.print(gyroZ); //Serial.print(", ");
-
-	Serial.println();
-
-
-
-//	float voltage = 0;
-//	uint8_t * voltageBytes = (uint8_t *) &voltage;
-//	voltageBytes[3] = packet.count4;
-//	voltageBytes[2] = packet.count5;
-//	voltageBytes[1] = packet.count6;
-//	voltageBytes[0] = packet.count7;
-	//Serial.print("VOLTAGE IS: "); Serial.println(voltage);
-	//Serial.println(voltage);
-
-//	uint8_t sensorVal = 0;
-//	uint8_t * pinBytes = (uint8_t *) &sensorVal;
-//	pinBytes[0] = packet.count4;
-//	Serial.println(sensorVal);
-
-
-
-}
+//void DataLogger::printPacketToSerialMonitor(DataPacket packet) {
+//
+//	// Timestamp (and state)
+//	uint32_t ts = 0;
+//	uint8_t * timestampBytes = (uint8_t *) &ts;
+//	timestampBytes[3] = packet.count0;
+//	timestampBytes[2] = packet.count1;
+//	timestampBytes[1] = packet.count2;
+//	timestampBytes[0] = packet.count3;
+//	//Serial.print("TIMESTAMP IS: ");
+//	Serial.print(ts); Serial.print(", ");
+//
+//	// Barometer
+//	Serial.print(packet.count4); Serial.print(", ");
+//	Serial.print(packet.count5); Serial.print(", ");
+//	Serial.print(packet.count6); Serial.print(", ");
+//	Serial.print(packet.count7); Serial.print(", ");
+//
+//	// IMU
+//	const float ACCEL_LSB = 2048;    // 2048 LSB / G
+//	const float GYRO_LSB  = 16.4;	 // 16.4 LSB / (dps)
+//
+//	int16_t rawAccX, rawAccY, rawAccZ = 0;
+//	uint8_t * bytesAccX = (uint8_t *) &rawAccX;
+//	uint8_t * bytesAccY = (uint8_t *) &rawAccY;
+//	uint8_t * bytesAccZ = (uint8_t *) &rawAccZ;
+//
+//	int16_t rawGyroX, rawGyroY, rawGyroZ = 0;
+//	uint8_t * bytesGyroX = (uint8_t *) &rawGyroX;
+//	uint8_t * bytesGyroY = (uint8_t *) &rawGyroY;
+//	uint8_t * bytesGyroZ = (uint8_t *) &rawGyroZ;
+//
+//	bytesAccX[1] = packet.count8;  bytesAccX[0] = packet.count9;
+//	bytesAccY[1] = packet.count10; bytesAccY[0] = packet.count11;
+//	bytesAccZ[1] = packet.count12; bytesAccZ[0] = packet.count13;
+//
+//	bytesGyroX[1] = packet.count14; bytesGyroX[0] = packet.count15;
+//	bytesGyroY[1] = packet.count16; bytesGyroY[0] = packet.count17;
+//	bytesGyroZ[1] = packet.count18; bytesGyroZ[0] = packet.count19;
+//
+//	float accX = (float) rawAccX * 1 / ACCEL_LSB;
+//	float accY = (float) rawAccY * 1 / ACCEL_LSB;
+//	float accZ = (float) rawAccZ * 1 / ACCEL_LSB;
+//
+//	float gyroX = (float) rawGyroX * 1 / GYRO_LSB;
+//	float gyroY = (float) rawGyroY * 1 / GYRO_LSB;
+//	float gyroZ = (float) rawGyroZ * 1 / GYRO_LSB;
+//
+//	Serial.print(accX); Serial.print(", ");
+//	Serial.print(accY); Serial.print(", ");
+//	Serial.print(accZ); Serial.print(", ");
+//
+//	Serial.print(gyroX); Serial.print(", ");
+//	Serial.print(gyroY); Serial.print(", ");
+//	Serial.print(gyroZ); //Serial.print(", ");
+//
+//	Serial.println();
+//
+//
+//
+////	float voltage = 0;
+////	uint8_t * voltageBytes = (uint8_t *) &voltage;
+////	voltageBytes[3] = packet.count4;
+////	voltageBytes[2] = packet.count5;
+////	voltageBytes[1] = packet.count6;
+////	voltageBytes[0] = packet.count7;
+//	//Serial.print("VOLTAGE IS: "); Serial.println(voltage);
+//	//Serial.println(voltage);
+//
+////	uint8_t sensorVal = 0;
+////	uint8_t * pinBytes = (uint8_t *) &sensorVal;
+////	pinBytes[0] = packet.count4;
+////	Serial.println(sensorVal);
+//
+//
+//
+//}
 
 
 /*
  *
  */
-void DataLogger::printRawDataToSerialMonitor(DataPacket packet) {
-
-	Serial.print(packet.count0); Serial.print(F(", "));
-	Serial.print(packet.count1); Serial.print(F(", "));
-	Serial.print(packet.count2); Serial.print(F(", "));
-	Serial.print(packet.count3); Serial.print(F(", "));
-	Serial.print(packet.count4); Serial.print(F(", "));
-	Serial.print(packet.count5); Serial.print(F(", "));
-	Serial.print(packet.count6); Serial.print(F(", "));
-	Serial.print(packet.count7); Serial.print(F(", "));
-	Serial.print(packet.count8); Serial.print(F(", "));
-	Serial.print(packet.count9); Serial.print(F(", "));
-	Serial.print(packet.count10); Serial.print(F(", "));
-	Serial.print(packet.count11); Serial.print(F(", "));
-	Serial.print(packet.count12); Serial.print(F(", "));
-	Serial.print(packet.count13); Serial.print(F(", "));
-	Serial.print(packet.count14); Serial.print(F(", "));
-	Serial.print(packet.count15); Serial.print(F(", "));
-	Serial.print(packet.count16); Serial.print(F(", "));
-	Serial.print(packet.count17); Serial.print(F(", "));
-	Serial.print(packet.count18); Serial.print(F(", "));
-	Serial.print(packet.count19); Serial.print(F(", "));
-	Serial.print(packet.count20); Serial.print(F(", "));
-	Serial.print(packet.count21); Serial.print(F(", "));
-	Serial.print(packet.count22); Serial.print(F(", "));
-	Serial.print(packet.count23); Serial.print(F(", "));
-	Serial.print(packet.count24); Serial.print(F(", "));
-	Serial.print(packet.count25); Serial.print(F(", "));
-	Serial.print(packet.count26); Serial.print(F(", "));
-	Serial.print(packet.count27); Serial.print(F(", "));
-	Serial.print(packet.count28); Serial.print(F(", "));
-	Serial.print(packet.count29); Serial.print(F(", "));
-	Serial.print(packet.count30); Serial.print(F(", "));
-	Serial.print(packet.count31); Serial.println();
-
-
-}
+//void DataLogger::printRawDataToSerialMonitor(DataPacket packet) {
+//
+//	Serial.print(packet.count0); Serial.print(F(", "));
+//	Serial.print(packet.count1); Serial.print(F(", "));
+//	Serial.print(packet.count2); Serial.print(F(", "));
+//	Serial.print(packet.count3); Serial.print(F(", "));
+//	Serial.print(packet.count4); Serial.print(F(", "));
+//	Serial.print(packet.count5); Serial.print(F(", "));
+//	Serial.print(packet.count6); Serial.print(F(", "));
+//	Serial.print(packet.count7); Serial.print(F(", "));
+//	Serial.print(packet.count8); Serial.print(F(", "));
+//	Serial.print(packet.count9); Serial.print(F(", "));
+//	Serial.print(packet.count10); Serial.print(F(", "));
+//	Serial.print(packet.count11); Serial.print(F(", "));
+//	Serial.print(packet.count12); Serial.print(F(", "));
+//	Serial.print(packet.count13); Serial.print(F(", "));
+//	Serial.print(packet.count14); Serial.print(F(", "));
+//	Serial.print(packet.count15); Serial.print(F(", "));
+//	Serial.print(packet.count16); Serial.print(F(", "));
+//	Serial.print(packet.count17); Serial.print(F(", "));
+//	Serial.print(packet.count18); Serial.print(F(", "));
+//	Serial.print(packet.count19); Serial.print(F(", "));
+//	Serial.print(packet.count20); Serial.print(F(", "));
+//	Serial.print(packet.count21); Serial.print(F(", "));
+//	Serial.print(packet.count22); Serial.print(F(", "));
+//	Serial.print(packet.count23); Serial.print(F(", "));
+//	Serial.print(packet.count24); Serial.print(F(", "));
+//	Serial.print(packet.count25); Serial.print(F(", "));
+//	Serial.print(packet.count26); Serial.print(F(", "));
+//	Serial.print(packet.count27); Serial.print(F(", "));
+//	Serial.print(packet.count28); Serial.print(F(", "));
+//	Serial.print(packet.count29); Serial.print(F(", "));
+//	Serial.print(packet.count30); Serial.print(F(", "));
+//	Serial.print(packet.count31); Serial.println();
+//
+//
+//}
 
 
 /*

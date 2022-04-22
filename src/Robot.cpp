@@ -34,7 +34,7 @@ bool Robot::systemInit(){
 
 
 	// Datalogger
-//	dataLogger->subsystemInit();
+	dataLogger->subsystemInit();
 
 
 
@@ -53,7 +53,7 @@ void Robot::registerAllLoops(Looper * runningLooper){
 
 	runningLooper->registerLoop(robotLoop);
 
-//	dataLogger->registerLoops(runningLooper);
+	dataLogger->registerLoops(runningLooper);
 
 }
 
@@ -80,26 +80,64 @@ void Robot::beginStateMachine(){
 void Robot::updateStateMachine(uint32_t timestamp){
 
 
+	baro->readSensorData();
+	uint32_t altAndTemperature = baro->getPressureAndTempCombined();
+
+	imu->readSensorData();
+
+
+	packet.setAltAndTempCombined(altAndTemperature);
+
 	packet.setTimestamp(timestamp);
 	packet.setState(-1);
-	packet.setAltitude(9999.99);
-	packet.setTemperature(-4.5);
-	packet.setAccelX(1);
-	packet.setAccelY(2);
-	packet.setAccelZ(3);
-	packet.setGyroX(4);
-	packet.setGyroY(5);
-	packet.setGyroZ(6);
+	//packet.setAltitude(9999.99);
+	//packet.setTemperature(-4.5);
+	packet.setAccelX(imu->getRawAccelX());
+	packet.setAccelY(imu->getRawAccelY());
+	packet.setAccelZ(imu->getRawAccelZ());
+	packet.setGyroX(imu->getRawGyroX());
+	packet.setGyroY(imu->getRawGyroY());
+	packet.setGyroZ(imu->getRawGyroZ());
 
-	packet.setAltAndTempCombined(4294967233);	// using binary to decimal converter
+	//packet.updateRocketPacket();		// for sender
+	packet.updateFromTelemPacket();		// for receiver
 
-	//packet.updateRocketPacket();
-	packet.updateFromTelemPacket();
+	//Serial.println(packet.getAltitude());
+	//Serial.println(packet.getTemperature());
 
-	//uint8_t * timestampBytes = (uint8_t *) packet.getRocketPacketPtr();
-	Serial.println(packet.getAltitude());
-	Serial.println(packet.getTemperature());
 
+
+	dataLogger->setCurrentDataPacket(packet.getTelemRocketPacketPtr(), 20);
+
+	uint8_t tempBuffer[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	dataLogger->getCurrentDataPacket(tempBuffer, 20);
+
+	// memcopy for testing, add to setter function!
+	//
+	memcpy((void*)testPacket.getTelemRocketPacketPtr(), packet.getTelemRocketPacketPtr(), 20);
+
+	Serial.println(testPacket.currentTelemRocketPacket.altAndTempCombined);
+
+//	Serial.print(tempBuffer[0]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[1]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[2]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[3]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[4]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[5]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[6]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[7]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[8]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[9]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[10]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[11]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[12]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[13]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[14]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[15]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[16]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[17]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[18]); Serial.print(F(", "));
+//	Serial.print(tempBuffer[19]); Serial.println(F(", "));
 
 
 

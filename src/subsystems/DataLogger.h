@@ -15,6 +15,9 @@
 #include "../peripherals/LoRaE32.h"
 
 
+#define PACKET_SIZE 32		// number of bytes in a packet of data to log
+
+
 // Groundstation identifiers
 #define STATE 		"STT"
 #define TIMESTAMP 	"TSP"
@@ -40,21 +43,6 @@ typedef enum {
 } DataLoggerState;
 
 
-/*
- * Data packet structure for logging, transmitting, and printing to the groundstation
- * Size is 32 bytes
- */
-struct DataPacket {
-	uint8_t count0  = 0;  uint8_t count1  = 1;  uint8_t count2  = 2;  uint8_t count3  = 3;
-	uint8_t count4  = 4;  uint8_t count5  = 5;  uint8_t count6  = 6;  uint8_t count7  = 7;
-	uint8_t count8  = 8;  uint8_t count9  = 9;  uint8_t count10 = 10; uint8_t count11 = 11;
-	uint8_t count12 = 12; uint8_t count13 = 13; uint8_t count14 = 14; uint8_t count15 = 15;
-	uint8_t count16 = 16; uint8_t count17 = 17; uint8_t count18 = 18; uint8_t count19 = 19;
-	uint8_t count20 = 20; uint8_t count21 = 21; uint8_t count22 = 22; uint8_t count23 = 23;
-	uint8_t count24 = 24; uint8_t count25 = 25; uint8_t count26 = 26; uint8_t count27 = 27;
-	uint8_t count28 = 28; uint8_t count29 = 29; uint8_t count30 = 30; uint8_t count31 = 31;
-};
-
 
 /*
  * The DataLogger subsystem object
@@ -65,15 +53,16 @@ private:
 
 	DataLoggerState loggerState = DATALOGGER_STARTUP;		// initial state is startup
 
-	// Data
-	DataPacket currentDataPacket;
-	uint32_t dataPacketSize = sizeof(currentDataPacket);
+	// Memory for current data packet
+	uint8_t currentDataPacket[PACKET_SIZE];
+	uint32_t dataPacketSize = sizeof(currentDataPacket);	// should be equal to PACKET_SIZE
 
-	DataPacket dataPacketSmallBuffer[30];
+	// Memory for a buffer of data packets
+	uint8_t dataPacketSmallBuffer[30][PACKET_SIZE];
 	uint8_t smallBufferIndex = 0;							// current index of packet buffer
 
 
-	// Flash memory
+	// Flash memory pin
 	const uint8_t PIN_CS = SPI_FLASH_CS;
 
 	// Files
@@ -98,7 +87,7 @@ private:
 	uint8_t timer = 0;
 
 
-	// Transceiver radio
+	// Transceiver radio pins
 	const uint8_t PIN_M0  = E32_LORA_M0;
 	const uint8_t PIN_M1  = E32_LORA_M1;
 	const uint8_t PIN_AUX = E32_LORA_AUX;
@@ -119,9 +108,9 @@ private:
 	bool transmitTelemetry();
 
 	//void parseDataForGroundstation();
-	void printPacketToGroundstation(DataPacket packet);
-	void printPacketToSerialMonitor(DataPacket packet);
-	void printRawDataToSerialMonitor(DataPacket packet);
+//	void printPacketToGroundstation(DataPacket packet);
+//	void printPacketToSerialMonitor(DataPacket packet);
+//	void printRawDataToSerialMonitor(DataPacket packet);
 
 
 public:
@@ -152,6 +141,15 @@ public:
 		}
 
 		void onLoop(uint32_t timestamp){
+
+			// TODO handleRadioTransmit()
+//			if(logger_->timeToTransmit()) {
+//
+//				//logger_->transmitTelemetry();
+//				Serial.print(F("TRANSMIT at: "));
+//				Serial.println(timestamp);
+//			}
+
 
 			// Main system state machine
 			switch(logger_->loggerState){
@@ -213,16 +211,6 @@ public:
 
 
 
-			// TRANSMIT NO MATTER WHAT
-//			if(logger_->timeToTransmit()) {
-//
-//				//logger_->transmitTelemetry();
-//				Serial.print(F("TRANSMIT at: "));
-//				Serial.println(timestamp);
-//			}
-
-
-
 		}
 
 		void onStop(uint32_t timestamp){
@@ -233,8 +221,8 @@ public:
 
 
 	void setState(DataLoggerState state);
-	void setCurrentDataPacket(DataPacket packet);
-
+	void setCurrentDataPacket(const void* packet, uint8_t packetSize);
+	void getCurrentDataPacket(void* packet, uint8_t packetSize);
 
 	bool subsystemInit();
 	void zeroSensors();
