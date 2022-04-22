@@ -14,11 +14,35 @@ RocketDataPacket::RocketDataPacket(){};
 
 
 /*
- *
+ *	Form a rocket telemetry packet from the current stored data fields
+ */
+void RocketDataPacket::updateToTelemPacket() {
+
+	// State and Time stamp parsing
+	// TODO actually include state...
+	currentTelemRocketPacket.stateAndTsCombined = timestamp;
+
+	// Altitude and Temperature parsing
+	// TODO remove combining altitude and temperature data from MPL3115A2 and move to here
+
+	currentTelemRocketPacket.altAndTempCombined = altAndTempCombined;
+
+	// IMU readings
+	currentTelemRocketPacket.accelX = accelX;
+	currentTelemRocketPacket.accelY = accelY;
+	currentTelemRocketPacket.accelZ = accelZ;
+	currentTelemRocketPacket.gyroX  = gyroX;
+	currentTelemRocketPacket.gyroY  = gyroY;
+	currentTelemRocketPacket.gyroZ  = gyroZ;
+
+}
+
+
+/*
+ *	Form a rocket packet from the current stored data fields
  */
 void RocketDataPacket::updateRocketPacket() {
 
-	// Rocket packet
 	currentRocketPacket.timestamp = timestamp;
 	currentRocketPacket.state = state;
 	currentRocketPacket.altitude = altitude;
@@ -30,27 +54,23 @@ void RocketDataPacket::updateRocketPacket() {
 	currentRocketPacket.gyroY = gyroY;
 	currentRocketPacket.gyroZ = gyroZ;
 
-	// Telemetry rocket packet
-	currentTelemRocketPacket.stateAndTsCombined = stateAndTsCombined;
-	currentTelemRocketPacket.altAndTempCombined = altAndTempCombined;
-
-
 }
 
 
 /*
- *
+ * Populate the data fields from a current rocket telemetry packet
  */
 void RocketDataPacket::updateFromTelemPacket() {
 
-//	stateAndTsCombined = currentTelemRocketPacket.stateAndTsCombined;
-//	altAndTempCombined = currentTelemRocketPacket.altAndTempCombined;
+	stateAndTsCombined = currentTelemRocketPacket.stateAndTsCombined;
+	altAndTempCombined = currentTelemRocketPacket.altAndTempCombined;
 
 	// State and Time stamp parsing
 	// TODO actually include state...
-	currentTelemRocketPacket.stateAndTsCombined = timestamp;
+	timestamp = stateAndTsCombined;
 
 	// Altitude and Temperature parsing
+	// TODO parseAltitudeAndTemperature(uint32_t combinedBytes)
 	uint8_t * altAndTempPtr = (uint8_t *) &altAndTempCombined;
 
 	uint8_t altitudeMSB = altAndTempPtr[3];
@@ -63,23 +83,19 @@ void RocketDataPacket::updateFromTelemPacket() {
 	rawToAltitude(altitudeMSB, altitudeCSB, altitudeLSB);	// sets altitude in function
 	rawToTemperature(temperatureMSB, temperatureLSB);		// sets temperature in function
 
-	currentTelemRocketPacket.altAndTempCombined = altAndTempCombined;
 
 	// IMU readings
-//	accelX = currentTelemRocketPacket.accelX;
-//	accelY = currentTelemRocketPacket.accelY;
-//	accelZ = currentTelemRocketPacket.accelZ;
-//	gyroX = currentTelemRocketPacket.gyroX;
-//	gyroY = currentTelemRocketPacket.gyroY;
-//	gyroZ = currentTelemRocketPacket.gyroZ;
+	accelX = currentTelemRocketPacket.accelX;
+	accelY = currentTelemRocketPacket.accelY;
+	accelZ = currentTelemRocketPacket.accelZ;
+	gyroX  = currentTelemRocketPacket.gyroX;
+	gyroY  = currentTelemRocketPacket.gyroY;
+	gyroZ  = currentTelemRocketPacket.gyroZ;
 
-	currentTelemRocketPacket.accelX = accelX;
-	currentTelemRocketPacket.accelY = accelY;
-	currentTelemRocketPacket.accelZ = accelZ;
-	currentTelemRocketPacket.gyroX = gyroX;
-	currentTelemRocketPacket.gyroY = gyroY;
-	currentTelemRocketPacket.gyroZ = gyroZ;
 
+	// Sync other packets with the new data parsed from the current rocket telemetry packet
+	updateRocketPacket();
+	//updateShortTelemPacket()
 
 }
 
@@ -172,6 +188,17 @@ int16_t RocketDataPacket::getGyroZ() {
 	return gyroZ;
 }
 
+
+/*
+ * Set the currentDataPacket of the DataLogger
+ * @param packet is the pointer to the start of the packet with data to copy
+ */
+void RocketDataPacket::setRocketTelemPacket(const void *packet) {
+	memcpy((void*)getTelemRocketPacketPtr(), packet, sizeof(currentTelemRocketPacket));
+	//updateFromTelemPacket() ?
+}
+
+
 void RocketDataPacket::setState(uint8_t st) {
 	state = st;
 }
@@ -191,7 +218,6 @@ void RocketDataPacket::setTemperature(float temp) {
 void RocketDataPacket::setAltAndTempCombined(uint32_t combinedRaw) {
 	altAndTempCombined = combinedRaw;
 }
-
 
 void RocketDataPacket::setAccelX(int16_t aX) {
 	accelX = aX;

@@ -20,8 +20,7 @@
  */
 class RocketDataPacket : public DataPacket {
 
-//private:
-public:
+private:
 
 	/*
 	 * Rocket packet
@@ -80,6 +79,7 @@ public:
 
 
 	// See peripherals/MPL3115A2.h
+	void parseAltitudeAndTemperature(uint32_t combinedBytes);
 	float rawToAltitude(uint8_t msb, uint8_t csb, uint8_t lsb);
 	float rawToTemperature(uint8_t msb, uint8_t lsb);
 
@@ -89,6 +89,8 @@ public:
 	RocketDataPacket();
 	//	~RocketDataPacket(){}
 
+	void updateToTelemPacket();
+
 	//void updateFromRocketPacket();
 	void updateFromTelemPacket();
 	//void updateFromShortTelemPacket();
@@ -96,11 +98,6 @@ public:
 	void updateRocketPacket();  // TODO Should be private, or not exist? Used in setters?
 								// Update ALL data packets?
 
-
-	// Are these unneeded when using the struct pointer?
-	void setRocketPacket(const void *packet);
-	void setRocketTelemPacket(const void *packet);
-	void setRocketShortTelemPacket(const void *packet);
 
 	const void* getRocketPacketPtr();
 	const void* getTelemRocketPacketPtr();
@@ -114,6 +111,11 @@ public:
 	int16_t getGyroX();
 	int16_t getGyroY();
 	int16_t getGyroZ();
+
+
+	void setRocketPacket(const void *packet);
+	void setRocketTelemPacket(const void *packet);
+	void setRocketShortTelemPacket(const void *packet);
 
 	void setState(uint8_t st);
 	void setStateAndTsCombined(uint32_t combinedRaw);
