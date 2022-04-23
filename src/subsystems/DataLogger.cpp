@@ -24,7 +24,7 @@ bool DataLogger::subsystemInit(){
 
 	// Transceiver radio
 	bool radioInit = false;
-	//radioInit = transcieverInit();
+	radioInit = transcieverInit();
 
 
 	//delay(10);
@@ -59,7 +59,7 @@ bool DataLogger::transcieverInit() {
 	transceiver->SetPullupMode(1);			// OptionPullup
 	transceiver->SetWORTIming(0);			// OptionWakeup
 	transceiver->SetFECMode(1);				// OptionFEC
-	transceiver->SetTransmitPower(0);		// default
+	transceiver->SetTransmitPower(3);		// 1W (0) default, 0.1W is 3
 
 	transceiver->SaveParameters(PERMANENT);
 	transceiver->PrintParameters();
@@ -385,35 +385,31 @@ bool DataLogger::transmitTelemetry() {
 
 	bool sendSuccess = false;
 
-//	dataPacket.count0 = timestampBytes[3];
-//	dataPacket.count1 = timestampBytes[2];
-//	dataPacket.count2 = timestampBytes[1];
-//	dataPacket.count3 = timestampBytes[0];
-//
-//	dataPacket.count4 = barometerBytes[0];
-//	dataPacket.count5 = barometerBytes[1];
-//	dataPacket.count6 = barometerBytes[2];
-//	dataPacket.count7 = barometerBytes[3];
-//
-//	dataPacket.count8 = gyroAccelBytes[0];
-//	dataPacket.count9 = gyroAccelBytes[1];
-//	dataPacket.count10 = gyroAccelBytes[2];
-//	dataPacket.count11 = gyroAccelBytes[3];
-//	dataPacket.count12 = gyroAccelBytes[4];
-//	dataPacket.count13 = gyroAccelBytes[5];
-//	dataPacket.count14 = gyroAccelBytes[6];
-//	dataPacket.count15 = gyroAccelBytes[7];
-//	dataPacket.count16 = gyroAccelBytes[8];
-//	dataPacket.count17 = gyroAccelBytes[9];
-//	dataPacket.count18 = gyroAccelBytes[10];
-//	dataPacket.count19 = gyroAccelBytes[11];
-
 
 	uint16_t dataPacketSizeToTransmit = 20;
 
 	sendSuccess = transceiver->SendStruct(currentDataPacket, dataPacketSizeToTransmit);
 
 	return sendSuccess;
+
+}
+
+
+/*
+ *
+ */
+void DataLogger::receiveTelemetry() {
+
+	if(transceiver->available()) {
+
+		uint16_t telemDataPacketSize = 20;
+
+		transceiver->GetStruct(&currentDataPacket, telemDataPacketSize);
+
+		// Send packet to groundstation on good recieve
+		printCurrentPacketToGroundstation();
+
+	}
 
 }
 
@@ -447,96 +443,102 @@ void DataLogger::getCurrentDataPacket(void* packet, uint8_t packetSize) {
 
 
 /*
- *
  * BIG ENDIAN
- * @param packet is the DataPacket to parse and print
  */
-//void DataLogger::printPacketToGroundstation(DataPacket packet) {
-//
-//    //Data start bytes
-//	Serial.print(PRINT_BEG);
-//
-//    Serial.print(TIMESTAMP);
-//    Serial.write(packet.count0);
-//    Serial.write(packet.count1);
-//    Serial.write(packet.count2);
-//    Serial.write(packet.count3);
-//
-//    Serial.print(ALTITUDE);
-//    Serial.write(packet.count4);
-//    Serial.write(packet.count5);
-//    Serial.write(packet.count6);
-//    Serial.write(packet.count7);
-//
-//    // Data end bytes
-//    Serial.print(PRINT_END);
-//
-//
-////    Serial.write(83); // S - State
-////    Serial.write(84); // T
-////    Serial.write(84); // T
-////    Serial.write(0);  // state zero hardcode for now
-////
-////    Serial.write(65); // A - Altitute
-////    Serial.write(76); // L
-////    Serial.write(84); // T
-////    Serial.write(altitudeBytes[3]);
-////    Serial.write(altitudeBytes[2]);
-////    Serial.write(altitudeBytes[1]);
-////    Serial.write(altitudeBytes[0]);
-////
-////    Serial.write(84); // T - Temperature
-////    Serial.write(77); // M
-////    Serial.write(80); // P
-////    Serial.write(temperatureBytes[3]);
-////    Serial.write(temperatureBytes[2]);
-////    Serial.write(temperatureBytes[1]);
-////    Serial.write(temperatureBytes[0]);
-////
-////    // Accelerometer x-axis
-////	Serial.write(65); // A
-////	Serial.write(67); // C
-////	Serial.write(88); // X
-////	Serial.write(gyroAccelBytes[0]);
-////	Serial.write(gyroAccelBytes[1]);
-////
-////	// Accelerometer y-axis
-////	Serial.write(65); // A
-////	Serial.write(67); // C
-////	Serial.write(89); // Y
-////	Serial.write(gyroAccelBytes[2]);
-////	Serial.write(gyroAccelBytes[3]);
-////
-////	// Accelerometer z-axis
-////	Serial.write(65); // A
-////	Serial.write(67); // C
-////	Serial.write(90); // Z
-////	Serial.write(gyroAccelBytes[4]);
-////	Serial.write(gyroAccelBytes[5]);
-////
-////	// Gyro x-axis
-////	Serial.write(71); // G
-////	Serial.write(89); // Y
-////	Serial.write(88); // X
-////	Serial.write(gyroAccelBytes[6]);
-////	Serial.write(gyroAccelBytes[7]);
-////
-////	// Gyro y-axis
-////	Serial.write(71); // G
-////	Serial.write(89); // Y
-////	Serial.write(89); // Y
-////	Serial.write(gyroAccelBytes[8]);
-////	Serial.write(gyroAccelBytes[9]);
-////
-////	// Gyro z-axis
-////	Serial.write(71); // G
-////	Serial.write(89); // Y
-////	Serial.write(90); // Z
-////	Serial.write(gyroAccelBytes[10]);
-////	Serial.write(gyroAccelBytes[11]);
-////
-//
-//}
+void DataLogger::printCurrentPacketToGroundstation() {
+
+	// Pass the data in the currentDataPacket of the dataLogger to a RocketDataPacket object
+	RocketDataPacket packet;
+	packet.setRocketTelemPacket(currentDataPacket);
+	packet.updateFromTelemPacket();
+
+	uint32_t timestamp = packet.getTimestamp();
+	uint8_t* timestampBytes = (uint8_t*) &timestamp;
+
+	float altitude = packet.getAltitude();
+	uint8_t* altitudeBytes = (uint8_t*) &altitude;
+
+	float temperature = packet.getTemperature();
+	uint8_t* temperatureBytes = (uint8_t*) &temperature;
+
+	int16_t accelX = packet.getAccelX(); uint8_t* acX = (uint8_t*) &accelX;
+	int16_t accelY = packet.getAccelY(); uint8_t* acY = (uint8_t*) &accelY;
+	int16_t accelZ = packet.getAccelZ(); uint8_t* acZ = (uint8_t*) &accelZ;
+	int16_t gyroX  = packet.getGyroX(); uint8_t* gyrX = (uint8_t*) &gyroX;
+	int16_t gyroY  = packet.getGyroY(); uint8_t* gyrY = (uint8_t*) &gyroY;
+	int16_t gyroZ  = packet.getGyroZ(); uint8_t* gyrZ = (uint8_t*) &gyroZ;
+
+
+	Serial.print(PRINT_BEG);			// data string start bytes
+
+    Serial.print(TIMESTAMP);
+    Serial.write(timestampBytes[3]);
+    Serial.write(timestampBytes[2]);
+    Serial.write(timestampBytes[1]);
+    Serial.write(timestampBytes[0]);
+
+    Serial.print(STATE);
+    Serial.write(0);  					// state zero hardcode for now
+
+    Serial.print(ALTITUDE);
+	Serial.write(altitudeBytes[3]);
+	Serial.write(altitudeBytes[2]);
+	Serial.write(altitudeBytes[1]);
+	Serial.write(altitudeBytes[0]);
+
+	Serial.print(TEMPERATURE);
+	Serial.write(temperatureBytes[3]);
+	Serial.write(temperatureBytes[2]);
+	Serial.write(temperatureBytes[1]);
+	Serial.write(temperatureBytes[0]);
+
+	// Accelerometer x-axis
+	Serial.write(65); // A
+	Serial.write(67); // C
+	Serial.write(88); // X
+	Serial.write(acX[1]);
+	Serial.write(acX[0]);
+
+	// Accelerometer y-axis
+	Serial.write(65); // A
+	Serial.write(67); // C
+	Serial.write(89); // Y
+	Serial.write(acY[1]);
+	Serial.write(acY[0]);
+
+	// Accelerometer z-axis
+	Serial.write(65); // A
+	Serial.write(67); // C
+	Serial.write(90); // Z
+	Serial.write(acY[1]);
+	Serial.write(acZ[0]);
+
+	// Gyro x-axis
+	Serial.write(71); // G
+	Serial.write(89); // Y
+	Serial.write(88); // X
+	Serial.write(gyrX[1]);
+	Serial.write(gyrX[0]);
+
+	// Gyro y-axis
+	Serial.write(71); // G
+	Serial.write(89); // Y
+	Serial.write(89); // Y
+	Serial.write(gyrY[1]);
+	Serial.write(gyrY[0]);
+
+	// Gyro z-axis
+	Serial.write(71); // G
+	Serial.write(89); // Y
+	Serial.write(90); // Z
+	Serial.write(gyrZ[1]);
+	Serial.write(gyrZ[0]);
+
+
+    Serial.print(PRINT_END);			// Data string end bytes
+
+
+}
 
 
 /*
@@ -625,41 +627,6 @@ void DataLogger::getCurrentDataPacket(void* packet, uint8_t packetSize) {
  *
  */
 //void DataLogger::printRawDataToSerialMonitor(DataPacket packet) {
-//
-//	Serial.print(packet.count0); Serial.print(F(", "));
-//	Serial.print(packet.count1); Serial.print(F(", "));
-//	Serial.print(packet.count2); Serial.print(F(", "));
-//	Serial.print(packet.count3); Serial.print(F(", "));
-//	Serial.print(packet.count4); Serial.print(F(", "));
-//	Serial.print(packet.count5); Serial.print(F(", "));
-//	Serial.print(packet.count6); Serial.print(F(", "));
-//	Serial.print(packet.count7); Serial.print(F(", "));
-//	Serial.print(packet.count8); Serial.print(F(", "));
-//	Serial.print(packet.count9); Serial.print(F(", "));
-//	Serial.print(packet.count10); Serial.print(F(", "));
-//	Serial.print(packet.count11); Serial.print(F(", "));
-//	Serial.print(packet.count12); Serial.print(F(", "));
-//	Serial.print(packet.count13); Serial.print(F(", "));
-//	Serial.print(packet.count14); Serial.print(F(", "));
-//	Serial.print(packet.count15); Serial.print(F(", "));
-//	Serial.print(packet.count16); Serial.print(F(", "));
-//	Serial.print(packet.count17); Serial.print(F(", "));
-//	Serial.print(packet.count18); Serial.print(F(", "));
-//	Serial.print(packet.count19); Serial.print(F(", "));
-//	Serial.print(packet.count20); Serial.print(F(", "));
-//	Serial.print(packet.count21); Serial.print(F(", "));
-//	Serial.print(packet.count22); Serial.print(F(", "));
-//	Serial.print(packet.count23); Serial.print(F(", "));
-//	Serial.print(packet.count24); Serial.print(F(", "));
-//	Serial.print(packet.count25); Serial.print(F(", "));
-//	Serial.print(packet.count26); Serial.print(F(", "));
-//	Serial.print(packet.count27); Serial.print(F(", "));
-//	Serial.print(packet.count28); Serial.print(F(", "));
-//	Serial.print(packet.count29); Serial.print(F(", "));
-//	Serial.print(packet.count30); Serial.print(F(", "));
-//	Serial.print(packet.count31); Serial.println();
-//
-//
 //}
 
 

@@ -10,6 +10,7 @@
 
 #include "SubsystemInterface.h"
 #include "../../Constants.h"
+#include "../utilities/RocketDataPacket.h"
 
 #include "../peripherals/SerialFlash.h"
 #include "../peripherals/LoRaE32.h"
@@ -36,9 +37,10 @@ typedef enum {
 	DATALOGGER_WRITE_BUFFER,			// writing to the circular buffer
 	DATALOGGER_ERASE_BUFFER,			// erasing a block in the circular buffer
 	DATALOGGER_READ_FILE,
-	DATALOGGER_IDLE
+	DATALOGGER_IDLE,
 	//DATALOGGER_WRITE_FILE 			// writing to a flight file
 	//DATALOGGER_COPY_BUFFER
+	DATALOGGER_RECEIVE_TELEM
 
 } DataLoggerState;
 
@@ -107,8 +109,10 @@ private:
 	bool timeToTransmit();
 	bool transmitTelemetry();
 
+	void receiveTelemetry();
+
 	//void parseDataForGroundstation();
-//	void printPacketToGroundstation(DataPacket packet);
+	void printCurrentPacketToGroundstation();
 //	void printPacketToSerialMonitor(DataPacket packet);
 //	void printRawDataToSerialMonitor(DataPacket packet);
 
@@ -145,7 +149,8 @@ public:
 			// TODO handleRadioTransmit()
 //			if(logger_->timeToTransmit()) {
 //
-//				//logger_->transmitTelemetry();
+//				logger_->transmitTelemetry();
+//
 //				Serial.print(F("TRANSMIT at: "));
 //				Serial.println(timestamp);
 //			}
@@ -162,6 +167,9 @@ public:
 
 //				logger_->setState(DATALOGGER_READ_FILE);
 //				logger_->bufferFile.seek( 0 );  // 15372000
+
+
+				logger_->setState(DATALOGGER_RECEIVE_TELEM);
 
 				break;
 
@@ -202,6 +210,13 @@ public:
 
 			case DATALOGGER_IDLE:
 					// no-op
+				break;
+
+			case DATALOGGER_RECEIVE_TELEM:
+
+				// Check for new received telemetry message to print
+				logger_->receiveTelemetry();
+
 				break;
 
 			default:
