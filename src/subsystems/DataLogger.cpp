@@ -47,7 +47,7 @@ bool DataLogger::transcieverInit() {
 	//transceiver->SetMode();
 	transceiver->SetAddressH(0);
 	transceiver->SetAddressL(0);
-	transceiver->SetChannel(1);
+	transceiver->SetChannel(17);			// 55 = 917MHz for E32-900T20D
 	//transceiver->SetOptions();
 
 	transceiver->SetParityBit(0);	 		// SpeedParityBit
@@ -510,7 +510,7 @@ void DataLogger::printCurrentPacketToGroundstation() {
 	Serial.write(65); // A
 	Serial.write(67); // C
 	Serial.write(90); // Z
-	Serial.write(acY[1]);
+	Serial.write(acZ[1]);
 	Serial.write(acZ[0]);
 
 	// Gyro x-axis

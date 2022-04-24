@@ -86,11 +86,9 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	// Build a rocket telemetry data packet using sensor data
 	packet.setTimestamp(timestamp);
 	packet.setState(0);						// state zero hardcode for now
-
-	packet.setAltitude(9999.99);
-	packet.setTemperature(-4.5);
+	//packet.setAltitude(9999.99);
+	//packet.setTemperature(-4.5);
 	packet.setAltAndTempCombined(baro->getPressureAndTempCombined());
-
 	packet.setAccelX(imu->getRawAccelX());
 	packet.setAccelY(imu->getRawAccelY());
 	packet.setAccelZ(imu->getRawAccelZ());
@@ -113,7 +111,6 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	testPacket.updateFromTelemPacket();		// for receiver to use
 
 	//Serial.println(testPacket.getTemperature());
-
 
 }
 
