@@ -47,7 +47,7 @@ bool DataLogger::transcieverInit() {
 	//transceiver->SetMode();
 	transceiver->SetAddressH(0);
 	transceiver->SetAddressL(0);
-	transceiver->SetChannel(17);			// 55 = 917MHz for E32-900T20D
+	transceiver->SetChannel(55);			// 17 = 917MHz for E32-915T20D
 	//transceiver->SetOptions();
 
 	transceiver->SetParityBit(0);	 		// SpeedParityBit
