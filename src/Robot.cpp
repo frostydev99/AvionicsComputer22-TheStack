@@ -98,19 +98,13 @@ void Robot::updateStateMachine(uint32_t timestamp){
 
 	packet.updateToTelemPacket();			// for transmitter to use
 
-
-	//Serial.println(packet.getAltitude());
+	packet.updateFromTelemPacket();			// for receiver to use
+	Serial.println(packet.getAltitude());
 	//Serial.println(packet.getTemperature());
 
 	// Update the packet for the dataLogger to transmit
 	dataLogger->setCurrentDataPacket(packet.getTelemRocketPacketPtr(), 20);
 
-
-	// Testing copying data from one packet object to another
-	testPacket.setRocketTelemPacket(packet.getTelemRocketPacketPtr());
-	testPacket.updateFromTelemPacket();		// for receiver to use
-
-	//Serial.println(testPacket.getTemperature());
 
 }
 
