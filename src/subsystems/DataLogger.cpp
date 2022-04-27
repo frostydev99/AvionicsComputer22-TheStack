@@ -413,7 +413,7 @@ void DataLogger::receiveTelemetry() {
 
 		transceiver->GetStruct(&currentDataPacket, telemDataPacketSize);
 
-		// Send packet to groundstation on good recieve
+		// Send packet to groundstation on good receive
 		//printCurrentPacketToGroundstation();
 		printCurrentPacketToSerialMonitor();
 
