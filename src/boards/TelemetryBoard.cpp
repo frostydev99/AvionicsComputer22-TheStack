@@ -51,6 +51,8 @@ void TelemetryBoard::setState(BoardStates state) {
 void TelemetryBoard::updateStateMachine(uint32_t timestamp) {
 	switch(telemetryBoardState) {
 		case IDLE:
+			Serial.print("Status: ");
+			Serial.println(canController->getStatus());
 			break;
 
 		case INITIALIZE:
@@ -58,7 +60,7 @@ void TelemetryBoard::updateStateMachine(uint32_t timestamp) {
 
 		case SENDING:
 			canController->sendMessage(&canMessage);
-			Serial.println("Messages Sent from telemetry board");
+			Serial.println("Message sent from telemetry board");
 			break;
 
 		default:

@@ -15,7 +15,6 @@
 #include "../loops/Looper.h"
 #include "../loops/loop.h"
 
-
 class ControllerBoard : public SystemInterface {
 
 private:

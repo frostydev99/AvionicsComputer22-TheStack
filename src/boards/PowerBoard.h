@@ -15,10 +15,18 @@
 #include "../loops/Looper.h"
 #include "../loops/loop.h"
 
+//Peripherals
+#include "../peripherals/mcp2515.h"
+
+#define CAN_FRAME_LENGTH 8
+#define CAN_ID 0x0F6
+
 class PowerBoard : public SystemInterface {
 
 private:
 	BoardStates powerBoardState = IDLE;
+	MCP2515 * canController = new MCP2515(8);
+	struct can_frame canMessage;
 
 
 public:
@@ -42,7 +50,7 @@ public:
 			void onStop(uint32_t timestamp){
 				PowerBoard_->endStateMachine();
 			}
-	} * PowerBoardLoop = new PowerBoardLoop(this);
+	} * powerBoardLoop = new PowerBoardLoop(this);
 
 	bool systemInit();
 	void registerAllLoops(Looper * runningLooper);
@@ -50,6 +58,7 @@ public:
 	void beginStateMachine();
 	void updateStateMachine(uint32_t timestamp);
 	void endStateMachine();
+	void setState(BoardStates state);
 };
 
 #endif /* SRC_BOARDS_PowerBoard_H_ */

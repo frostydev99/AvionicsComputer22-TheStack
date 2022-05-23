@@ -44,4 +44,4 @@ void SensorBoard::updateStateMachine(uint32_t timestamp) {
 	}
 }
 
-void SensorBoard::endStateMachine() {}
+void SensorBoard::endStateMachine() {};
