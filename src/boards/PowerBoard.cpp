@@ -11,25 +11,13 @@ PowerBoard::PowerBoard() {}
 
 bool PowerBoard::systemInit(){
 
-	// Init CAN
 	// Write 0 to servos
 	// Write enabled to servo BAT power
 	// Write disabled to MOSFETS
-
-//	canMessage.can_id  = CAN_ID;
-//	canMessage.can_dlc = CAN_FRAME_LENGTH;
-//	canMessage.data[0] = 0x8E;
-//	canMessage.data[1] = 0x87;
-//	canMessage.data[2] = 0x32;
-//	canMessage.data[3] = 0xFA;
-//	canMessage.data[4] = 0x26;
-//	canMessage.data[5] = 0x8E;
-//	canMessage.data[6] = 0xBE;
-//	canMessage.data[7] = 0x86;
 //
-//	canController->reset();
-//	canController->setBitrate(CAN_125KBPS);
-//	canController->setNormalMode();
+	canController->reset();
+	canController->setBitrate(CAN_125KBPS);
+	canController->setNormalMode();
 
 
 	this->setState(SENDING);
@@ -57,8 +45,6 @@ void PowerBoard::updateStateMachine(uint32_t timestamp) {
 
 	switch(powerBoardState) {
 		case SENDING:
-//			canController->sendMessage(&canMessage);
-//			Serial.println("Message sent from power board");
 
 			// CAN Receive
 			if(canController->readMessage(&canMsg) == MCP2515::ERROR_OK) {
@@ -66,6 +52,20 @@ void PowerBoard::updateStateMachine(uint32_t timestamp) {
 					case CAN_CHARGE_FIRE:
 						break;
 					case CAN_SERVO_ACTUATE:
+						switch(canMsg.data[0])
+							case 1:
+								servoPin = PB_SERVO_PWM_1;
+								break;
+							case 2:
+								servoPin = PB_SERVO_PWM_2;
+								break;
+							case 3:
+								servoPin = PB_SERVO_PWM_3;
+								break;
+							case 4:
+								servoPin = PB_SERVO_PWM_4;
+								break;
+						analogWrite(servoPin, map(canMsg.data[2], 0, 360, 0, 255));
 						break;
 					case CAN_SERVO_POWER:
 						digitalWrite(PB_SERVO_DISABLE, canMsg.data[0]);
@@ -73,27 +73,13 @@ void PowerBoard::updateStateMachine(uint32_t timestamp) {
 				}
 			}
 
-
-//			if (mcp2515.readMessage(&canMsg) == MCP2515::ERROR_OK) {
-//			    Serial.print(canMsg.can_id, HEX); // print ID
-//			    Serial.print(" ");
-//			    Serial.print(canMsg.can_dlc, HEX); // print DLC
-//			    Serial.print(" ");
-//
-//			    for (int i = 0; i<canMsg.can_dlc; i++)  {  // print the data
-//			      Serial.print(canMsg.data[i],HEX);
-//			      Serial.print(" ");
-//			    }
-
-
-			// RECEIVE CAN COMMAND
-			//	SERVO ACTUATION
-			// 	SERVO DISABLE
-			// 	MOSFET FIRE
-
-			// SEND CAN TELMETRY
-			//	BAT VOLTAGE
-			//	SERVO VOLTAGE
+			if (millis() - VOLTAGE_READ_INTERVAL > lastVRead)
+			{
+				canMsg.can_id  = CAN_VOLTAGE_READ;
+				canMsg.can_dlc = DLC_VOLTAGE_READ;
+				canMsg.data[0] = analogRead(PB_VCC);
+			  	canMsg.data[1] = analogRead(PB_7V);
+			}
 			break;
 		default:
 			Serial.print("Unknown State Updated: ");

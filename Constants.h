@@ -37,7 +37,18 @@ enum BoardStates {
 /*
  * PINS FOR POWER BOARD
  */
-#define PB_SERVO_DISABLE 16
+#define PB_SERVO_DISABLE A2
+#define PB_SERVO_PWM_1 5
+#define PB_SERVO_PWM_2 6
+#define PB_SERVO_PWM_3 9
+#define PB_SERVO_PWM_4 10
+#define PB_VCC A3
+#define PB_7V A5
+
+/*
+ * POWER BOARD CONFIG
+ */
+#define VOLTAGE_READ_INTERVAL 1000
 
 /*
  * CAN MESSAGE IDS/DLCS
@@ -55,13 +66,9 @@ enum BoardStates {
 #define DLC_SERVO_POWER 1
 // [1: {bool} SERVO POWER ENABLE]
 
-#define CAN_BATTERY_VOLTAGE 1700
-#define DCL_BATTERY_VOLTAGE 1
-// [1: {short} MAIN BATTERY VOLTAGE (mV)]
-
-#define CAN_SERVO_VOLTAGE 1701
-#define DLC_SERVO_VOLTAGE 1
-// [1: {short} REGULATED SERVO VOLTAGE (mV)]
+#define CAN_VOLTAGE_READ 1700
+#define DLC_VOLTAGE_READ 2
+// [1: {short} MAIN BATTERY VOLTAGE (mV)] [2: {short} REGULATED SERVO VOLTAGE (mV)]
 
 /*
  * COMM BUS SETTINGS

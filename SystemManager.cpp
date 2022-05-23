@@ -44,8 +44,8 @@ void SystemManager::mainSetup(){
 	//sensorBoard->registerAllLoops(looper); //Registering the sensorBoard loops
 	//telemetryBoard->systemInit();
 	//telemetryBoard->registerAllLoops(looper);
-	//powerBoard->systemInit();
-	//powerBoard->registerAllLoops(looper);
+	powerBoard->systemInit();
+	powerBoard->registerAllLoops(looper);
 
 
 }
