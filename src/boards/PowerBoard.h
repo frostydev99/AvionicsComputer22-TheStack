@@ -18,15 +18,12 @@
 //Peripherals
 #include "../peripherals/mcp2515.h"
 
-#define CAN_FRAME_LENGTH 8
-#define CAN_ID 0x0F6
-
 class PowerBoard : public SystemInterface {
 
 private:
 	BoardStates powerBoardState = IDLE;
 	MCP2515 * canController = new MCP2515(8);
-	struct can_frame canMessage;
+	struct can_frame canMsg;
 
 
 public:

@@ -34,17 +34,34 @@ enum BoardStates {
 
 #define SPI_FLASH_CS 10		// PCB silkscreen ?
 
+/*
+ * PINS FOR POWER BOARD
+ */
+#define PB_SERVO_DISABLE 16
 
+/*
+ * CAN MESSAGE IDS/DLCS
+ * In order of decreasing priority, maximum is 2048
+ */
+#define CAN_CHARGE_FIRE 500
+#define DLC_CHARGE_FIRE 1
+// [1: {short} CHARGE ID]
 
+#define CAN_SERVO_ACTUATE 501
+#define DLC_SERVO_ACTUATE 2
+// [1: {short} SERVO ID] [2: {short} ANGLE]
 
+#define CAN_SERVO_POWER 1500
+#define DLC_SERVO_POWER 1
+// [1: {bool} SERVO POWER ENABLE]
 
+#define CAN_BATTERY_VOLTAGE 1700
+#define DCL_BATTERY_VOLTAGE 1
+// [1: {short} MAIN BATTERY VOLTAGE (mV)]
 
-
-
-
-
-
-
+#define CAN_SERVO_VOLTAGE 1701
+#define DLC_SERVO_VOLTAGE 1
+// [1: {short} REGULATED SERVO VOLTAGE (mV)]
 
 /*
  * COMM BUS SETTINGS

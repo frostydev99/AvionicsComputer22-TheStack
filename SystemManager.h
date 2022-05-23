@@ -64,7 +64,7 @@ public:
 	//SensorBoard * sensorBoard = new SensorBoard();
 	//ControllerBoard * controllerBoard = new ControllerBoard();
 	//TelemetryBoard * telemetryBoard = new TelemetryBoard();
-	//PowerBoard * powerBoard = new PowerBoard();
+	PowerBoard * powerBoard = new PowerBoard();
 
 	void mainSetup();
 	void mainLoop();
