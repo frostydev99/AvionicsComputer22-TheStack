@@ -13,6 +13,11 @@
  * constants like PI, as well as system constants determined through calibration.
  *******************************************************************************/
 
+enum BoardStates {
+	IDLE,
+	INITIALIZE,
+	SENDING
+};
 
 
 /*

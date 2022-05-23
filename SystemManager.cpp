@@ -40,9 +40,10 @@ void SystemManager::mainSetup(){
 //#endif
 
 	//Individual Boards
-	sensorBoard->systemInit(); //Initializing Sensor Board Object
-	sensorBoard->registerAllLoops(looper); //Registering the sensorBoard loops
-
+	//sensorBoard->systemInit(); //Initializing Sensor Board Object
+	//sensorBoard->registerAllLoops(looper); //Registering the sensorBoard loops
+	telemetryBoard->systemInit();
+	telemetryBoard->registerAllLoops(looper);
 
 
 }

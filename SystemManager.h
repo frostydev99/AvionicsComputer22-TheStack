@@ -20,6 +20,8 @@
 
 //Individual Boards
 #include "src/boards/SensorBoard.h"
+#include "src/boards/ControllerBoard.h"
+#include "src/boards/TelemetryBoard.h"
 
 
 /*
@@ -60,7 +62,9 @@ public:
 //#endif
 
 	//Individual Boards
-	SensorBoard * sensorBoard = new SensorBoard();
+	//SensorBoard * sensorBoard = new SensorBoard();
+	//ControllerBoard * controllerBoard = new ControllerBoard();
+	TelemetryBoard * telemetryBoard = new TelemetryBoard();
 
 
 	void mainSetup();
