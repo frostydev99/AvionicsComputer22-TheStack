@@ -18,6 +18,9 @@
 
 #include "src/Robot.h"
 
+//Individual Boards
+#include "src/boards/SensorBoard.h"
+
 
 /*
  * Overall system states, main loop execution with everything necessary before and after
@@ -55,6 +58,9 @@ public:
 //#ifdef USE_ROBOT_SYSTEM
 	Robot * robot = new Robot();
 //#endif
+
+	//Individual Boards
+	SensorBoard * sensorBoard = new SensorBoard();
 
 
 	void mainSetup();

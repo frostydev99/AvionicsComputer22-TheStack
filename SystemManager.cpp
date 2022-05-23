@@ -35,9 +35,13 @@ void SystemManager::mainSetup(){
 
 
 //#ifdef USE_ROBOT_SYSTEM
-	robot->systemInit();				// initializing system object
-	robot->registerAllLoops(looper);    // and registering its system/subsystem loops
+//	robot->systemInit();				// initializing system object
+//	robot->registerAllLoops(looper);    // and registering its system/subsystem loops
 //#endif
+
+	//Individual Boards
+	sensorBoard->systemInit(); //Initializing Sensor Board Object
+	sensorBoard->registerAllLoops(looper); //Registering the sensorBoard loops
 
 
 
