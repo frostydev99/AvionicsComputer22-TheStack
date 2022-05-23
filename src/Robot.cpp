@@ -34,7 +34,7 @@ bool Robot::systemInit(){
 
 
 	// Datalogger
-	dataLogger->subsystemInit();
+	//dataLogger->subsystemInit();
 
 
 
@@ -53,7 +53,7 @@ void Robot::registerAllLoops(Looper * runningLooper){
 
 	runningLooper->registerLoop(robotLoop);
 
-	dataLogger->registerLoops(runningLooper);
+	//dataLogger->registerLoops(runningLooper);
 
 }
 
@@ -99,11 +99,11 @@ void Robot::updateStateMachine(uint32_t timestamp){
 	packet.updateToTelemPacket();			// for transmitter to use
 
 	packet.updateFromTelemPacket();			// for receiver to use
-	Serial.println(packet.getAltitude());
+	//Serial.println(packet.getAltitude());
 	//Serial.println(packet.getTemperature());
 
 	// Update the packet for the dataLogger to transmit
-	dataLogger->setCurrentDataPacket(packet.getTelemRocketPacketPtr(), 20);
+	//dataLogger->setCurrentDataPacket(packet.getTelemRocketPacketPtr(), 20);
 
 
 }

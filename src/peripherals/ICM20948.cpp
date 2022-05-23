@@ -146,7 +146,7 @@ void ICM20948::readSensorData(){
 	_wire->write(ICM20948_ACCEL_OUT);
 	_wire->endTransmission(false);
 
-	_wire->requestFrom(I2C_addr, 14);
+	//_wire->requestFrom(I2C_addr, 14);
 
 	for(uint8_t i = 0; i < 14; i++){
 		this->SensorRegister[i] = _wire->read();
@@ -304,7 +304,7 @@ uint8_t ICM20948::readRegister8(uint8_t bank, uint8_t reg){
     _wire->beginTransmission(I2C_addr);
     _wire->write(reg);
     _wire->endTransmission(false);
-    _wire->requestFrom(I2C_addr,1);
+    //_wire->requestFrom(I2C_addr,1);
     if(_wire->available()){
         regValue = _wire->read();
     }
@@ -317,7 +317,7 @@ int16_t ICM20948::readRegister16(uint8_t bank, uint8_t reg){
     _wire->beginTransmission(I2C_addr);
     _wire->write(reg);
     _wire->endTransmission(false);
-    _wire->requestFrom(I2C_addr,2);
+    //_wire->requestFrom(I2C_addr,2);
     if(_wire->available()){
         MSByte = _wire->read();
         LSByte = _wire->read();

@@ -65,6 +65,7 @@ void SystemManager::mainLoop(){
 		// Don't attempt to run loops if they failed to start, stuck in this state
 		if(looper->startLoops()){	// start all loops, call all onStart() methods
 			state = Running;
+			Serial.println("Now in Running Mode");
 		}
 
 		break;

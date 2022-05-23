@@ -15,10 +15,18 @@
 #include "../loops/Looper.h"
 #include "../loops/loop.h"
 
+//Peripherals
+#include "../peripherals/mcp2515.h"
+
+#define CAN_FRAME_LENGTH 8
+#define CAN_ID 0x0F6
+
 class TelemetryBoard : public SystemInterface {
 
 private:
 	BoardStates telemetryBoardState = IDLE;
+	MCP2515 * canController = new MCP2515(10);
+	struct can_frame canMessage;
 
 
 public:
@@ -50,6 +58,7 @@ public:
 	void beginStateMachine();
 	void updateStateMachine(uint32_t timestamp);
 	void endStateMachine();
+	void setState(BoardStates state);
 };
 
 #endif /* SRC_BOARDS_TELEMETRYBOARD_H_ */
