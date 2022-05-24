@@ -22,10 +22,10 @@ class PowerBoard : public SystemInterface {
 
 private:
 	BoardStates powerBoardState = IDLE;
-	MCP2515 * canController = new MCP2515(8);
+	MCP2515 * canController = new MCP2515(PB_MCP515);
 	struct can_frame canMsg;
 	int servoPin;
-	int lastVRead = 0;
+	uint32_t lastVRead = 0;
 
 public:
 	PowerBoard();

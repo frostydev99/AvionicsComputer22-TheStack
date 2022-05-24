@@ -44,23 +44,26 @@ enum BoardStates {
 #define PB_SERVO_PWM_4 10
 #define PB_VCC A3
 #define PB_7V A5
+#define PB_MCP515 8
 
 /*
  * POWER BOARD CONFIG
  */
 #define VOLTAGE_READ_INTERVAL 1000
+#define VCC_REGRESSION_SLOPE 12
+#define VCC_REGRESSION_INTERCEPT 171
 
 /*
  * CAN MESSAGE IDS/DLCS
  * In order of decreasing priority, maximum is 2048
  */
 #define CAN_CHARGE_FIRE 500
-#define DLC_CHARGE_FIRE 1
-// [1: {short} CHARGE ID]
+#define DLC_CHARGE_FIRE 2
+// [1: {uint_8} CHARGE ID] [2: {bool} ENABLE]
 
 #define CAN_SERVO_ACTUATE 501
 #define DLC_SERVO_ACTUATE 2
-// [1: {short} SERVO ID] [2: {short} ANGLE]
+// [1: {uint_8} SERVO ID] [2-3: {uint_16} ANGLE]
 
 #define CAN_SERVO_POWER 1500
 #define DLC_SERVO_POWER 1
@@ -68,7 +71,7 @@ enum BoardStates {
 
 #define CAN_VOLTAGE_READ 1700
 #define DLC_VOLTAGE_READ 2
-// [1: {short} MAIN BATTERY VOLTAGE (mV)] [2: {short} REGULATED SERVO VOLTAGE (mV)]
+// [1-2: {uint_16} MAIN BATTERY VOLTAGE (mV)] // planned [3-4: {uint_16} REGULATED SERVO VOLTAGE (mV)]
 
 /*
  * COMM BUS SETTINGS
