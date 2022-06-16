@@ -64,9 +64,9 @@ public:
 	//Individual Boards
 	//SensorBoard * sensorBoard = new SensorBoard();
 	//ControllerBoard * controllerBoard = new ControllerBoard();
-	//TelemetryBoard * telemetryBoard = new TelemetryBoard();
+	TelemetryBoard * telemetryBoard = new TelemetryBoard();
 	//PowerBoard * powerBoard = new PowerBoard();
-	TestBoard * testBoard = new TestBoard();
+	//TestBoard * testBoard = new TestBoard();
 
 	void mainSetup();
 	void mainLoop();

@@ -58,18 +58,7 @@ void PowerBoard::updateStateMachine(uint32_t timestamp) {
 		case SENDING:
 
 			// CAN Receive
-			if(canController->readMessage(&rxMsg) == MCP2515::ERROR_OK) {
-				Serial.print(rxMsg.can_id); // print ID
-				Serial.print(" ");
-				Serial.print(rxMsg.can_dlc); // print DLC
-				Serial.print(" ");
-
-				for (int i = 0; i < rxMsg.can_dlc; i++)  {  // print the data
-				    Serial.print(rxMsg.data[i]);
-				    Serial.print(" ");
-				}
-				Serial.println();
-				/*
+			if(canController->readMessage(&canMsg) == MCP2515::ERROR_OK) {
 				switch(canMsg.can_id) {
 					case CAN_CHARGE_FIRE:
 						// TODO Add MOSFET fire logic

@@ -17,6 +17,8 @@
 
 //Peripherals
 #include "../peripherals/mcp2515.h"
+#include "../utilities/RocketDataPacket.h"
+#include "../subsystems/DataLogger.h"
 
 #define CAN_FRAME_LENGTH 8
 #define CAN_ID 0x0F6
@@ -27,6 +29,10 @@ private:
 	BoardStates telemetryBoardState = IDLE;
 	MCP2515 * canController = new MCP2515(55);
 	struct can_frame canMessage;
+
+	RocketDataPacket packet;
+
+	DataLogger * dataLogger = new DataLogger();
 
 
 public:
