@@ -17,16 +17,24 @@
 
 //Peripherals
 #include "../peripherals/mcp2515.h"
+#include "../peripherals/Servo.h"
 
 class PowerBoard : public SystemInterface {
 
 private:
 	BoardStates powerBoardState = IDLE;
 	MCP2515 * canController = new MCP2515(PB_MCP515);
+	Servo * servo1 = new Servo(PB_SERVO_PWM_1, SERVO1_RANGE_LOWER, SERVO1_RANGE_UPPER, SERVO1_LIMIT_LOWER, SERVO1_LIMIT_UPPER);
+	Servo * servo2 = new Servo(PB_SERVO_PWM_2, SERVO2_RANGE_LOWER, SERVO2_RANGE_UPPER, SERVO2_LIMIT_LOWER, SERVO2_LIMIT_UPPER);
+	Servo * servo3 = new Servo(PB_SERVO_PWM_3, SERVO3_RANGE_LOWER, SERVO3_RANGE_UPPER, SERVO3_LIMIT_LOWER, SERVO3_LIMIT_UPPER);
+	Servo * servo4 = new Servo(PB_SERVO_PWM_4, SERVO4_RANGE_LOWER, SERVO4_RANGE_UPPER, SERVO4_LIMIT_LOWER, SERVO4_LIMIT_UPPER);
 	struct can_frame canMsg;
 	struct can_frame rxMsg;
 	int servoPin;
+	Servo* servoSelect;
+	uint8_t *anglearr;
 	uint32_t lastVRead = 0;
+	uint16_t servoAngle;
 
 public:
 	PowerBoard();

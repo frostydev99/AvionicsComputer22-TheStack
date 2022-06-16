@@ -15,6 +15,9 @@ bool PowerBoard::systemInit(){
 	digitalWrite(PB_SERVO_DISABLE, HIGH);
 	// Write disabled to MOSFETS
 
+	anglearr = (uint8_t*) &servoAngle;
+	lastVRead = 0;
+
 	pinMode(PB_SERVO_DISABLE, OUTPUT);
 	pinMode(PB_SERVO_PWM_1, OUTPUT);
 	pinMode(PB_SERVO_PWM_2, OUTPUT);
@@ -69,25 +72,28 @@ void PowerBoard::updateStateMachine(uint32_t timestamp) {
 				/*
 				switch(canMsg.can_id) {
 					case CAN_CHARGE_FIRE:
-
+						// TODO Add MOSFET fire logic
 						break;
 					case CAN_SERVO_ACTUATE:
 						switch(canMsg.data[0])
 						{
 							case 1:
-								servoPin = PB_SERVO_PWM_1;
+								servoSelect = servo1;
 								break;
 							case 2:
-								servoPin = PB_SERVO_PWM_2;
+								servoSelect = servo2;
 								break;
 							case 3:
-								servoPin = PB_SERVO_PWM_3;
+								servoSelect = servo3;
 								break;
 							case 4:
-								servoPin = PB_SERVO_PWM_4;
+								servoSelect = servo4;
 								break;
 						}
-						analogWrite(servoPin, map(canMsg.data[1], 0, 360, 0, 255));
+						anglearr[0] = canMsg.data[1];
+						anglearr[1] = canMsg.data[2];
+						servoAngle = *((uint16_t*) (canMsg.data + 1));
+						servoSelect->actuate(servoAngle);
 						break;
 					case CAN_SERVO_POWER:
 						digitalWrite(PB_SERVO_DISABLE, canMsg.data[0]);
@@ -102,13 +108,16 @@ void PowerBoard::updateStateMachine(uint32_t timestamp) {
 				canMsg.can_id  = CAN_VOLTAGE_READ;
 				canMsg.can_dlc = DLC_VOLTAGE_READ;
 
+				// Read battery voltage in milivolts
 				uint16_t vcc = analogRead(PB_VCC) * VCC_REGRESSION_SLOPE + VCC_REGRESSION_INTERCEPT;
-//				uint16_t vcc = analogRead(PB_VCC);
 				uint8_t *vccb = (uint8_t *) &vcc;
 				canMsg.data[0] = vccb[0];
 				canMsg.data[1] = vccb[1];
-//			  	canMsg.data[1] = analogRead(PB_7V);
-			  	canController->sendMessage(&canMsg);*/
+
+				// Read servo voltage in milivolts
+				// TODO Read Servo Output Voltage
+
+			  	canController->sendMessage(&canMsg);
 			}
 			break;
 		default:
