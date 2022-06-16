@@ -21,6 +21,7 @@
 #include "src/boards/ControllerBoard.h"
 #include "src/boards/TelemetryBoard.h"
 #include "src/boards/PowerBoard.h"
+#include "src/boards/TestBoard.h"
 
 
 /*
@@ -64,7 +65,8 @@ public:
 	//SensorBoard * sensorBoard = new SensorBoard();
 	//ControllerBoard * controllerBoard = new ControllerBoard();
 	//TelemetryBoard * telemetryBoard = new TelemetryBoard();
-	PowerBoard * powerBoard = new PowerBoard();
+	//PowerBoard * powerBoard = new PowerBoard();
+	TestBoard * testBoard = new TestBoard();
 
 	void mainSetup();
 	void mainLoop();

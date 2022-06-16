@@ -25,7 +25,7 @@ class TelemetryBoard : public SystemInterface {
 
 private:
 	BoardStates telemetryBoardState = IDLE;
-	MCP2515 * canController = new MCP2515(10);
+	MCP2515 * canController = new MCP2515(55);
 	struct can_frame canMessage;
 
 

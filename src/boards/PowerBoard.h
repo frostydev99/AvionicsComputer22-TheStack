@@ -24,6 +24,7 @@ private:
 	BoardStates powerBoardState = IDLE;
 	MCP2515 * canController = new MCP2515(PB_MCP515);
 	struct can_frame canMsg;
+	struct can_frame rxMsg;
 	int servoPin;
 	uint32_t lastVRead = 0;
 

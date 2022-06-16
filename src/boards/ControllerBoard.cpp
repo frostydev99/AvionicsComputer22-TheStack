@@ -10,6 +10,18 @@
 ControllerBoard::ControllerBoard() {}
 
 bool ControllerBoard::systemInit(){
+	canMsg.can_id = 501;
+	canMsg.can_dlc = 8;
+	canMsg.data[0] = 1;
+	canMsg.data[1] = 200;
+
+	canController->reset();
+	canController->setBitrate(CAN_125KBPS);
+	canController->setNormalMode();
+
+	pinMode(3, OUTPUT);
+
+	this->setState(SENDING);
 
 
 	Serial.println("Controller Board Initialized");
@@ -34,6 +46,8 @@ void ControllerBoard::updateStateMachine(uint32_t timestamp) {
 			break;
 
 		case SENDING:
+			canController->sendMessage(&canMsg);
+			analogWrite(3, 1);
 			break;
 
 		default:
@@ -42,6 +56,12 @@ void ControllerBoard::updateStateMachine(uint32_t timestamp) {
 			break;
 
 	}
+}
+
+void ControllerBoard::setState(BoardStates state) {
+	this->controllerBoardState = state;
+	Serial.print("Updated Telemetry Board State: ");
+	Serial.println(state);
 }
 
 void ControllerBoard::endStateMachine() {}

@@ -14,11 +14,14 @@
 #include "../SystemInterface.h"
 #include "../loops/Looper.h"
 #include "../loops/loop.h"
+#include "../peripherals/MCP2515.h"
 
 class ControllerBoard : public SystemInterface {
 
 private:
 	BoardStates controllerBoardState = IDLE;
+	MCP2515 * canController = new MCP2515(10);
+	struct can_frame canMsg;
 
 
 public:
@@ -50,6 +53,7 @@ public:
 	void beginStateMachine();
 	void updateStateMachine(uint32_t timestamp);
 	void endStateMachine();
+	void setState(BoardStates state);
 };
 
 #endif /* SRC_BOARDS_CONTROLLERBOARD_H_ */

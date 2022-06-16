@@ -15,22 +15,10 @@ bool TelemetryBoard::systemInit(){
 	canController->setBitrate(CAN_125KBPS);
 	canController->setNormalMode();
 
-	canMessage.can_id = CAN_ID;
-	canMessage.can_dlc = CAN_FRAME_LENGTH;
-	canMessage.data[0] = 0x48;
-	canMessage.data[1] = 0x45;
-	canMessage.data[2] = 0x4C;
-	canMessage.data[3] = 0x4C;
-	canMessage.data[4] = 0x4F;
-	canMessage.data[5] = 0x21;
-	canMessage.data[6] = 0x21;
-	canMessage.data[7] = 0x21;
-
-
 	this->setState(SENDING);
 
 
-	Serial.println("Sensor Board Initialized");
+	Serial.println("Telemetry Board Initialized");
 	return true;
 }
 
@@ -39,7 +27,7 @@ void TelemetryBoard::registerAllLoops(Looper * runningLooper) {
 }
 
 void TelemetryBoard::beginStateMachine() {
-	Serial.println("Sensor Board Started");
+	Serial.println("Telemetry Board Started");
 }
 
 void TelemetryBoard::setState(BoardStates state) {
@@ -59,8 +47,19 @@ void TelemetryBoard::updateStateMachine(uint32_t timestamp) {
 			break;
 
 		case SENDING:
-			canController->sendMessage(&canMessage);
-			Serial.println("Message sent from telemetry board");
+			if (canController->readMessage(&canMessage) == MCP2515::ERROR_OK) {
+			    Serial.print(canMessage.can_id); // print ID
+			    Serial.print(" ");
+			    Serial.print(canMessage.can_dlc); // print DLC
+			    Serial.print(" ");
+
+			    for (int i = 0; i<canMessage.can_dlc; i++)  {  // print the data
+			      Serial.print(canMessage.data[i]);
+			      Serial.print(" ");
+			    }
+
+			    Serial.println();
+			 }
 			break;
 
 		default:
