@@ -92,17 +92,20 @@ void TelemetryBoard::updateStateMachine(uint32_t timestamp) {
 				accelZ[1] = canMessage.data[9];
 
 				gyroX[0] = canMessage.data[10]; //int16_t
-				gyroY[1] = canMessage.data[11];
+				gyroX[1] = canMessage.data[11];
 
-				gyroZ[0] = canMessage.data[12]; //int16_t
-				gyroZ[1] = canMessage.data[13];
+				gyroY[0] = canMessage.data[12];
+				gyroY[1] = canMessage.data[13];
+
+				gyroZ[0] = canMessage.data[14]; //int16_t
+				gyroZ[1] = canMessage.data[15];
 
 
 				//packet.setTimestamp(timestamp);
 				packet.setState(0); //Hard coded to zero for now!
 				packet.setAltAndTempCombined(*tempAndPressure);
 
-				//packet.setAccelX(*accelX);
+				packet.setAccelX(*accelX);
 				packet.setAccelY(*accelY);
 				packet.setAccelZ(*accelZ);
 
