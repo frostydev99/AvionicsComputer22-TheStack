@@ -35,11 +35,15 @@ void SystemManager::mainSetup(){
 
 
 //#ifdef USE_ROBOT_SYSTEM
-	robot->systemInit();				// initializing system object
-	robot->registerAllLoops(looper);    // and registering its system/subsystem loops
+//	robot->systemInit();				// initializing system object
+//	robot->registerAllLoops(looper);    // and registering its system/subsystem loops
 //#endif
 
-
+	//Individual Boards
+	//sensorBoard->systemInit(); //Initializing Sensor Board Object
+	//sensorBoard->registerAllLoops(looper); //Registering the sensorBoard loops
+	telemetryBoard->systemInit();
+	telemetryBoard->registerAllLoops(looper);
 
 }
 
@@ -60,6 +64,7 @@ void SystemManager::mainLoop(){
 		// Don't attempt to run loops if they failed to start, stuck in this state
 		if(looper->startLoops()){	// start all loops, call all onStart() methods
 			state = Running;
+			Serial.println("Now in Running Mode");
 		}
 
 		break;

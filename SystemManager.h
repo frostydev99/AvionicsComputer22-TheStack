@@ -16,7 +16,12 @@
 #include "src/loops/Looper.h"
 #include "src/loops/Loop.h"
 
-#include "src/Robot.h"
+//Individual Boards
+#include "src/boards/SensorBoard.h"
+#include "src/boards/ControllerBoard.h"
+#include "src/boards/TelemetryBoard.h"
+#include "src/boards/PowerBoard.h"
+#include "src/boards/TestBoard.h"
 
 
 /*
@@ -53,9 +58,15 @@ public:
 
 
 //#ifdef USE_ROBOT_SYSTEM
-	Robot * robot = new Robot();
+	//Robot * robot = new Robot();
 //#endif
 
+	//Individual Boards
+	//SensorBoard * sensorBoard = new SensorBoard();
+	//ControllerBoard * controllerBoard = new ControllerBoard();
+	TelemetryBoard * telemetryBoard = new TelemetryBoard();
+	//PowerBoard * powerBoard = new PowerBoard();
+	//TestBoard * testBoard = new TestBoard();
 
 	void mainSetup();
 	void mainLoop();

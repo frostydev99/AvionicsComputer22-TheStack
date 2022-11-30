@@ -14,10 +14,11 @@
 #include "loops/Looper.h"
 #include "loops/loop.h"
 
-//#include "subsystems/DriveTrain.h"
+#include "peripherals/ICM20948.h"
+#include "peripherals/MPL3115A2.h"
 
-//#include "peripheral/GyroAccel.h"
-//#include "peripheral/LoRaRadio.h"
+#include "utilities/RocketDataPacket.h"
+
 
 
 /*
@@ -25,13 +26,10 @@
  *
  * STATE DETAILS
  */
-enum RobotState {
-
-	//TESTING,
-	//Waiting,
-	//Driving
-	IDLE
-};
+typedef enum {
+	ROBOT_STARTUP,
+	ROBOT_IDLE
+} RobotState;
 
 /*
  * The Robot object, instantiates all robot subsystems and registers their loops
@@ -43,19 +41,29 @@ class Robot : public SystemInterface {
 
 private:
 
-	RobotState robotState = IDLE;			// initial system state is IDLE
+	RobotState robotState = ROBOT_IDLE;				// initial system state is IDLE
 
 
-//	MPU9250 * robotIMU = new MPU6050();
+	RocketDataPacket packet;
+	RocketDataPacket testPacket;
 
-//	DriveTrain * driveTrain = new DriveTrain(robotIMU);
+
+	// Subsystems
+	//DataLogger * dataLogger = new DataLogger();
+
+
+	// Sensors
+	ICM20948 * imu = new ICM20948(0x68);
+	MPL3115A2 * baro = new MPL3115A2();
+
+
 
 
 
 public:
 
 	Robot();
-	//	Robot(){}
+	//	~Robot(){}
 
 	/* Robot loop functionality */
 	class RobotLoop : public Loop {
@@ -71,14 +79,11 @@ public:
 		}
 		void onLoop(uint32_t timestamp){
 			robot_->updateStateMachine(timestamp);
-
 		}
 		void onStop(uint32_t timestamp){
 			robot_->endStateMachine();
 		}
 	} * robotLoop = new RobotLoop(this);		// instantiate the main system loop and pass it the system instance
-
-
 
 	bool systemInit();
 	void registerAllLoops(Looper * runningLooper);
